@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <UserSecretsId>87350089-0c1a-479b-bf7e-0f25fddf78d6</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileRunEnvironmentFiles>docker_runtime_settings.env</DockerfileRunEnvironmentFiles>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GraphQL" Version="2.4.0" />
+    <PackageReference Include="GraphQL.Server.Transports.AspNetCore" Version="3.4.0" />
+    <PackageReference Include="GraphQL.Server.Ui.Playground" Version="3.4.0" />
+    <PackageReference Include="MediatR" Version="7.0.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.7.9" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ConduitNetwork.Business\ConduitNetwork.Business.csproj" />
+    <ProjectReference Include="..\ConduitNetwork.Events\ConduitNetwork.Events.csproj" />
+    <ProjectReference Include="..\ConduitNetwork.Projections\ConduitNetwork.Projections.csproj" />
+    <ProjectReference Include="..\ConduitNetwork.QueryService\ConduitNetwork.QueryService.csproj" />
+    <ProjectReference Include="..\Demo.BuildTestNetwork\Demo.BuildTestNetwork.csproj" />
+    <ProjectReference Include="..\Infrastructure.EventSourcing\Infrastructure.EventSourcing.csproj" />
+    <ProjectReference Include="..\QueryModel\QueryModel.csproj" />
+    <ProjectReference Include="..\RouteNetwork.Business\RouteNetwork.Business.csproj" />
+    <ProjectReference Include="..\RouteNetwork.Events\RouteNetwork.Events.csproj" />
+    <ProjectReference Include="..\RouteNetwork.Projections\RouteNetwork.Projections.csproj" />
+    <ProjectReference Include="..\RouteNetwork.QueryService\RouteNetwork.QueryService.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="GraphQL\ConduitClosure\" />
+  </ItemGroup>
+
+</Project>

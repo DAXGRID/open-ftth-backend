@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core.GraphSupport\Core.GraphSupport.csproj" />
+    <ProjectReference Include="..\Core.ReadModel\Core.ReadModel.csproj" />
+    <ProjectReference Include="..\Location.Model\Location.Model.csproj" />
+    <ProjectReference Include="..\RouteNetwork.Events\RouteNetwork.Events.csproj" />
+  </ItemGroup>
+
+</Project>

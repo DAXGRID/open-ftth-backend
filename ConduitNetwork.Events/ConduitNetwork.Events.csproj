@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Asset.Model\Asset.Model.csproj" />
+    <ProjectReference Include="..\Core.GraphSupport\Core.GraphSupport.csproj" />
+    <ProjectReference Include="..\Core.ReadModel\Core.ReadModel.csproj" />
+  </ItemGroup>
+
+</Project>

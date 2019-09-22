@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="7.0.0" />
+    <PackageReference Include="NetTopologySuite" Version="1.15.3" />
+    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="1.15.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Infrastructure.EventSourcing\Infrastructure.EventSourcing.csproj" />
+    <ProjectReference Include="..\Location.Model\Location.Model.csproj" />
+    <ProjectReference Include="..\RouteNetwork.Events\RouteNetwork.Events.csproj" />
+    <ProjectReference Include="..\RouteNetwork.Projections\RouteNetwork.Projections.csproj" />
+  </ItemGroup>
+
+</Project>

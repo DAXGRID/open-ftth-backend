@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="8.1.1" />
+    <PackageReference Include="Marten" Version="3.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ConduitNetwork.Events\ConduitNetwork.Events.csproj" />
+    <ProjectReference Include="..\ConduitNetwork.QueryService\ConduitNetwork.QueryService.csproj" />
+    <ProjectReference Include="..\ConduitNetwork.ReadModel\ConduitNetwork.ReadModel.csproj" />
+  </ItemGroup>
+
+</Project>
