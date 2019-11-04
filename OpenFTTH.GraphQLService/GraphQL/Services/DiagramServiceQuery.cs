@@ -19,8 +19,11 @@ namespace EquipmentService.GraphQL.Queries
         {
             Description = "GraphQL API for generating fiber equiment diagrams.";
 
-            Field<ListGraphType<DiagramType>>(
-                "buildDiagram",
+            Field<DiagramType>(
+                "buildRouteNodeDiagram",
+                 arguments: new QueryArguments(
+                  new QueryArgument<NonNullGraphType<IdGraphType>> { Name = "routeNodeId" }
+                  ),
                 resolve: context => 
                 {
                     return new MockupFlexpoint().Build();

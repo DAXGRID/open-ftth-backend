@@ -64,6 +64,7 @@ namespace EquipmentService.GraphQL.Queries
            );
 
            Field<ConduitServiceQuery>("conduitService", resolve: context => new { });
+           Field<DiagramServiceQuery>("diagramService", resolve: context => new { });
         }
     }
 }

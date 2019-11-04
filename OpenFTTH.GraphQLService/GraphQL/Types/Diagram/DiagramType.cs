@@ -17,7 +17,7 @@ namespace EquipmentService.GraphQL.Types
         {
             Description = "Diagram";
 
-            Field(x => x.DiagramObjects, type: typeof(ListGraphType<RouteNodeType>)).Description("All diagram objects contained by the diagram.");
+            Field(x => x.DiagramObjects, type: typeof(ListGraphType<DiagramObjectType>)).Description("All diagram objects contained by the diagram.");
         }
     }
 }

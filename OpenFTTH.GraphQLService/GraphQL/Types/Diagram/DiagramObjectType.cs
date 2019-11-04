@@ -2,6 +2,8 @@
 using DiagramLayout.Model;
 using GraphQL.DataLoader;
 using GraphQL.Types;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using QueryModel.Conduit;
 using RouteNetwork.ReadModel;
 using System;
@@ -33,8 +35,12 @@ namespace EquipmentService.GraphQL.Types
             var writer = new NetTopologySuite.IO.GeoJsonWriter();
             var geometryJson = writer.Write(geometry);
 
+            var geometryObj = JObject.Parse(geometryJson);
 
-            return new RouteNetwork.Events.Model.Geometry("","");
+            var coordinatesJson = geometryObj["coordinates"].ToString(Formatting.None);
+            var typeJson = geometryObj["type"].ToString(Formatting.None).Replace("\"", "");
+
+            return new RouteNetwork.Events.Model.Geometry(typeJson, coordinatesJson);
         }
     }
 }
