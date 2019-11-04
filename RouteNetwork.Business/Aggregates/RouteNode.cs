@@ -15,7 +15,7 @@ namespace RouteNetwork.Business.Aggregates
         private RouteNode()
         {
             // Register the event types that make up our aggregate , together with their respective handlers
-            Register<RouteNodeAdded>(Apply);
+            Register<RouteNodePlanned>(Apply);
         }
 
         internal RouteNode(Guid routeNodeId, string name, RouteNodeKindEnum nodeKind, RouteNodeFunctionKindEnum functionKind, RouteNetwork.Events.Model.Geometry geometry, LocationInfo locationInfo) : this()
@@ -50,9 +50,9 @@ namespace RouteNetwork.Business.Aggregates
 
 
             // Create domain event
-            var routeNodeAdded = new RouteNodeAdded()
+            var routeNodeAdded = new RouteNodePlanned()
             {
-                RouteNodeId = routeNodeId,
+                Id = routeNodeId,
                 Name = name,
                 NodeKind = nodeKind,
                 NodeFunctionKind = functionKind,
@@ -60,13 +60,13 @@ namespace RouteNetwork.Business.Aggregates
                 LocationInfo = locationInfo
             };
 
-            RaiseEvent(routeNodeAdded);
+            RaiseEvent(routeNodeAdded, false);
         }
 
         // Apply route node added event
-        private void Apply(RouteNodeAdded @event)
+        private void Apply(RouteNodePlanned @event)
         {
-            Id = @event.RouteNodeId;
+            Id = @event.Id;
         }
     }
 }

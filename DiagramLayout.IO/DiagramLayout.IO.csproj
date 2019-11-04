@@ -2,8 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <AssemblyName>DiagramLayout.DrawingUtil</AssemblyName>
-    <RootNamespace>DiagramLayout.DrawingUtil</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DiagramLayout.Model\DiagramLayout.Model.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -13,6 +13,7 @@ using ConduitNetwork.QueryService;
 using ConduitNetwork.Projections.ConduitClosure;
 using ConduitNetwork.QueryService.ConduitClosure;
 using ConduitNetwork.Business.Specifications;
+using RouteNetwork.Business.Aggregates;
 
 namespace ConduitNetwork.Business.Tests.Common
 {
@@ -46,9 +47,13 @@ namespace ConduitNetwork.Business.Tests.Common
 
             // Add aggreate repo
             services.AddScoped<IAggregateRepository, AggregateRepository>();
+            
+            // Add route network aggregate
+            services.AddScoped<RouteNetworkAggregate, RouteNetworkAggregate>();
+
 
             // Route network services
-            services.AddSingleton<IRouteNetworkQueryService, RouteNetworkQueryService>();
+            services.AddSingleton<IRouteNetworkState, RouteNetworkState>();
             services.AddScoped<RouteNodeInfoProjection, RouteNodeInfoProjection>();
             services.AddScoped<RouteSegmentInfoProjection, RouteSegmentInfoProjection>();
             services.AddScoped<WalkOfInterestInfoProjection, WalkOfInterestInfoProjection>();

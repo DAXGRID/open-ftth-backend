@@ -14,10 +14,10 @@ namespace EquipmentService.GraphQL.Types
 {
     public class ConduitSegmentType : ObjectGraphType<ConduitSegmentInfo>
     {
-        IRouteNetworkQueryService routeNetworkQueryService;
+        IRouteNetworkState routeNetworkQueryService;
         IConduitNetworkQueryService conduitNetworkEqueryService;
 
-        public ConduitSegmentType(IRouteNetworkQueryService routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IDataLoaderContextAccessor dataLoader)
+        public ConduitSegmentType(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IDataLoaderContextAccessor dataLoader)
         {
             this.routeNetworkQueryService = routeNetworkQueryService;
             this.conduitNetworkEqueryService = conduitNetworkEqueryService;

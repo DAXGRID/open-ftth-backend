@@ -22,6 +22,7 @@ namespace RouteNetwork.Business.Tests
         public TraversalContainerFixture() : base("route_network_traversal") { }
     }
 
+    [Collection("Sequential")]
     public class TraverseTests : IClassFixture<TraversalContainerFixture>
     {
         private ContainerFixtureBase container;
@@ -30,6 +31,7 @@ namespace RouteNetwork.Business.Tests
         private Guid testJunction1;
         private Guid testSdu1;
         private Guid testSdu2;
+
 
         public TraverseTests(TraversalContainerFixture containerFixture)
         {
@@ -123,7 +125,7 @@ namespace RouteNetwork.Business.Tests
         [Fact]
         public void TraverseEntireNetworkTest()
         {
-            var routeNetworkQueryService = container.ServiceProvider.GetService<IRouteNetworkQueryService>();
+            var routeNetworkQueryService = container.ServiceProvider.GetService<IRouteNetworkState>();
 
             var cabinet1 = routeNetworkQueryService.GetRouteNodeInfo(testCabinet1);
 
@@ -137,7 +139,7 @@ namespace RouteNetwork.Business.Tests
         [Fact]
         public void TraverseFromCabinetUntilJunction()
         {
-            var routeNetworkQueryService = container.ServiceProvider.GetService<IRouteNetworkQueryService>();
+            var routeNetworkQueryService = container.ServiceProvider.GetService<IRouteNetworkState>();
 
             var cabinet1 = routeNetworkQueryService.GetRouteNodeInfo(testCabinet1);
 

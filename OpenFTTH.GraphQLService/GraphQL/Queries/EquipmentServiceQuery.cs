@@ -11,7 +11,7 @@ namespace EquipmentService.GraphQL.Queries
 {
     public class EquipmentServiceQuery : ObjectGraphType
     {
-        public EquipmentServiceQuery(IRouteNetworkQueryService routeNetwork)
+        public EquipmentServiceQuery(IRouteNetworkState routeNetwork)
         {
             Description = "GraphQL API for querying OpenFTTH data";
             

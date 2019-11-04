@@ -50,7 +50,7 @@ namespace Demo.BuildTestNetwork
             services.AddScoped<IAggregateRepository, AggregateRepository>();
 
             // Route network services
-            services.AddSingleton<IRouteNetworkQueryService, RouteNetworkQueryService>();
+            services.AddSingleton<IRouteNetworkState, RouteNetworkState>();
             services.AddScoped<RouteNodeInfoProjection, RouteNodeInfoProjection>();
             services.AddScoped<RouteSegmentInfoProjection, RouteSegmentInfoProjection>();
             services.AddScoped<WalkOfInterestInfoProjection, WalkOfInterestInfoProjection>();

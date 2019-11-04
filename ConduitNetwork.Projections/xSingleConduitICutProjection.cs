@@ -11,10 +11,10 @@ namespace ConduitNetwork.Projections
 {
     public sealed class xSingleConduitCutProjection : ViewProjection<SingleConduitInfo, Guid>
     {
-        private IRouteNetworkQueryService routeNetworkQueryService = null;
+        private IRouteNetworkState routeNetworkQueryService = null;
         private ConduitNetworkQueryService conduitNetworkQueryService = null;
 
-        public xSingleConduitCutProjection(IRouteNetworkQueryService routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService)
+        public xSingleConduitCutProjection(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService)
         {
             this.routeNetworkQueryService = routeNetworkQueryService;
             this.conduitNetworkQueryService = (ConduitNetworkQueryService)conduitNetworkQueryService;

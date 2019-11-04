@@ -16,7 +16,7 @@ namespace EquipmentService.GraphQL.Types
     public class ConduitSpecificationType : ObjectGraphType<ConduitSpecification>
     {
 
-        public ConduitSpecificationType(IRouteNetworkQueryService routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IConduitSpecificationRepository conduitSpecificationRepository, IDataLoaderContextAccessor dataLoader)
+        public ConduitSpecificationType(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IConduitSpecificationRepository conduitSpecificationRepository, IDataLoaderContextAccessor dataLoader)
         {
 
             Description = "A specification of a conduit, that might be shared among manufacturer product models.";

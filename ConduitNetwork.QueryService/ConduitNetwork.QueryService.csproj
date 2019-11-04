@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ConduitNetwork.ReadModel\ConduitNetwork.ReadModel.csproj" />
-    <ProjectReference Include="..\RouteNetwork.QueryService\RouteNetwork.QueryService.csproj" />
+    <ProjectReference Include="..\RouteNetwork.QueryService\RouteNetwork.State.csproj" />
     <ProjectReference Include="..\RouteNetwork.ReadModel\RouteNetwork.ReadModel.csproj" />
   </ItemGroup>
 

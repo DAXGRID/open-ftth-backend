@@ -13,11 +13,11 @@ namespace ConduitNetwork.Projections.ConduitClosure
 {
     public sealed class ConduitClosureLifecyleEventProjection : ViewProjection<ConduitClosureInfo, Guid>
     {
-        private IRouteNetworkQueryService routeNetworkQueryService = null;
+        private IRouteNetworkState routeNetworkQueryService = null;
         private IConduitNetworkQueryService conduitNetworkQueryService = null;
         private IConduitClosureRepository conduitClosureRepository = null;
 
-        public ConduitClosureLifecyleEventProjection(IRouteNetworkQueryService routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService, IConduitClosureRepository conduitClosureRepository)
+        public ConduitClosureLifecyleEventProjection(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService, IConduitClosureRepository conduitClosureRepository)
         {
             this.routeNetworkQueryService = routeNetworkQueryService;
             this.conduitNetworkQueryService = conduitNetworkQueryService;

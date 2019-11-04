@@ -10,7 +10,7 @@ namespace ConduitNetwork.QueryService
 {
     public class PointOfInterestIndex
     {
-        private IRouteNetworkQueryService routeNetworkQueryService;
+        private IRouteNetworkState routeNetworkQueryService;
 
         private Dictionary<Guid, List<SingleConduitInfo>> _singleConduitByPointOfInterestId = new Dictionary<Guid, List<SingleConduitInfo>>();
 
@@ -20,7 +20,7 @@ namespace ConduitNetwork.QueryService
 
         private Dictionary<Guid, List<ConduitSegmentInfo>> _conduitSegmentPassByRouteSegmenttId = new Dictionary<Guid, List<ConduitSegmentInfo>>();
 
-        public PointOfInterestIndex(IRouteNetworkQueryService routeNetworkQueryService)
+        public PointOfInterestIndex(IRouteNetworkState routeNetworkQueryService)
         {
             this.routeNetworkQueryService = routeNetworkQueryService;
         }

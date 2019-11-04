@@ -23,10 +23,10 @@ namespace ConduitNetwork.Business.CommandHandlers
     {
         private readonly IAggregateRepository repo = null;
         private readonly IConduitNetworkQueryService conduitNetworkQueryService = null;
-        private readonly IRouteNetworkQueryService routeNetworkQueryService = null;
+        private readonly IRouteNetworkState routeNetworkQueryService = null;
         private readonly IConduitClosureRepository conduitClosureRepository = null;
 
-        public ConduitClosureCommandHandler(IAggregateRepository aggregateRepository, IRouteNetworkQueryService routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService, IConduitClosureRepository conduitClosureRepository)
+        public ConduitClosureCommandHandler(IAggregateRepository aggregateRepository, IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService, IConduitClosureRepository conduitClosureRepository)
         {
             this.repo = aggregateRepository;
             this.routeNetworkQueryService = routeNetworkQueryService;

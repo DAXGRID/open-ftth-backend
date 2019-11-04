@@ -17,9 +17,9 @@ namespace RouteNetwork.Business.CommandHandlers
     public class InterestCommandHandler : IRequestHandler<RegisterWalkOfInterestCommand>
     {
         private readonly IAggregateRepository repo = null;
-        private readonly IRouteNetworkQueryService routeQueryService = null;
+        private readonly IRouteNetworkState routeQueryService = null;
 
-        public InterestCommandHandler(IAggregateRepository aggregateRepository, IRouteNetworkQueryService routeQueryService)
+        public InterestCommandHandler(IAggregateRepository aggregateRepository, IRouteNetworkState routeQueryService)
         {
             this.repo = aggregateRepository;
             this.routeQueryService = routeQueryService;

@@ -23,7 +23,7 @@ namespace EquipmentService.GraphQL.ConduitClosure
 {
     public class DemoNetwork : ObjectGraphType
     {
-        public DemoNetwork(IHostingEnvironment env, IDocumentStore documentStore, IMediator commandBus, IConduitClosureRepository conduitClosureRepository, IRouteNetworkQueryService routeNetwork, IConduitNetworkQueryService conduitNetwork)
+        public DemoNetwork(IHostingEnvironment env, IDocumentStore documentStore, IMediator commandBus, IConduitClosureRepository conduitClosureRepository, IRouteNetworkState routeNetwork, IConduitNetworkQueryService conduitNetwork)
         {
             
             Description = "API for invoking the demo/test data builder";

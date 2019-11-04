@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RouteNetwork.QueryService
 {
-    public interface IRouteNetworkQueryService
+    public interface IRouteNetworkState
     {
         bool CheckIfRouteNodeIdExists(Guid id);
         bool CheckIfRouteSegmentIdExists(Guid id);

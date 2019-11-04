@@ -22,11 +22,11 @@ namespace ConduitNetwork.Business.CommandHandlers
     {
         private readonly IAggregateRepository repo = null;
         private readonly IConduitNetworkQueryService conduitNetworkQueryService = null;
-        private readonly IRouteNetworkQueryService routeNetworkQueryService = null;
+        private readonly IRouteNetworkState routeNetworkQueryService = null;
         private readonly IConduitSpecificationRepository conduitSpecificationRepository = null;
 
 
-        public SingleConduitCommandHandler(IAggregateRepository aggregateRepository, IRouteNetworkQueryService routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService, IConduitSpecificationRepository conduitSpecificationRepository)
+        public SingleConduitCommandHandler(IAggregateRepository aggregateRepository, IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService, IConduitSpecificationRepository conduitSpecificationRepository)
         {
             this.repo = aggregateRepository;
             this.routeNetworkQueryService = routeNetworkQueryService;

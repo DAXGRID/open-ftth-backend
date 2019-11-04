@@ -23,6 +23,7 @@ namespace RouteNetwork.Business.Tests
         public TypeOneTestNetworkContainerFixture() : base("type_one_test_network_test") {}
     }
 
+    [Collection("Sequential")]
     public class TypeOneRouteNetworkTests : IClassFixture<TypeOneTestNetworkContainerFixture>
     {
         private ContainerFixtureBase container;
@@ -32,7 +33,10 @@ namespace RouteNetwork.Business.Tests
         public TypeOneRouteNetworkTests(TypeOneTestNetworkContainerFixture fixture)
         {
             container = fixture;
-            _testRouteNetwork = new TestRouteNetworkType1(container);
+
+            var routeNetworkState = container.ServiceProvider.GetService<IRouteNetworkState>();
+
+            _testRouteNetwork = new TestRouteNetworkType1(container.CommandBus, routeNetworkState);
         }
     
 

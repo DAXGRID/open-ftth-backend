@@ -35,15 +35,15 @@ namespace RouteNetwork.Business.Tests
     public class TestRouteNetworkType1
     {
         private IMediator _bus;
-        private IRouteNetworkQueryService _queryService;
+        private IRouteNetworkState _queryService;
 
         private Dictionary<string, RouteNodeInfo> _nodesByName = new Dictionary<string, RouteNodeInfo>();
         private Dictionary<string, RouteSegmentInfo> _segmentsByName = new Dictionary<string, RouteSegmentInfo>();
 
-        public TestRouteNetworkType1(ContainerFixtureBase container)
+        public TestRouteNetworkType1(IMediator bus, IRouteNetworkState routeNetworkState)
         {
-            this._bus = container.CommandBus;
-            this._queryService = container.ServiceProvider.GetService<IRouteNetworkQueryService>();
+            this._bus = bus;
+            this._queryService = routeNetworkState;
 
             BuildInitalNetwork();
         }
@@ -98,8 +98,8 @@ namespace RouteNetwork.Business.Tests
               .With(x => x.NodeKind, nodeKind)
               .With(x => x.NodeFunctionKind, nodeFunction)
               .Create();
-            
-            _bus.Send(addNodeCmd);
+
+            _bus.Send(addNodeCmd).Wait();
 
             _nodesByName[name] = _queryService.GetRouteNodeInfo(addNodeCmd.Id);
         }
@@ -119,7 +119,7 @@ namespace RouteNetwork.Business.Tests
               .With(x => x.SegmentKind, RouteSegmentKindEnum.Underground)
               .Create();
 
-            _bus.Send(addSegmentCmd);
+            _bus.Send(addSegmentCmd).Wait();
 
             _segmentsByName[fromName + "_" + toName] = _queryService.GetRouteSegmentInfo(addSegmentCmd.Id);
         }

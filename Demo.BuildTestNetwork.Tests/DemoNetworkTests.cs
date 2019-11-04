@@ -20,7 +20,7 @@ namespace Demo.BuildTestNetwork.Tests
         [Fact]
         public void QueryRouteElementsTest()
         {
-            var routeQueryService = serviceContext.ServiceProvider.GetService<IRouteNetworkQueryService>();
+            var routeQueryService = serviceContext.ServiceProvider.GetService<IRouteNetworkState>();
 
             // Try query some nodes
             var nodes = routeQueryService.GetAllRouteNodes().ToList();
@@ -42,7 +42,7 @@ namespace Demo.BuildTestNetwork.Tests
         [Fact]
         public void QueryConduitElementsTest()
         {
-            var routeQueryService = serviceContext.ServiceProvider.GetService<IRouteNetworkQueryService>();
+            var routeQueryService = serviceContext.ServiceProvider.GetService<IRouteNetworkState>();
             var conduitNetworkQueryService = serviceContext.ServiceProvider.GetService<IConduitNetworkQueryService>();
 
             var routeNodes = routeQueryService.GetAllRouteNodes().ToList();

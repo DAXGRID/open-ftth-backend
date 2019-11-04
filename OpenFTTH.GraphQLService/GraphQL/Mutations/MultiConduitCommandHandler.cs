@@ -19,7 +19,7 @@ namespace EquipmentService.GraphQL.ConduitClosure
 {
     public class MultiConduitCommandHandler : ObjectGraphType
     {
-        public MultiConduitCommandHandler(IMediator commandBus, IConduitClosureRepository conduitClosureRepository, IRouteNetworkQueryService routeNetwork, IConduitNetworkQueryService conduitNetwork)
+        public MultiConduitCommandHandler(IMediator commandBus, IConduitClosureRepository conduitClosureRepository, IRouteNetworkState routeNetwork, IConduitNetworkQueryService conduitNetwork)
         {
             
             Description = "API for sending commands to the multi conduit aggregate root";

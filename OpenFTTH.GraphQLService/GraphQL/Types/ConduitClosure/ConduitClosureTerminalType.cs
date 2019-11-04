@@ -16,10 +16,10 @@ namespace EquipmentService.GraphQL.Types
 {
     public class ConduitClosureTerminalType : ObjectGraphType<ConduitClosureTerminalInfo>
     {
-        IRouteNetworkQueryService routeNetworkQueryService;
+        IRouteNetworkState routeNetworkQueryService;
         IConduitNetworkQueryService conduitNetworkEqueryService;
 
-        public ConduitClosureTerminalType(IRouteNetworkQueryService routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService, IDataLoaderContextAccessor dataLoader)
+        public ConduitClosureTerminalType(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService, IDataLoaderContextAccessor dataLoader)
         {
             this.routeNetworkQueryService = routeNetworkQueryService;
             this.conduitNetworkEqueryService = conduitNetworkQueryService;

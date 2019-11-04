@@ -21,11 +21,11 @@ namespace EquipmentService.GraphQL.Types
 {
     public class RouteNodeGraphFunctions : ObjectGraphType
     {
-        IRouteNetworkQueryService routeNetworkQueryService;
+        IRouteNetworkState routeNetworkQueryService;
         IConduitNetworkQueryService conduitNetworkEqueryService;
         IConduitClosureRepository conduitClosureRepository;
 
-        public RouteNodeGraphFunctions(IRouteNetworkQueryService routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IConduitClosureRepository conduitClosureRepository, IDataLoaderContextAccessor dataLoader)
+        public RouteNodeGraphFunctions(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IConduitClosureRepository conduitClosureRepository, IDataLoaderContextAccessor dataLoader)
         {
             this.routeNetworkQueryService = routeNetworkQueryService;
             this.conduitNetworkEqueryService = conduitNetworkEqueryService;

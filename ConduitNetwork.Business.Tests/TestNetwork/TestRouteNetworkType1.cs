@@ -35,7 +35,7 @@ namespace ConduitNetwork.Business.Tests
     public class TestRouteNetworkType1
     {
         private IMediator _bus;
-        private IRouteNetworkQueryService _queryService;
+        private IRouteNetworkState _queryService;
 
         private Dictionary<string, RouteNodeInfo> _nodesByName = new Dictionary<string, RouteNodeInfo>();
         private Dictionary<string, RouteSegmentInfo> _segmentsByName = new Dictionary<string, RouteSegmentInfo>();
@@ -43,7 +43,7 @@ namespace ConduitNetwork.Business.Tests
         public TestRouteNetworkType1(ContainerFixtureBase container)
         {
             this._bus = container.CommandBus;
-            this._queryService = container.ServiceProvider.GetService<IRouteNetworkQueryService>();
+            this._queryService = container.ServiceProvider.GetService<IRouteNetworkState>();
 
             BuildInitalNetwork();
         }

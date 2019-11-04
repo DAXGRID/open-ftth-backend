@@ -10,10 +10,10 @@ namespace ConduitNetwork.Projections
 {
     public class ConduitCutHandler
     {
-        private IRouteNetworkQueryService routeNetworkQueryService = null;
+        private IRouteNetworkState routeNetworkQueryService = null;
         private ConduitNetworkQueryService conduitNetworkQueryService = null;
 
-        public ConduitCutHandler(IRouteNetworkQueryService routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService)
+        public ConduitCutHandler(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService)
         {
             this.routeNetworkQueryService = routeNetworkQueryService;
             this.conduitNetworkQueryService = (ConduitNetworkQueryService)conduitNetworkQueryService;

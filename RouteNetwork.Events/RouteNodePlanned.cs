@@ -4,9 +4,9 @@ using System;
 
 namespace RouteNetwork.Events
 {
-    public class RouteNodeAdded
+    public class RouteNodePlanned
     {
-        public Guid RouteNodeId { get; set; }
+        public Guid Id { get; set; }
 
         // MUST DIE! Should be taken from equipment that is put inside node
         public string Name { get; set; }

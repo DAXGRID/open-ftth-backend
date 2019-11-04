@@ -5,9 +5,9 @@ using System.Text;
 
 namespace RouteNetwork.Events
 {
-   public  class RouteSegmentAdded
+   public  class RouteSegmentPlanned
     {
-        public Guid RouteSegmentId { get; set; }
+        public Guid Id { get; set; }
         public Guid FromNodeId { get; set; }
         public Guid ToNodeId { get; set; }
         public RouteSegmentKindEnum SegmentKind { get; set; }

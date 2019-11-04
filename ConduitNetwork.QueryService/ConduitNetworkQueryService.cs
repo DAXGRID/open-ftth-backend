@@ -17,7 +17,7 @@ namespace ConduitNetwork.QueryService
 
         private PointOfInterestIndex _pointOfInterestIndex;
 
-        private IRouteNetworkQueryService routeNetworkQueryService = null;
+        private IRouteNetworkState routeNetworkQueryService = null;
 
         private Dictionary<Guid, MultiConduitInfo> _multiConduitInfos = new Dictionary<Guid, MultiConduitInfo>();
 
@@ -28,7 +28,7 @@ namespace ConduitNetwork.QueryService
         private IMapper _mapper = null;
 
 
-        public ConduitNetworkQueryService(IDocumentStore documentStore, IRouteNetworkQueryService routeNetworkQueryService)
+        public ConduitNetworkQueryService(IDocumentStore documentStore, IRouteNetworkState routeNetworkQueryService)
         {
             this.documentStore = documentStore;
             this.routeNetworkQueryService = routeNetworkQueryService;

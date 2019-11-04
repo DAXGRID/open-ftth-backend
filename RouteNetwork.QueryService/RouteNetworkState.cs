@@ -8,7 +8,7 @@ using System.Text;
 
 namespace RouteNetwork.QueryService
 {
-    public class RouteNetworkQueryService : IRouteNetworkQueryService
+    public class RouteNetworkState : IRouteNetworkState
     {
         private IDocumentStore documentStore;
         private Dictionary<Guid, RouteNodeInfo> _routeNodeInfos = new Dictionary<Guid, RouteNodeInfo>();
@@ -16,7 +16,7 @@ namespace RouteNetwork.QueryService
         private Dictionary<Guid, WalkOfInterestInfo> _walkOfInterests = new Dictionary<Guid, WalkOfInterestInfo>();
         
 
-        public RouteNetworkQueryService(IDocumentStore documentStore)
+        public RouteNetworkState(IDocumentStore documentStore)
         {
             this.documentStore = documentStore;
 
@@ -29,23 +29,29 @@ namespace RouteNetwork.QueryService
             _routeSegmentInfos = new Dictionary<Guid, RouteSegmentInfo>();
             _walkOfInterests = new Dictionary<Guid, WalkOfInterestInfo>();
 
+            // Fetch everything into memory for fast access
             using (var session = documentStore.LightweightSession())
             {
-                // Fetch everything into memory for fast access
                 var routeNodeInfoQuery = session.Query<RouteNodeInfo>();
 
                 foreach (var routeNodeInfo in routeNodeInfoQuery)
                 {
                     AddRouteNodeInfo(routeNodeInfo);
                 }
+            }
 
+            using (var session = documentStore.LightweightSession())
+            {
                 var routeSegmentInfoQuery = session.Query<RouteSegmentInfo>();
 
                 foreach (var routeSegmentInfo in routeSegmentInfoQuery)
                 {
                     AddRouteSegmentInfo(routeSegmentInfo);
                 }
+            }
 
+            using (var session = documentStore.LightweightSession())
+            { 
                 var walkOfInterests = session.Query<WalkOfInterestInfo>();
 
                 foreach (var walkOfInterest in walkOfInterests)

@@ -17,7 +17,7 @@ namespace EquipmentService.GraphQL.Types
 {
     public class RouteSegmentType : ObjectGraphType<RouteSegmentInfo>
     {
-        IRouteNetworkQueryService routeNetworkQueryService;
+        IRouteNetworkState routeNetworkQueryService;
         IConduitNetworkQueryService conduitNetworkEqueryService;
         IConduitClosureRepository conduitClosureRepository;
 

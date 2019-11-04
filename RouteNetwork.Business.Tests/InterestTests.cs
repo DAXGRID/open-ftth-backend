@@ -23,9 +23,10 @@ namespace RouteNetwork.Business.Tests
         public InterestContainerFixture() : base("route_network_interest_test") { }
     }
 
+    [Collection("Sequential")]
     public class InterestTests : IClassFixture<InterestContainerFixture>
     {
-        private ContainerFixtureBase container;
+        private InterestContainerFixture container;
 
         private Guid testCabinet1;
         private Guid testJunction1;
@@ -35,11 +36,14 @@ namespace RouteNetwork.Business.Tests
         private Guid testCabinet1ToJunction1;
         private Guid testCabinet1ToSdu1;
         private Guid testJunction1ToSdu2;
-        
-
-        public InterestTests(InterestContainerFixture containerFixture)
+                       
+        public InterestTests(InterestContainerFixture interestContainerFixture)
         {
-            container = containerFixture;
+            container = interestContainerFixture;
+
+            var routeNetworkState = container.ServiceProvider.GetService<IRouteNetworkState>();
+
+            var testRouteNetwork = new TestRouteNetworkType1(container.CommandBus, routeNetworkState);
 
             // Create a little network for testing
             //
@@ -130,7 +134,7 @@ namespace RouteNetwork.Business.Tests
         [Fact]
         public void RegisterValidWalkOfInterestTests()
         {
-            var routeNetworkQueryService = container.ServiceProvider.GetService<IRouteNetworkQueryService>();
+            var routeNetworkQueryService = container.ServiceProvider.GetService<IRouteNetworkState>();
 
             var fixture = new Fixture();
 

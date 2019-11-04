@@ -13,11 +13,11 @@ namespace RouteNetwork.Projections
     
     public sealed class WalkOfInterestInfoProjection : ViewProjection<WalkOfInterestInfo, Guid>
     {
-        private RouteNetworkQueryService routeNetworkQueryService = null;
+        private RouteNetworkState routeNetworkQueryService = null;
 
-        public WalkOfInterestInfoProjection(IRouteNetworkQueryService routeNetworkQueryService)
+        public WalkOfInterestInfoProjection(IRouteNetworkState routeNetworkQueryService)
         {
-            this.routeNetworkQueryService = (RouteNetworkQueryService)routeNetworkQueryService;
+            this.routeNetworkQueryService = (RouteNetworkState)routeNetworkQueryService;
 
             ProjectEvent<WalkOfInterestRegistered>(OnRouteSegmentAdded);
         }

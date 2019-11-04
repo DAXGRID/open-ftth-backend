@@ -21,7 +21,7 @@ namespace EquipmentService.GraphQL.ConduitClosure
 {
     public class ConduitServiceCommandHandler : ObjectGraphType
     {
-        public ConduitServiceCommandHandler(IMediator commandBus, IConduitClosureRepository conduitClosureRepository, IConduitNetworkQueryService conduitNetworkQueryService, IRouteNetworkQueryService routeNetwork, IConduitNetworkQueryService conduitNetwork, IConduitSpecificationRepository conduitSpecificationRepository)
+        public ConduitServiceCommandHandler(IMediator commandBus, IConduitClosureRepository conduitClosureRepository, IConduitNetworkQueryService conduitNetworkQueryService, IRouteNetworkState routeNetwork, IConduitNetworkQueryService conduitNetwork, IConduitSpecificationRepository conduitSpecificationRepository)
         {
             Description = "API for sending commands to the conduit service";
 

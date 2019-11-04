@@ -14,7 +14,7 @@ namespace EquipmentService.GraphQL.Queries
 {
     public class ConduitServiceQuery : ObjectGraphType
     {
-        public ConduitServiceQuery(IRouteNetworkQueryService routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IConduitSpecificationRepository conduitSpecificationRepository, IDataLoaderContextAccessor dataLoader)
+        public ConduitServiceQuery(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IConduitSpecificationRepository conduitSpecificationRepository, IDataLoaderContextAccessor dataLoader)
         {
             Description = "GraphQL API for querying the conduit service.";
 

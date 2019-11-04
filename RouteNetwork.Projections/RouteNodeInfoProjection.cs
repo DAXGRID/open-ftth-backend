@@ -13,19 +13,23 @@ namespace RouteNetwork.Projections
     
     public sealed class RouteNodeInfoProjection : ViewProjection<RouteNodeInfo, Guid>
     {
-        private RouteNetworkQueryService routeNetworkQueryService = null;
+        private RouteNetworkState routeNetworkQueryService = null;
 
-        public RouteNodeInfoProjection(IRouteNetworkQueryService routeNetworkQueryService)
+        public RouteNodeInfoProjection(IRouteNetworkState routeNetworkQueryService)
         {
-            this.routeNetworkQueryService = (RouteNetworkQueryService)routeNetworkQueryService;
+            this.routeNetworkQueryService = (RouteNetworkState)routeNetworkQueryService;
 
-            ProjectEvent<RouteNodeAdded>(OnRouteNodeAdded);
+            ProjectEvent<RouteNodePlanned>(
+                (session, domainEvent) =>
+                {
+                    return domainEvent.Id;
+                },
+                OnRouteNodeAdded
+            );
         }
 
-     
-
         // Update our route node info object
-        private void OnRouteNodeAdded(RouteNodeInfo routeNode, RouteNodeAdded @event)
+        private void OnRouteNodeAdded(RouteNodeInfo routeNode, RouteNodePlanned @event)
         {
             routeNode.Name = @event.Name;
             routeNode.NodeKind = @event.NodeKind;

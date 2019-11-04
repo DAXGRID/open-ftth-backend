@@ -115,7 +115,7 @@ namespace ConduitNetwork.Business.Aggregates
          
         }
 
-        internal void CutOuterConduit(Guid pointOfInterestId, IRouteNetworkQueryService routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService)
+        internal void CutOuterConduit(Guid pointOfInterestId, IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService)
         {
             // Point of interest id check
             if (pointOfInterestId == null || pointOfInterestId == Guid.Empty)
@@ -144,7 +144,7 @@ namespace ConduitNetwork.Business.Aggregates
             });
         }
 
-        internal void CutInnerConduit(int sequenceNumber, Guid pointOfInterestId, IRouteNetworkQueryService routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService)
+        internal void CutInnerConduit(int sequenceNumber, Guid pointOfInterestId, IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService)
         {
             var multiConduitInfo = conduitNetworkQueryService.GetMultiConduitInfo(Id);
 
@@ -186,7 +186,7 @@ namespace ConduitNetwork.Business.Aggregates
             });
         }
 
-        internal void ConnectInnerConduit(Guid pointOfInterestId, int sequenceNumber, ConduitEndKindEnum endKind, Guid junctionId, IRouteNetworkQueryService routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService)
+        internal void ConnectInnerConduit(Guid pointOfInterestId, int sequenceNumber, ConduitEndKindEnum endKind, Guid junctionId, IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService)
         {
             // Point of interest id check
             if (pointOfInterestId == null || pointOfInterestId == Guid.Empty)

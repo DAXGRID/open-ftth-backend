@@ -33,9 +33,11 @@ namespace Infrastructure.EventSourcing
             handlers[typeof(T)] = e => handle((T)e);
         }
 
-        protected void RaiseEvent(object @event)
+        protected void RaiseEvent(object @event, bool applyEventToAggregate = true)
         {
-            ApplyEvent(@event);
+            if (applyEventToAggregate)
+                ApplyEvent(@event);
+
             uncommittedEvents.Add(@event);
         }
 

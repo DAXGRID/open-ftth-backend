@@ -9,6 +9,8 @@ using Infrastructure.EventSourcing;
 using RouteNetwork.Projections;
 using RouteNetwork.QueryService;
 using System.Reflection;
+using RouteNetwork.Business.Aggregates;
+using System.Threading;
 
 namespace RouteNetwork.Business.Tests.Common
 {
@@ -42,10 +44,13 @@ namespace RouteNetwork.Business.Tests.Common
                 })));
 
             // Add route network query service implementation
-            services.AddSingleton<IRouteNetworkQueryService, RouteNetworkQueryService>();
+            services.AddScoped<IRouteNetworkState, RouteNetworkState>();
 
             // Add aggreate repo
             services.AddScoped<IAggregateRepository, AggregateRepository>();
+
+            // Add route network aggregate
+            services.AddScoped<RouteNetworkAggregate, RouteNetworkAggregate>();
 
             // Add projections
             services.AddScoped<RouteNodeInfoProjection, RouteNodeInfoProjection>();

@@ -31,7 +31,7 @@
     <ProjectReference Include="..\RouteNetwork.Business\RouteNetwork.Business.csproj" />
     <ProjectReference Include="..\RouteNetwork.Events\RouteNetwork.Events.csproj" />
     <ProjectReference Include="..\RouteNetwork.Projections\RouteNetwork.Projections.csproj" />
-    <ProjectReference Include="..\RouteNetwork.QueryService\RouteNetwork.QueryService.csproj" />
+    <ProjectReference Include="..\RouteNetwork.QueryService\RouteNetwork.State.csproj" />
   </ItemGroup>
 
   <ItemGroup>

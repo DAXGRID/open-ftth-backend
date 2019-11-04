@@ -71,7 +71,7 @@ namespace EquipmentService
             services.AddScoped<IAggregateRepository, AggregateRepository>();
 
             // Route network services
-            services.AddSingleton<IRouteNetworkQueryService, RouteNetworkQueryService>();
+            services.AddSingleton<IRouteNetworkState, RouteNetworkState>();
             services.AddSingleton<RouteNodeInfoProjection, RouteNodeInfoProjection>();
             services.AddSingleton<RouteSegmentInfoProjection, RouteSegmentInfoProjection>();
             services.AddSingleton<WalkOfInterestInfoProjection, WalkOfInterestInfoProjection>();
