@@ -1,5 +1,4 @@
-﻿using GeoAPI.Geometries;
-using Infrastructure.EventSourcing;
+﻿using Infrastructure.EventSourcing;
 using NetTopologySuite.Geometries;
 using RouteNetwork.Events;
 using RouteNetwork.Events.Model;

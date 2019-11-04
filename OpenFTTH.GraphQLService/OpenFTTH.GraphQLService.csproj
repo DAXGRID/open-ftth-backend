@@ -26,6 +26,8 @@
     <ProjectReference Include="..\ConduitNetwork.Projections\ConduitNetwork.Projections.csproj" />
     <ProjectReference Include="..\ConduitNetwork.QueryService\ConduitNetwork.QueryService.csproj" />
     <ProjectReference Include="..\Demo.BuildTestNetwork\Demo.BuildTestNetwork.csproj" />
+    <ProjectReference Include="..\DiagramLayout.Builder\DiagramLayout.Builder.csproj" />
+    <ProjectReference Include="..\DiagramLayout.Model\DiagramLayout.Model.csproj" />
     <ProjectReference Include="..\Infrastructure.EventSourcing\Infrastructure.EventSourcing.csproj" />
     <ProjectReference Include="..\QueryModel\QueryModel.csproj" />
     <ProjectReference Include="..\RouteNetwork.Business\RouteNetwork.Business.csproj" />
