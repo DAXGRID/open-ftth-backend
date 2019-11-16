@@ -18,7 +18,14 @@ namespace DiagramLayout.Builder.Lines
 
         private List<BlockPortTerminal> _terminals = new List<BlockPortTerminal>();
 
-        public BlockPort(BlockSideEnum side, string style = null, string label = null, double spaceBetweenTerminals = -1, double terminalSize = -1)
+        public double PortStartX { get; set; }
+        public double PortStartY { get; set; }
+
+        public double PortEndX { get; set; }
+        public double PortEndY { get; set; }
+
+
+        public BlockPort(BlockSideEnum side, string style = null, string label = null, double spaceBetweenTerminals = -1, double terminalSize = -1, double portMargin = -1)
         {
             _side = side;
             _style = style;
@@ -26,6 +33,10 @@ namespace DiagramLayout.Builder.Lines
 
             if (spaceBetweenTerminals > -1)
                 _spaceBetweenTerminals = spaceBetweenTerminals;
+
+            if (portMargin > -1)
+                _portMargin = portMargin;
+
 
             _terminalSize = terminalSize;
         }
@@ -90,6 +101,8 @@ namespace DiagramLayout.Builder.Lines
             var portOffsetX = offsetX;
             var portOffsetY = offsetY;
 
+          
+
             // Create port diagram object
             var portPolygon = new DiagramObject();
             if (_style != null)
@@ -100,6 +113,10 @@ namespace DiagramLayout.Builder.Lines
             var rectWidth = IsVertical ? _portThickness : Length;
             var rectHeight = IsVertical ? Length : _portThickness;
 
+            PortStartX = offsetX;
+            PortStartY = offsetY;
+            PortEndX = IsVertical ? PortStartX : PortStartX + Length;
+            PortEndY = IsVertical ? PortStartY + Length : PortStartY;
 
             if (_side == BlockSideEnum.North)
             {
@@ -108,13 +125,8 @@ namespace DiagramLayout.Builder.Lines
             else if (_side == BlockSideEnum.East)
             {
                 portOffsetX -= _portThickness;
-                portOffsetY -= Length;
             }
-            else if (_side == BlockSideEnum.South)
-            {
-                portOffsetX -= Length;
-            }
-
+           
             if (blockType != LineBlockTypeEnum.Simple)
             {
                 portPolygon.Geometry = GeometryBuilder.Rectangle(portOffsetX, portOffsetY, rectHeight, rectWidth);
@@ -127,14 +139,10 @@ namespace DiagramLayout.Builder.Lines
             double terminalX = offsetX;
             double terminalY = offsetY;
 
-            if (_side == BlockSideEnum.Vest)
+            if (_side == BlockSideEnum.Vest || _side == BlockSideEnum.East)
                 terminalY += _portMargin;
-            else if (_side == BlockSideEnum.North)
+            else if (_side == BlockSideEnum.North || _side == BlockSideEnum.South)
                 terminalX += _portMargin;
-            else if (_side == BlockSideEnum.East)
-                terminalY -= _portMargin;
-            else if (_side == BlockSideEnum.South)
-                terminalX -= _portMargin;
 
             foreach (var terminal in _terminals)
             {
@@ -142,31 +150,17 @@ namespace DiagramLayout.Builder.Lines
                 double xStep = 1;
                 double yStep = 1;
 
-                if (_side == BlockSideEnum.Vest)
+                if (_side == BlockSideEnum.Vest || _side == BlockSideEnum.East)
                 {
                     // goes up y
                     xStep = 0;
                     yStep = terminal.Length + _spaceBetweenTerminals;
                 }
 
-                if (_side == BlockSideEnum.North)
+                if (_side == BlockSideEnum.North || _side == BlockSideEnum.South)
                 {
                     // goes right along x
                     xStep = terminal.Length + _spaceBetweenTerminals;
-                    yStep = 0;
-                }
-
-                if (_side == BlockSideEnum.East)
-                {
-                    // goes down y
-                    xStep = 0;
-                    yStep = (terminal.Length + _spaceBetweenTerminals) * -1;
-                }
-
-                if (_side == BlockSideEnum.South)
-                {
-                    // goes right x
-                    xStep = (terminal.Length + _spaceBetweenTerminals) * -1;
                     yStep = 0;
                 }
 

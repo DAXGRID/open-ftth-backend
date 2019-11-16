@@ -57,23 +57,20 @@ namespace DiagramLayout.Builder.Lines
 
         public List<DiagramObject> CreateDiagramObjects(double offsetX, double offsetY, LineBlockTypeEnum blockType)
         {
+            /*
             if (Side == BlockSideEnum.South || Side == BlockSideEnum.East)
                 _ports.Reverse();
+            */
 
             List<DiagramObject> result = new List<DiagramObject>();
 
             double portX = offsetX;
             double portY = offsetY;
 
-            if (_side == BlockSideEnum.Vest)
+            if (_side == BlockSideEnum.Vest || _side == BlockSideEnum.East)
                 portY += _sideMargin;
-            else if (_side == BlockSideEnum.North)
+            else if (_side == BlockSideEnum.North || _side == BlockSideEnum.South)
                 portX += _sideMargin;
-            else if (_side == BlockSideEnum.East)
-                portY -= _sideMargin;
-            else if (_side == BlockSideEnum.South)
-                portX -= _sideMargin;
-
 
             foreach (var port in _ports)
             {
@@ -81,31 +78,17 @@ namespace DiagramLayout.Builder.Lines
                 double xStep = 1;
                 double yStep = 1;
 
-                if (_side == BlockSideEnum.Vest)
+                if (_side == BlockSideEnum.Vest || _side == BlockSideEnum.East)
                 {
                     // goes up y
                     xStep = 0;
                     yStep = port.Length + _spaceBetweenPorts;
                 }
 
-                if (_side == BlockSideEnum.North)
+                if (_side == BlockSideEnum.North || _side == BlockSideEnum.South)
                 {
                     // goes left x
                     xStep = port.Length + _spaceBetweenPorts;
-                    yStep = 0;
-                }
-
-                if (_side == BlockSideEnum.East)
-                {
-                    // goes down y
-                    xStep = 0;
-                    yStep = (port.Length + _spaceBetweenPorts) * -1;
-                }
-
-                if (_side == BlockSideEnum.South)
-                {
-                    // goes right x
-                    xStep = (port.Length + _spaceBetweenPorts) * -1;
                     yStep = 0;
                 }
 

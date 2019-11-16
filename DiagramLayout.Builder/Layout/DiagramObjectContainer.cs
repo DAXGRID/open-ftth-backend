@@ -11,8 +11,8 @@ namespace DiagramLayout.Builder.Layout
         public abstract Size Measure(Size availableSize);
         public abstract Size Arrange(Size finalSize);
         public abstract Size DesiredSize { get; }
-        public double Height { get; set;  }
-        public double Width { get; set; }
+        public double MinHeight { get; set;  }
+        public double MinWidth { get; set; }
         public double ActualHeight { get; }
         public double ActualWidth { get; }
     }

@@ -55,15 +55,30 @@ namespace DiagramLayout.Builder.Lines
             var terminalPolygon = new DiagramObject();
             terminalPolygon.Style = _style == null ? "LinkBlockTerminal" : _style;
 
-            var rectWidth = Port.IsVertical ? Port.PortThickness : Length;
-            var rectHeight = Port.IsVertical ? Length : Port.PortThickness;
+            var rectWidth = Port.IsVertical ? Port.PortThickness + (Port.PortThickness / 2) : Length;
+            var rectHeight = Port.IsVertical ? Length : Port.PortThickness + (Port.PortThickness / 2);
 
             if (Port.Side == BlockSideEnum.Vest)
             {
-                terminalOffsetX += (Port.PortThickness / 2);
+                //terminalOffsetX += (Port.PortThickness / 2);
 
                 ConnectionPointX = offsetX;
                 ConnectionPointY = offsetY + (Length / 2);
+            }
+            else if (Port.Side == BlockSideEnum.East)
+            {
+                terminalOffsetX -= (Port.PortThickness + (Port.PortThickness / 2));
+
+                ConnectionPointX = offsetX;
+                ConnectionPointY = offsetY + (Length / 2);
+            }
+            else if (Port.Side == BlockSideEnum.South)
+            {
+                terminalOffsetX -= Length;
+                terminalOffsetY += (Port.PortThickness / 2);
+
+                ConnectionPointX = offsetX + (Length / 2);
+                ConnectionPointY = offsetY;
             }
             else if (Port.Side == BlockSideEnum.North)
             {
@@ -72,23 +87,6 @@ namespace DiagramLayout.Builder.Lines
                 ConnectionPointX = offsetX + (Length / 2);
                 ConnectionPointY = offsetY;
             }
-            else if (Port.Side == BlockSideEnum.East)
-            {
-                terminalOffsetX -= (Port.PortThickness + (Port.PortThickness / 2));
-                terminalOffsetY -= Length;
-
-                ConnectionPointX = offsetX;
-                ConnectionPointY = offsetY - (Length / 2);
-            }
-            else if (Port.Side == BlockSideEnum.South)
-            {
-                terminalOffsetX -= Length;
-                terminalOffsetY += (Port.PortThickness / 2);
-
-                ConnectionPointX = offsetX - (Length / 2);
-                ConnectionPointY = offsetY;
-            }
-
 
             if (_visible && blockType != LineBlockTypeEnum.Simple)
             {

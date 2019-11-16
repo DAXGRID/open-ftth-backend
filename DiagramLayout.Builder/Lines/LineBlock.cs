@@ -20,6 +20,15 @@ namespace DiagramLayout.Builder.Lines
             set { _blockMargin = value; }
         }
 
+        private Guid _refId;
+        private string _refClass;
+
+        public void SetReference(Guid refId, string refClass)
+        {
+            this._refId = refId;
+            this._refClass = refClass;
+        }
+
         private Size _desiredSize = new Size();
         
 
@@ -30,7 +39,9 @@ namespace DiagramLayout.Builder.Lines
         private Dictionary<BlockSideEnum, BlockSide> _sides = new Dictionary<BlockSideEnum, BlockSide>();
 
         // Connections
-        private List<LineBlockConnection> _connections = new List<LineBlockConnection>();
+        private List<LineBlockPortConnection> _portConnections = new List<LineBlockPortConnection>();
+
+        private List<LineBlockTerminalConnection> _terminalConnections = new List<LineBlockTerminalConnection>();
 
         private double _offsetX = 0;
 
@@ -52,16 +63,39 @@ namespace DiagramLayout.Builder.Lines
             _sides[port.Side].AddPort(port);
         }
 
-        public void AddConnection(BlockSideEnum fromSide, int fromPortIndex, int fromTerminalIndex, BlockSideEnum toSide, int toPortIndex, int toTerminalIndex, string label = null, string style = null)
+        public void SetSideMargin(double sideMargin)
         {
-            var connection = new LineBlockConnection();
+            foreach (var side in _sides)
+            {
+                side.Value.SideMargin = sideMargin;
+            }
+        }
+
+        public void AddTerminalConnection(BlockSideEnum fromSide, int fromPortIndex, int fromTerminalIndex, BlockSideEnum toSide, int toPortIndex, int toTerminalIndex, string label = null, string style = null, LineShapeTypeEnum lineShapeType = LineShapeTypeEnum.Line)
+        {
+            var connection = new LineBlockTerminalConnection();
+
             connection.Label = label;
             connection.Style = style;
-
+            connection.LineShapeType = lineShapeType;
             connection.FromTerminal = _sides[fromSide].GetPortByIndex(fromPortIndex).GetTerminalByIndex(fromTerminalIndex);
             connection.ToTerminal = _sides[toSide].GetPortByIndex(toPortIndex).GetTerminalByIndex(toTerminalIndex);
 
-            _connections.Add(connection);
+            _terminalConnections.Add(connection);
+        }
+
+        public LineBlockPortConnection AddPortConnection(BlockSideEnum fromSide, int fromPortIndex, BlockSideEnum toSide, int toPortIndex, string label = null, string style = null)
+        {
+            var connection = new LineBlockPortConnection();
+
+            connection.Label = label;
+            connection.Style = style;
+            connection.FromPort = _sides[fromSide].GetPortByIndex(fromPortIndex);
+            connection.ToPort = _sides[toSide].GetPortByIndex(toPortIndex);
+
+            _portConnections.Add(connection);
+
+            return connection;
         }
 
         public override Size Measure(Size availableSize)
@@ -77,8 +111,8 @@ namespace DiagramLayout.Builder.Lines
 
             width += (_blockMargin * 2);
 
-            if (width < Width)
-                width = Width;
+            if (width < MinWidth)
+                width = MinWidth;
 
             // Calculate height
             double height = 0;
@@ -91,8 +125,8 @@ namespace DiagramLayout.Builder.Lines
 
             height += (_blockMargin * 2);
 
-            if (height < Height)
-                height = Height;
+            if (height < MinHeight)
+                height = MinHeight;
 
             _desiredSize = new Size() { Width = width, Height = height };
 
@@ -119,7 +153,8 @@ namespace DiagramLayout.Builder.Lines
                 result.Add(new DiagramObject
                 {
                     Style = "Well",
-                    Geometry = GeometryBuilder.Rectangle(_offsetX, _offsetY, DesiredSize.Height, DesiredSize.Width)
+                    Geometry = GeometryBuilder.Rectangle(_offsetX, _offsetY, DesiredSize.Height, DesiredSize.Width),
+                    IdentifiedObject = _refClass == null ? null : new IdentifiedObjectReference() { RefId = _refId, RefClass = _refClass }
                 });
             }
 
@@ -131,7 +166,13 @@ namespace DiagramLayout.Builder.Lines
 
             // Create all connections
 
-            foreach (var connection in _connections)
+            foreach (var connection in _portConnections)
+            {
+                result.AddRange(connection.CreateDiagramObjects());
+            }
+
+
+            foreach (var connection in _terminalConnections)
             {
                 result.AddRange(connection.CreateDiagramObjects());
             }
@@ -142,13 +183,13 @@ namespace DiagramLayout.Builder.Lines
         private double CalculateSideXOffset(BlockSideEnum side, double offsetX)
         {
             if (side == BlockSideEnum.Vest)
-                return offsetX;
+                return offsetX; 
             else if (side == BlockSideEnum.North)
                 return offsetX + _blockMargin;
             else if (side == BlockSideEnum.East)
                 return offsetX + DesiredSize.Width;
             else if (side == BlockSideEnum.South)
-                return offsetX + (DesiredSize.Width - +_blockMargin);
+                return offsetX + _blockMargin;
             else
                 return 0;
         }
@@ -160,7 +201,7 @@ namespace DiagramLayout.Builder.Lines
             else if (side == BlockSideEnum.North)
                 return offsetY + DesiredSize.Height;
             else if (side == BlockSideEnum.East)
-                return offsetY + (DesiredSize.Height - _blockMargin); 
+                return offsetY + _blockMargin;
             else if (side == BlockSideEnum.South)
                 return offsetY;
             else

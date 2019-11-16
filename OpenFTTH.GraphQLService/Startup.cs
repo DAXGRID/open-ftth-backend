@@ -23,6 +23,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using RouteNetwork.Business.Aggregates;
 using RouteNetwork.Projections;
 using RouteNetwork.QueryService;
 
@@ -69,6 +70,10 @@ namespace EquipmentService
 
             // Add aggreate repo
             services.AddScoped<IAggregateRepository, AggregateRepository>();
+
+            // Add route network aggregate
+            services.AddScoped<RouteNetworkAggregate, RouteNetworkAggregate>();
+
 
             // Route network services
             services.AddSingleton<IRouteNetworkState, RouteNetworkState>();

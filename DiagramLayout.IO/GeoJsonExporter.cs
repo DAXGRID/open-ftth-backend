@@ -62,6 +62,12 @@ namespace DiagramLayout.IO
 
             jsonProperties.Add(new JProperty("Label", diagramObject.Label));
 
+            if (diagramObject.IdentifiedObject != null)
+            {
+                jsonProperties.Add(new JProperty("RefId", diagramObject.IdentifiedObject.RefId));
+                jsonProperties.Add(new JProperty("RefClass", diagramObject.IdentifiedObject.RefClass));
+            }
+
             return jsonProperties;
         }
     }

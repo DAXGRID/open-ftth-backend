@@ -27,5 +27,10 @@ namespace DiagramLayout.Model
             _mRID = Guid.NewGuid();
             //_diagram = diagram;
         }
+
+        public void SetReference(Guid refId, string refClass)
+        {
+            IdentifiedObject = new IdentifiedObjectReference() { RefId = refId, RefClass = refClass };
+        }
     }
 }

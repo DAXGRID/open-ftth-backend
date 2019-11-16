@@ -56,6 +56,11 @@ namespace EquipmentService.GraphQL.ConduitClosure
                       RouteNetworkBuilder.Run(pathToData, commandBus);
                       ConduitBuilder.Run(conduitNetwork, commandBus);
 
+                      // Clean everything again
+                      routeNetwork.Clean();
+                      conduitNetwork.Clean();
+                      conduitClosureRepository.Clean();
+
                       return "Read models cleaned and test data was rebuilt.";
 
                   }

@@ -28,6 +28,25 @@ namespace EquipmentService.GraphQL.Types
               {
                   return MapGeometry(context.Source.Geometry);
               });
+
+            Field<IdGraphType>(
+              "refId",
+              resolve: context =>
+              {
+                  if (context.Source.IdentifiedObject != null)
+                      return context.Source.IdentifiedObject.RefId;
+                  return null;
+              });
+
+            Field<StringGraphType>(
+            "refClass",
+            resolve: context =>
+            {
+                if (context.Source.IdentifiedObject != null)
+                    return context.Source.IdentifiedObject.RefClass;
+                return null;
+            });
+
         }
 
         private RouteNetwork.Events.Model.Geometry MapGeometry(NetTopologySuite.Geometries.Geometry geometry)

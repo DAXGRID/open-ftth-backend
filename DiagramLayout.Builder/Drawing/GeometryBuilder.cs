@@ -71,7 +71,7 @@ namespace DiagramLayout.Builder.Drawing
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        private static double Convert(double value)
+        public static double Convert(double value)
         {
             //return value;
             return value / 10000;

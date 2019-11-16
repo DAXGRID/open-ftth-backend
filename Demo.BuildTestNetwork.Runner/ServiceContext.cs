@@ -13,6 +13,7 @@ using ConduitNetwork.QueryService;
 using ConduitNetwork.Business.Specifications;
 using ConduitNetwork.QueryService.ConduitClosure;
 using ConduitNetwork.Projections.ConduitClosure;
+using RouteNetwork.Business.Aggregates;
 
 namespace Demo.BuildTestNetwork
 {
@@ -48,6 +49,9 @@ namespace Demo.BuildTestNetwork
 
             // Add aggreate repo
             services.AddScoped<IAggregateRepository, AggregateRepository>();
+
+            // Add route network aggregate
+            services.AddScoped<RouteNetworkAggregate, RouteNetworkAggregate>();
 
             // Route network services
             services.AddSingleton<IRouteNetworkState, RouteNetworkState>();
