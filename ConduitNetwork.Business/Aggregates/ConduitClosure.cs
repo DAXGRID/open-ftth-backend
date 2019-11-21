@@ -45,8 +45,8 @@ namespace ConduitNetwork.Business.Aggregates
                 throw new ArgumentException("A conduit closure with id: " + conduitClosureId + " already exists.");
 
             // Check that a conduit closure is not already added to point of interest. This is not allowed, each conduit closure must be placed in its own node.
-            if (conduitClosureRepository.CheckIfConduitClosureAlreadyAddedToPointOfInterest(pointOfInterestId))
-                throw new ArgumentException("A conduit closure: " + conduitClosureRepository.GetConduitClosureInfoByPointOfInterestId(pointOfInterestId).Id + " is already placed in the specified point of interest (route node): " + pointOfInterestId + " Only one conduit closure is allowed per point of interest (route node).");
+            if (conduitClosureRepository.CheckIfRouteNodeContainsConduitClosure(pointOfInterestId))
+                throw new ArgumentException("A conduit closure: " + conduitClosureRepository.GetConduitClosureInfoByRouteNodeId(pointOfInterestId).Id + " is already placed in the specified point of interest (route node): " + pointOfInterestId + " Only one conduit closure is allowed per point of interest (route node).");
 
 
             var conduitClosurePlaced = new ConduitClosurePlaced()

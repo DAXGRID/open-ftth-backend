@@ -152,7 +152,7 @@ namespace ConduitNetwork.QueryService
                 {
                     var idToCheck = Guid.Parse(conduitId);
 
-                    if (conduitSegment.Id != idToCheck)
+                    if (conduitSegment.Id != idToCheck && conduitSegment.Conduit.Id != idToCheck)
                         continue;
                 }
 
@@ -175,7 +175,7 @@ namespace ConduitNetwork.QueryService
                 {
                     var idToCheck = Guid.Parse(conduitId);
 
-                    if (conduitSegment.Id != idToCheck)
+                    if (conduitSegment.Id != idToCheck && conduitSegment.Conduit.Id != idToCheck)
                         continue;
                 }
 

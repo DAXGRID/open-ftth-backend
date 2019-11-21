@@ -28,9 +28,9 @@ namespace DiagramLayout.Builder
 
             ConduitClosureInfo conduitClosureInfo = null;
 
-            if (conduitClosureRepository.CheckIfConduitClosureAlreadyAddedToPointOfInterest(nodeId))
+            if (conduitClosureRepository.CheckIfRouteNodeContainsConduitClosure(nodeId))
             {
-                conduitClosureInfo = conduitClosureRepository.GetConduitClosureInfoByPointOfInterestId(nodeId);
+                conduitClosureInfo = conduitClosureRepository.GetConduitClosureInfoByRouteNodeId(nodeId);
             }
 
 

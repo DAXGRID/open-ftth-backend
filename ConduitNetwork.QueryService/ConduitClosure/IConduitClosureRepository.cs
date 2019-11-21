@@ -11,11 +11,11 @@ namespace ConduitNetwork.QueryService.ConduitClosure
         void RemoveConduitClosureInfo(Guid conduitClosureId);
 
         ConduitClosureInfo GetConduitClosureInfo(Guid conduitClosureId);
-        ConduitClosureInfo GetConduitClosureInfoByPointOfInterestId(Guid pointOfInterestId);
+        ConduitClosureInfo GetConduitClosureInfoByRouteNodeId(Guid pointOfInterestId);
         ConduitClosureInfo GetConduitClosureInfoByRelatedLineId(Guid lineId);
 
         bool CheckIfConduitClosureAlreadyExists(Guid conduitClosureId);
-        bool CheckIfConduitClosureAlreadyAddedToPointOfInterest(Guid pointOfInterestId);
+        bool CheckIfRouteNodeContainsConduitClosure(Guid pointOfInterestId);
         bool CheckIfConduitClosureIsRelatedToLine(Guid lineId);
 
         void Clean();

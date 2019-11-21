@@ -57,7 +57,8 @@ namespace EquipmentService.GraphQL.Types
                   new QueryArgument<BooleanGraphType> { Name = "includeMultiConduits"},
                   new QueryArgument<BooleanGraphType> { Name = "includeSingleConduits"},
                   new QueryArgument<BooleanGraphType> { Name = "includeInnerConduits"},
-                  new QueryArgument<StringGraphType> { Name = "conduitSegmentId" }
+                  new QueryArgument<StringGraphType> { Name = "conduitSegmentId", Description = "Will be deleted. Use conduit id instead" },
+                   new QueryArgument<StringGraphType> { Name = "conduitId", Description = "Id of conduit of conduit segment" }
                   ),
               resolve: context =>
               {
@@ -66,6 +67,7 @@ namespace EquipmentService.GraphQL.Types
                   var includeInnerConduits = context.GetArgument<Boolean>("includeInnerConduits", true);
 
                   var conduitSegmentIdParam = context.GetArgument<string>("conduitSegmentId");
+                  var conduitIdParam = context.GetArgument<string>("conduitId");
 
                   var conduitSegmentId = Guid.Empty;
 
@@ -78,9 +80,20 @@ namespace EquipmentService.GraphQL.Types
                       }
                   }
 
+                  if (conduitIdParam != null)
+                  {
+                      if (!Guid.TryParse(conduitIdParam, out conduitSegmentId))
+                      {
+                          context.Errors.Add(new ExecutionError("Wrong value for guid"));
+                          return null;
+                      }
+                  }
+
                   List<ConduitRelation> result = new List<ConduitRelation>();
 
-                  var conduitSegmentRels = conduitNetworkEqueryService.GetConduitSegmentsRelatedToPointOfInterest(context.Source.Id, conduitSegmentIdParam);
+                  var conduitSegmentRels = conduitNetworkEqueryService.GetConduitSegmentsRelatedToPointOfInterest(context.Source.Id, conduitSegmentId.ToString());
+
+                  
 
                   foreach (var conduitSegmentRel in conduitSegmentRels)
                   {
@@ -88,8 +101,34 @@ namespace EquipmentService.GraphQL.Types
                       {
                           RelationType = conduitSegmentRel.Type,
                           Conduit = conduitSegmentRel.Segment.Conduit,
-                          ConduitSegment = conduitSegmentRel.Segment
+                          ConduitSegment = conduitSegmentRel.Segment,
                       };
+
+                      // Check if segment is related to a conduit closure
+                      {
+                          if (conduitClosureRepository.CheckIfRouteNodeContainsConduitClosure(context.Source.Id))
+                          {
+                              var conduitClosureInfo = conduitClosureRepository.GetConduitClosureInfoByRouteNodeId(context.Source.Id);
+                              
+                              // If conduit closure contains a port or terminal related to the conduit segment, then it's related to the conduit closure
+                              if (
+                                  conduitClosureInfo.Sides.Exists(s => s.Ports.Exists(p => p.MultiConduitSegmentId == conduitSegmentRel.Segment.Id))
+                                  ||
+                                  conduitClosureInfo.Sides.Exists(s => s.Ports.Exists(p => p.Terminals.Exists(t => t.LineSegmentId == conduitSegmentRel.Segment.Id)))
+                              )
+                                  rel.CanBeAttachedToConduitClosure = false;
+                              else
+                                  rel.CanBeAttachedToConduitClosure = true;
+                          }
+
+                      }
+
+                      // Check if segment is cut at node
+                      if (conduitSegmentRel.Segment.Conduit.Segments.Exists(s => s.FromNodeId == context.Source.Id || s.ToNodeId == context.Source.Id))
+                          rel.CanBeCutAtNode = false;
+                      else
+                          rel.CanBeCutAtNode = true;
+
 
                       if (includeMultiConduits && conduitSegmentRel.Segment.Conduit.Kind == ConduitKindEnum.MultiConduit)
                           result.Add(rel);
@@ -110,8 +149,8 @@ namespace EquipmentService.GraphQL.Types
                "conduitClosure",
                resolve: context =>
                {
-                   if (conduitClosureRepository.CheckIfConduitClosureAlreadyAddedToPointOfInterest(context.Source.Id))
-                       return conduitClosureRepository.GetConduitClosureInfoByPointOfInterestId(context.Source.Id);
+                   if (conduitClosureRepository.CheckIfRouteNodeContainsConduitClosure(context.Source.Id))
+                       return conduitClosureRepository.GetConduitClosureInfoByRouteNodeId(context.Source.Id);
                    else
                        return null;
                });

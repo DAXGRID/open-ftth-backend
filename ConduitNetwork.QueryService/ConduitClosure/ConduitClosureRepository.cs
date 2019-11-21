@@ -138,7 +138,7 @@ namespace ConduitNetwork.QueryService.ConduitClosure
 
             throw new KeyNotFoundException("Cannot find any conduit closure info with id: " + id);
         }
-        public ConduitClosureInfo GetConduitClosureInfoByPointOfInterestId(Guid pointOfInterestId)
+        public ConduitClosureInfo GetConduitClosureInfoByRouteNodeId(Guid pointOfInterestId)
         {
             if (_conduitClosureByPointOfInterestId.ContainsKey(pointOfInterestId))
                 return _conduitClosureByPointOfInterestId[pointOfInterestId];
@@ -146,7 +146,7 @@ namespace ConduitNetwork.QueryService.ConduitClosure
             throw new KeyNotFoundException("Cannot find any conduit closure info in point of interest with id: " + pointOfInterestId);
         }
 
-        public bool CheckIfConduitClosureAlreadyAddedToPointOfInterest(Guid pointOfInterestId)
+        public bool CheckIfRouteNodeContainsConduitClosure(Guid pointOfInterestId)
         {
             if (_conduitClosureByPointOfInterestId.ContainsKey(pointOfInterestId))
                 return true;

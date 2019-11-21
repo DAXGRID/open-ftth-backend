@@ -13,9 +13,10 @@ namespace QueryModel.Conduit
     {
         [Required(ErrorMessage = "Relation type is required")]
         public ConduitRelationTypeEnum RelationType { get; set; }
-
         public ConduitInfo Conduit { get; set; }
-
         public ConduitSegmentInfo ConduitSegment { get; set; }
+
+        public bool CanBeCutAtNode { get; set; }
+        public bool CanBeAttachedToConduitClosure { get; set; }
     }
 }

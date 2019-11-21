@@ -32,9 +32,9 @@ namespace ConduitNetwork.Projections.ConduitClosure
             ProjectEvent<MultiConduitOuterConduitCut>((session, e) =>
             {
                 // Try find conduit closure affected by cut
-                if (conduitClosureRepository.CheckIfConduitClosureAlreadyAddedToPointOfInterest(e.PointOfInterestId))
+                if (conduitClosureRepository.CheckIfRouteNodeContainsConduitClosure(e.PointOfInterestId))
                 {
-                    var conduitClosure = conduitClosureRepository.GetConduitClosureInfoByPointOfInterestId(e.PointOfInterestId);
+                    var conduitClosure = conduitClosureRepository.GetConduitClosureInfoByRouteNodeId(e.PointOfInterestId);
 
                     if (conduitClosure.Sides.Exists(s => s.Ports.Exists(p => p.MultiConduitId == e.MultiConduitId)))
                     {
@@ -51,9 +51,9 @@ namespace ConduitNetwork.Projections.ConduitClosure
             ProjectEvent<MultiConduitInnerConduitCut>((session, e) =>
             {
                 // Try find conduit closure affected by cut
-                if (conduitClosureRepository.CheckIfConduitClosureAlreadyAddedToPointOfInterest(e.PointOfInterestId))
+                if (conduitClosureRepository.CheckIfRouteNodeContainsConduitClosure(e.PointOfInterestId))
                 {
-                    var conduitClosure = conduitClosureRepository.GetConduitClosureInfoByPointOfInterestId(e.PointOfInterestId);
+                    var conduitClosure = conduitClosureRepository.GetConduitClosureInfoByRouteNodeId(e.PointOfInterestId);
 
                     if (conduitClosure.Sides.Exists(s => s.Ports.Exists(p => p.MultiConduitId == e.MultiConduitId)))
                     {
@@ -69,9 +69,9 @@ namespace ConduitNetwork.Projections.ConduitClosure
             ProjectEvent<SingleConduitConnected>((session, e) =>
             {
                 // Try find conduit closure affected by connection
-                if (conduitClosureRepository.CheckIfConduitClosureAlreadyAddedToPointOfInterest(e.PointOfInterestId))
+                if (conduitClosureRepository.CheckIfRouteNodeContainsConduitClosure(e.PointOfInterestId))
                 {
-                    var conduitClosure = conduitClosureRepository.GetConduitClosureInfoByPointOfInterestId(e.PointOfInterestId);
+                    var conduitClosure = conduitClosureRepository.GetConduitClosureInfoByRouteNodeId(e.PointOfInterestId);
 
                     if (conduitClosure.Sides.Exists(s => s.Ports.Exists(p => p.Terminals.Exists(t => t.LineId == e.SingleConduitId))))
                     {
@@ -87,9 +87,9 @@ namespace ConduitNetwork.Projections.ConduitClosure
             ProjectEvent<MultiConduitInnerConduitConnected>((session, e) =>
             {
                 // Try find conduit closure affected by connection
-                if (conduitClosureRepository.CheckIfConduitClosureAlreadyAddedToPointOfInterest(e.PointOfInterestId))
+                if (conduitClosureRepository.CheckIfRouteNodeContainsConduitClosure(e.PointOfInterestId))
                 {
-                    var conduitClosure = conduitClosureRepository.GetConduitClosureInfoByPointOfInterestId(e.PointOfInterestId);
+                    var conduitClosure = conduitClosureRepository.GetConduitClosureInfoByRouteNodeId(e.PointOfInterestId);
 
                     if (conduitClosure.Sides.Exists(s => s.Ports.Exists(p => p.MultiConduitId == e.MultiConduitId)))
                     {
