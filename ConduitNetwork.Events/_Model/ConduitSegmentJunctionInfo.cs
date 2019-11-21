@@ -10,28 +10,58 @@ namespace ConduitNetwork.Events.Model
     {
         public Guid Id { get; set; }
         [IgnoreDataMember]
-        public ConduitSegmentInfo FromConduitSegment { get; set; }
+        private List<ConduitSegmentInfo> FromConduitSegments { get; set; }
+
+        public void AddFromConduitSegment(ConduitSegmentInfo segment)
+        {
+            if (ToConduitSegments == null)
+                ToConduitSegments = new List<ConduitSegmentInfo>();
+
+            ToConduitSegments.Add(segment);
+        }
+
         public override List<IGraphElement> IngoingElements
         {
             get
             {
-                if (FromConduitSegment != null)
-                    return new List<IGraphElement>() { FromConduitSegment };
-                else
-                    return new List<IGraphElement>();
+                List<IGraphElement> result = new List<IGraphElement>();
+
+                if (FromConduitSegments != null)
+                    result.AddRange(FromConduitSegments);
+
+                return result;
             }
         }
 
+
+
         [IgnoreDataMember]
-        public ConduitSegmentInfo ToConduitSegment { get; set; }
+        private List<ConduitSegmentInfo> ToConduitSegments { get; set; }
+
+        public void AddToConduitSegment(ConduitSegmentInfo segment)
+        {
+            if (ToConduitSegments == null)
+                ToConduitSegments = new List<ConduitSegmentInfo>();
+
+            ToConduitSegments.Add(segment);
+        }
+
         public override List<IGraphElement> OutgoingElements
         {
             get
             {
+                /*
                 if (ToConduitSegment != null)
                     return new List<IGraphElement>() { ToConduitSegment };
                 else
                     return new List<IGraphElement>();
+                    */
+                List<IGraphElement> result = new List<IGraphElement>();
+
+                if (FromConduitSegments != null)
+                    result.AddRange(ToConduitSegments);
+
+                return result;
             }
         }
         public override List<IGraphElement> NeighborElements
@@ -40,11 +70,11 @@ namespace ConduitNetwork.Events.Model
             {
                 List<IGraphElement> result = new List<IGraphElement>();
 
-                if (FromConduitSegment != null)
-                    result.Add(FromConduitSegment);
+                if (FromConduitSegments != null)
+                    result.AddRange(FromConduitSegments);
 
-                if (ToConduitSegment != null)
-                    result.Add(ToConduitSegment);
+                if (ToConduitSegments != null)
+                    result.AddRange(ToConduitSegments);
 
                 return result;
             }

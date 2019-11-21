@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace EquipmentService.GraphQL.Types
 {
-    public class ConduitClosureSideEnumType : EnumerationGraphType<ConduitClosureSideEnum>
+    public class ConduitClosureSideEnumType : EnumerationGraphType<ConduitClosureInfoSide>
     {
         public ConduitClosureSideEnumType()
         {

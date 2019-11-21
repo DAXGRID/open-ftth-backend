@@ -58,7 +58,7 @@ namespace DiagramLayout.Builder.Lines
         public void AddPort(BlockPort port)
         {
             if (!_sides.ContainsKey(port.Side))
-                _sides.Add(port.Side, new BlockSide(port.Side));
+                _sides.Add(port.Side, new BlockSide(this, port.Side));
 
             _sides[port.Side].AddPort(port);
         }
@@ -71,7 +71,12 @@ namespace DiagramLayout.Builder.Lines
             }
         }
 
-        public void AddTerminalConnection(BlockSideEnum fromSide, int fromPortIndex, int fromTerminalIndex, BlockSideEnum toSide, int toPortIndex, int toTerminalIndex, string label = null, string style = null, LineShapeTypeEnum lineShapeType = LineShapeTypeEnum.Line)
+        public void SetSideCenterAllignment(BlockSideEnum side, bool center)
+        {
+            _sides[side].CenterAlignment = center;
+        }
+
+        public LineBlockTerminalConnection AddTerminalConnection(BlockSideEnum fromSide, int fromPortIndex, int fromTerminalIndex, BlockSideEnum toSide, int toPortIndex, int toTerminalIndex, string label = null, string style = null, LineShapeTypeEnum lineShapeType = LineShapeTypeEnum.Line)
         {
             var connection = new LineBlockTerminalConnection();
 
@@ -79,9 +84,19 @@ namespace DiagramLayout.Builder.Lines
             connection.Style = style;
             connection.LineShapeType = lineShapeType;
             connection.FromTerminal = _sides[fromSide].GetPortByIndex(fromPortIndex).GetTerminalByIndex(fromTerminalIndex);
+
+            if (connection.FromTerminal == null)
+                throw new Exception("Can't find from terminal side: " + fromSide.ToString() + " port: " + fromPortIndex + " terminal: " + fromTerminalIndex);
+
             connection.ToTerminal = _sides[toSide].GetPortByIndex(toPortIndex).GetTerminalByIndex(toTerminalIndex);
 
+            if (connection.ToTerminal == null)
+                throw new Exception("Can't find to terminal side: " + toSide.ToString() + " port: " + toPortIndex + " terminal: " + toTerminalIndex);
+
+
             _terminalConnections.Add(connection);
+
+            return connection;
         }
 
         public LineBlockPortConnection AddPortConnection(BlockSideEnum fromSide, int fromPortIndex, BlockSideEnum toSide, int toPortIndex, string label = null, string style = null)

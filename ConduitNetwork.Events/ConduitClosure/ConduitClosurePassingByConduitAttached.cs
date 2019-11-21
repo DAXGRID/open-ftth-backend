@@ -11,8 +11,8 @@ namespace ConduitNetwork.Events
     {
         public Guid ConduitClosureId { get; set; }
         public Guid ConduitId { get; set; }
-        public ConduitClosureSideEnum IncommingSide { get; set; }
-        public ConduitClosureSideEnum OutgoingSide { get; set; }
+        public ConduitClosureInfoSide IncommingSide { get; set; }
+        public ConduitClosureInfoSide OutgoingSide { get; set; }
         public int IncommingPortPosition { get; set; }
         public int OutgoingPortPosition { get; set; }
         public int IncommingTerminalPosition { get; set; }

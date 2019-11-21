@@ -103,8 +103,8 @@ namespace EquipmentService.GraphQL.ConduitClosure
                    {
                        ConduitClosureId = context.GetArgument<Guid>("conduitClosureId"),
                        ConduitId = context.GetArgument<Guid>("conduitId"),
-                       IncommingSide = context.GetArgument<ConduitClosureSideEnum>("incommingSide"),
-                       OutgoingSide = context.GetArgument<ConduitClosureSideEnum>("outgoingSide"),
+                       IncommingSide = context.GetArgument<ConduitClosureInfoSide>("incommingSide"),
+                       OutgoingSide = context.GetArgument<ConduitClosureInfoSide>("outgoingSide"),
                        IncommingPortPosition = context.GetArgument<int>("incommingPortPosition"),
                        OutgoingPortPosition = context.GetArgument<int>("outgoingPortPosition"),
                        IncommingTerminalPosition = context.GetArgument<int>("incommingPortPosition"),
@@ -142,7 +142,7 @@ namespace EquipmentService.GraphQL.ConduitClosure
                    {
                        ConduitClosureId = context.GetArgument<Guid>("conduitClosureId"),
                        ConduitId = context.GetArgument<Guid>("conduitId"),
-                       Side = context.GetArgument<ConduitClosureSideEnum>("side"),
+                       Side = context.GetArgument<ConduitClosureInfoSide>("side"),
                        PortPosition = context.GetArgument<int>("portPosition"),
                        TerminalPosition = context.GetArgument<int>("terminalPosition"),
                    };

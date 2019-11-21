@@ -10,7 +10,7 @@ namespace ConduitNetwork.Business.Commands
     {
         public Guid ConduitClosureId { get; set; }
         public Guid ConduitId { get; set; }
-        public ConduitClosureSideEnum Side { get; set; }
+        public ConduitClosureInfoSide Side { get; set; }
         public int PortPosition { get; set; }
         public int TerminalPosition { get; set; }
     }

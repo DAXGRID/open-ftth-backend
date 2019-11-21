@@ -15,7 +15,7 @@ namespace ConduitNetwork.ReadModel.ConduitClosure
         public Guid LineSegmentId { get; set; }
         public ConduitEndKindEnum LineSegmentEndKind { get; set; }
         public ConduitClosureInternalConnectionKindEnum ConnectionKind { get; set; }
-        public ConduitClosureSideEnum ConnectedToSide { get; set; }
+        public ConduitClosureInfoSide ConnectedToSide { get; set; }
         public int ConnectedToPort { get; set; }
         public int ConnectedToTerminal { get; set; }
 

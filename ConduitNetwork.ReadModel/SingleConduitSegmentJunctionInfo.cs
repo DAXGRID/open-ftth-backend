@@ -9,6 +9,6 @@ namespace ConduitNetwork.ReadModel
 {
     public class SingleConduitSegmentJunctionInfo : ConduitSegmentJunctionInfo
     {
-      
+       
     }
 }

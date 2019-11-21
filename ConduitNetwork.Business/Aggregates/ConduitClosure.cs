@@ -71,7 +71,7 @@ namespace ConduitNetwork.Business.Aggregates
             RaiseEvent(conduitClosureRemoved);
         }
 
-        internal void AttachPassByConduitToClosure(Guid conduitId, ConduitClosureSideEnum incommingSide, ConduitClosureSideEnum outgoingSide, int incommingPortPosition, int outgoingPortPosition, int incommingTerminalPosition, int outgoingTerminalPosition,IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService, IConduitClosureRepository conduitClosureRepository)
+        internal void AttachPassByConduitToClosure(Guid conduitId, ConduitClosureInfoSide incommingSide, ConduitClosureInfoSide outgoingSide, int incommingPortPosition, int outgoingPortPosition, int incommingTerminalPosition, int outgoingTerminalPosition,IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService, IConduitClosureRepository conduitClosureRepository)
         {
 
             // Check if multi conduit is passing by closure
@@ -150,7 +150,7 @@ namespace ConduitNetwork.Business.Aggregates
            RaiseEvent(conduitAttached);
         }
 
-        internal void AttachConduitEndToClosure(Guid conduitId, ConduitClosureSideEnum side, int portPosition, int terminalPosition, IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService, IConduitClosureRepository conduitClosureRepository)
+        internal void AttachConduitEndToClosure(Guid conduitId, ConduitClosureInfoSide side, int portPosition, int terminalPosition, IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService, IConduitClosureRepository conduitClosureRepository)
         {
             // Check if conduit is passing by closure
             var conduit = conduitNetworkQueryService.GetConduitInfo(conduitId);

@@ -50,10 +50,13 @@ namespace ConduitNetwork.Business.Aggregates
                 RaiseEvent(multiConduitPlaced);
 
                 // Create all the inner conduits (if the multi conduit has such - the demo data builder will know)
-                var innerConduitAddedEvents = ConduitEventBuilder.CreateInnerConduitAddedEvents(multiConduitPlaced, demoDataSpec);
+                if (!demoDataSpec.StartsWith("FLEX"))
+                {
+                    var innerConduitAddedEvents = ConduitEventBuilder.CreateInnerConduitAddedEvents(multiConduitPlaced, demoDataSpec);
 
-                foreach (var innerConduitAddedEvent in innerConduitAddedEvents)
-                    RaiseEvent(innerConduitAddedEvent);
+                    foreach (var innerConduitAddedEvent in innerConduitAddedEvents)
+                        RaiseEvent(innerConduitAddedEvent);
+                }
             }
             else
             {
@@ -144,7 +147,9 @@ namespace ConduitNetwork.Business.Aggregates
             });
         }
 
-        internal void CutInnerConduit(int sequenceNumber, Guid pointOfInterestId, IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService)
+       
+
+        public void CutInnerConduit(int sequenceNumber, Guid pointOfInterestId, IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService)
         {
             var multiConduitInfo = conduitNetworkQueryService.GetMultiConduitInfo(Id);
 
@@ -184,6 +189,42 @@ namespace ConduitNetwork.Business.Aggregates
                 InnerConduitSequenceNumber = sequenceNumber,
                 PointOfInterestId = pointOfInterestId
             });
+        }
+
+        internal int AddInnerConduit(ConduitColorEnum color, int outerDiameter, int innerDiameter, IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService)
+        {
+            var multiConduitInfo = conduitNetworkQueryService.GetMultiConduitInfo(Id);
+
+            int seqNo = 1;
+
+            if (multiConduitInfo.Children != null && multiConduitInfo.Children.Count > 0)
+            {
+                var lastInnerConduitSeqNo = multiConduitInfo.Children.Max(c => c.Position);
+                seqNo = lastInnerConduitSeqNo + 1;
+            }
+
+            var innerConduitInfo = new ConduitInfo()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Subrør " + seqNo,
+                Color = color,
+                Kind = ConduitKindEnum.InnerConduit,
+                InnerDiameter = innerDiameter,
+                OuterDiameter = outerDiameter,
+                Shape = ConduitShapeKindEnum.Round,
+                ColorMarking = ConduitColorEnum.None
+            };
+
+            var innerConduitAddedEvent = new MultiConduitInnerConduitAdded()
+            {
+                MultiConduitId = Id,
+                MultiConduitIndex = seqNo,
+                ConduitInfo = innerConduitInfo
+            };
+
+            RaiseEvent(innerConduitAddedEvent);
+
+            return seqNo;
         }
 
         internal void ConnectInnerConduit(Guid pointOfInterestId, int sequenceNumber, ConduitEndKindEnum endKind, Guid junctionId, IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService)
@@ -256,6 +297,31 @@ namespace ConduitNetwork.Business.Aggregates
                 PointOfInterestId = pointOfInterestId,
                 InnerConduitSequenceNumber = sequenceNumber,
                 ConnectedEndKind = endKind,
+                ConnectedJunctionId = junctionId
+            });
+        }
+
+        public void ContinueInnerConduitIntoAnotherMultiConduit(Guid pointOfInterestId, Guid fromConduitSegmentId, Guid toConduitSegmentId, IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkQueryService)
+        {
+            var multiConduitInfo = conduitNetworkQueryService.GetMultiConduitInfo(Id);
+
+            var fromSegment = multiConduitInfo.Segments.Find(s => s.Id == fromConduitSegmentId);
+
+            // Junction id
+            Guid junctionId = Guid.NewGuid();
+
+            // Find from direction
+            ConduitEndKindEnum fromEndKind = ConduitEndKindEnum.Incomming;
+
+            if (fromSegment.FromNodeId == pointOfInterestId)
+                fromEndKind = ConduitEndKindEnum.Outgoing;
+
+            RaiseEvent(new MultiConduitInnerConduitConnected
+            {
+                MultiConduitId = Id,
+                PointOfInterestId = pointOfInterestId,
+                InnerConduitSequenceNumber = fromSegment.Conduit.Position,
+                ConnectedEndKind = fromEndKind,
                 ConnectedJunctionId = junctionId
             });
         }

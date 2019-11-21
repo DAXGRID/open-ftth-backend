@@ -58,14 +58,16 @@ namespace EquipmentService.GraphQL.ConduitClosure
               description: "Cut the outer conduit of a multi conduit",
               arguments: new QueryArguments(
                   new QueryArgument<NonNullGraphType<IdGraphType>> { Name = "pointOfInterestId" },
-                  new QueryArgument<NonNullGraphType<IdGraphType>> { Name = "multiConduitId" },
-                  new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "innerConduitNumber" }
+                  new QueryArgument<IdGraphType> { Name = "innerConduitId" },
+                  new QueryArgument<IdGraphType> { Name = "multiConduitId" },
+                  new QueryArgument<IntGraphType> { Name = "innerConduitNumber" }
               ),
               resolve: context =>
               {
                   var cutInnerConduitCmd = new CutInnerConduitCommand()
                   {
                       MultiConduitId = context.GetArgument<Guid>("multiConduitId"),
+                      InnerConduitId = context.GetArgument<Guid>("innerConduitId"),
                       PointOfInterestId = context.GetArgument<Guid>("pointOfInterestId"),
                       InnerConduitSequenceNumber = context.GetArgument<int>("innerConduitNumber")
                   };
@@ -121,7 +123,39 @@ namespace EquipmentService.GraphQL.ConduitClosure
           );
 
 
-         
+            Field<ConduitInfoType>(
+             "connectConduitSegmentToConduitSegment",
+             description: "A convenience function for connecting conduits together. It will automatically create junctions. Also, if the to conduit segment is a multi conduit, the function will automatically create an inner conduit in the to multi conduit of same type as the from single conduit.",
+             arguments: new QueryArguments(
+                 new QueryArgument<NonNullGraphType<IdGraphType>> { Name = "pointOfInterestId" },
+                 new QueryArgument<NonNullGraphType<IdGraphType>> { Name = "fromConduitSegmentId" },
+                 new QueryArgument<NonNullGraphType<IdGraphType>> { Name = "toConduitSegmentId" }
+             ),
+             resolve: context =>
+             {
+                 var connectConduitSegmentCmd = new ConnectConduitSegmentCommand()
+                 {
+                     PointOfInterestId = context.GetArgument<Guid>("pointOfInterestId"),
+                     FromConduitSegmentId = context.GetArgument<Guid>("fromConduitSegmentId"),
+                     ToConduitSegmentId = context.GetArgument<Guid>("toConduitSegmentId")
+                 };
+
+                 try
+                 {
+                     commandBus.Send(connectConduitSegmentCmd).Wait();
+                 }
+                 catch (Exception ex)
+                 {
+                     context.Errors.Add(new ExecutionError(ex.Message, ex));
+                     return null;
+                 }
+
+                 return null;
+             }
+         );
+
+
+
 
 
         }

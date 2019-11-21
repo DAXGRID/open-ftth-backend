@@ -11,7 +11,7 @@ namespace Demo.BuildTestNetwork
         {
             var services = new ServiceContext();
 
-            RouteNetworkBuilder.Run("../../../../../open-ftth-demo-data/Builder/", services.CommandBus);
+            RouteNetworkBuilder.Run("../../../../Demo.BuildTestNetwork/Data/", services.CommandBus);
 
             ConduitBuilder.Run(services.ServiceProvider.GetService<IConduitNetworkQueryService>(), services.CommandBus);
 

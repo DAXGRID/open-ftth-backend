@@ -50,7 +50,7 @@ namespace ConduitNetwork.Projections.ConduitClosure
             for (int i = 0; i < 4; i++)
                 conduitClosureInfo.Sides.Add(new ConduitClosureSideInfo()
                 {
-                    Position = (ConduitClosureSideEnum)i + 1,
+                    Position = (ConduitClosureInfoSide)i + 1,
                     Ports = new List<ConduitClosurePortInfo>()
                 }); ;
 

@@ -258,10 +258,13 @@ namespace DiagramLayout.Builder
                 {
                     var nTerminals = conduitClosurePort.Terminals.Count;
 
-                    var blockPort = AddMultiConduitPort(conduitClosureBlock, Convert(side.Position), nTerminals, conduitClosurePort.MultiConduitSegment.Conduit.Color.ToString(), -1, -1, 10);
+                    var blockPort = AddMultiConduitPort(conduitClosureBlock, Convert(side.Position), conduitClosurePort.Terminals, conduitClosurePort.MultiConduitSegment.Conduit.Color.ToString(), -1, -1, 10);
+                    blockPort.SetReference(conduitClosurePort.MultiConduitSegment.Id, "MultiConduitSegment");
+
                     blockPortToConduitClosurePort.Add(blockPort, conduitClosurePort);
 
-                    if (side.Position == ConduitClosureSideEnum.Left)
+                    // Add left label blocks
+                    if (side.Position == ConduitClosureInfoSide.Left)
                     {
                         // Add left west label port
                         AddBigConduitPort(leftLabelBlock, BlockSideEnum.Vest, nTerminals, null, -1, -1, 10);
@@ -272,10 +275,11 @@ namespace DiagramLayout.Builder
                         foreach (var terminal in conduitClosurePort.Terminals)
                         {
                             var lineInfo = _conduitNetworkQueryService.CreateConduitLineInfoFromConduitSegment((ConduitSegmentInfo)terminal.LineSegment);
-                            leftLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, terminal.Position, BlockSideEnum.East, 1, terminal.Position, lineInfo.StartRouteNode.Name, "LabelMediumText");
+                            leftLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, blockPort.Index, terminal.Position, BlockSideEnum.East, blockPort.Index, terminal.Position, lineInfo.StartRouteNode.Name, "LabelMediumText");
                         }
                     }
-                    if (side.Position == ConduitClosureSideEnum.Right)
+                    // Add right label block
+                    if (side.Position == ConduitClosureInfoSide.Right)
                     {
                         // Add right west label port
                         AddBigConduitPort(rightLabelBlock, BlockSideEnum.Vest, nTerminals, null, -1, -1, 10);
@@ -286,46 +290,63 @@ namespace DiagramLayout.Builder
                         foreach (var terminal in conduitClosurePort.Terminals)
                         {
                             var lineInfo = _conduitNetworkQueryService.CreateConduitLineInfoFromConduitSegment((ConduitSegmentInfo)terminal.LineSegment);
-                            rightLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, terminal.Position, BlockSideEnum.East, 1, terminal.Position, lineInfo.EndRouteNode.Name, "LabelMediumText");
+                            rightLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, blockPort.Index, terminal.Position, BlockSideEnum.East, blockPort.Index, terminal.Position, lineInfo.EndRouteNode.Name, "LabelMediumText");
                         }
                     }
                 }
             }
 
-            // connect ports
+            conduitClosureBlock.SetSideCenterAllignment(BlockSideEnum.North, true);
+
+            // Connect ports
             foreach (var portEntry in blockPortToConduitClosurePort)
             {
                 var blockPort = portEntry.Key;
                 var conduitClosurePort = portEntry.Value;
 
-                if (blockPort.Side == BlockSideEnum.Vest && conduitClosurePort.ConnectionKind == ConduitClosureInternalConnectionKindEnum.PassThrough)
+                if ((blockPort.Side == BlockSideEnum.Vest || blockPort.Side == BlockSideEnum.North) && conduitClosurePort.ConnectionKind == ConduitClosureInternalConnectionKindEnum.PassThrough)
                 {
-                    var portConnection = conduitClosureBlock.AddPortConnection(BlockSideEnum.Vest, 1, BlockSideEnum.East, 1, null, "MultiConduit" + conduitClosurePort.MultiConduitSegment.Conduit.Color.ToString());
+                    var portConnection = conduitClosureBlock.AddPortConnection(blockPort.Side, blockPort.Index, Convert(conduitClosurePort.ConnectedToSide), conduitClosurePort.ConnectedToPort, null, "MultiConduit" + conduitClosurePort.MultiConduitSegment.Conduit.Color.ToString());
                     portConnection.SetReference(conduitClosurePort.MultiConduitSegment.ConduitId, "Conduit");
                 }
             }
 
-            // connect terminals
+            // Connect terminals
+
+            HashSet<ConduitClosureTerminalInfo> terminalAlreadyProcessed = new HashSet<ConduitClosureTerminalInfo>();
+
             foreach (var portEntry in blockPortToConduitClosurePort)
             {
                 var blockPort = portEntry.Key;
                 var conduitClosurePort = portEntry.Value;
 
-                if (blockPort.Side == BlockSideEnum.Vest)
+                foreach (var terminal in conduitClosurePort.Terminals)
                 {
-                    foreach (var terminal in conduitClosurePort.Terminals)
+                    if (!terminalAlreadyProcessed.Contains(terminal))
                     {
-                        string color = "Red";
+                        terminalAlreadyProcessed.Add(terminal);
 
-                        if (terminal.LineSegment is ConduitSegmentInfo)
+                        if (terminal.ConnectionKind == ConduitClosureInternalConnectionKindEnum.PassThrough || terminal.ConnectionKind == ConduitClosureInternalConnectionKindEnum.Connected)
                         {
-                            var conduitSegmentInfo = terminal.LineSegment as ConduitSegmentInfo;
-                            color = conduitSegmentInfo.Conduit.Color.ToString();
-                        }
+                            string color = "Red";
 
-                        conduitClosureBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, terminal.Position, BlockSideEnum.East, 1, terminal.Position, null, "InnerConduit" + color, LineShapeTypeEnum.Polygon);
+                            if (terminal.LineSegment is ConduitSegmentInfo)
+                            {
+                                var conduitSegmentInfo = terminal.LineSegment as ConduitSegmentInfo;
+                                color = conduitSegmentInfo.Conduit.Color.ToString();
+                            }
+
+                            var terminalConnection = conduitClosureBlock.AddTerminalConnection(blockPort.Side, blockPort.Index, terminal.Position, Convert(terminal.ConnectedToSide), terminal.ConnectedToPort, terminal.ConnectedToTerminal, null, "InnerConduit" + color, LineShapeTypeEnum.Polygon);
+                            terminalConnection.SetReference(terminal.LineId, "InnerConduit");
+
+                            // make sure we don't connect the other way too
+                            var connectedToTerminal = conduitClosureInfo.Sides.Find(s => s.Position == terminal.ConnectedToSide).Ports.Find(p => p.Position == terminal.ConnectedToPort).Terminals.Find(t => t.Position == terminal.ConnectedToTerminal);
+                            terminalAlreadyProcessed.Add(connectedToTerminal);
+                        }
                     }
+
                 }
+
             }
 
 
@@ -341,13 +362,13 @@ namespace DiagramLayout.Builder
             return conduitClosureBlock.DesiredSize.Height;
         }
 
-        private BlockSideEnum Convert(ConduitClosureSideEnum conduitClosureSideEnum)
+        private BlockSideEnum Convert(ConduitClosureInfoSide conduitClosureSideEnum)
         {
-            if (conduitClosureSideEnum == ConduitClosureSideEnum.Left)
+            if (conduitClosureSideEnum == ConduitClosureInfoSide.Left)
                 return BlockSideEnum.Vest;
-            else if (conduitClosureSideEnum == ConduitClosureSideEnum.Top)
+            else if (conduitClosureSideEnum == ConduitClosureInfoSide.Top)
                 return BlockSideEnum.North;
-            else if (conduitClosureSideEnum == ConduitClosureSideEnum.Right)
+            else if (conduitClosureSideEnum == ConduitClosureInfoSide.Right)
                 return BlockSideEnum.East;
             else
                 return BlockSideEnum.South;
@@ -381,7 +402,8 @@ namespace DiagramLayout.Builder
             // Connect west and east terminals
             foreach (var child in conduitSegmentInfo.Children)
             {
-                conduitBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, child.Conduit.Position, BlockSideEnum.East, 1, child.Conduit.Position, null, "InnerConduit" + child.Conduit.Color.ToString(), LineShapeTypeEnum.Polygon);
+                var terminalConnection = conduitBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, child.Conduit.Position, BlockSideEnum.East, 1, child.Conduit.Position, null, "InnerConduit" + child.Conduit.Color.ToString(), LineShapeTypeEnum.Polygon);
+                terminalConnection.SetReference(child.Conduit.Id, "SingleConduit");
             }
 
             conduitBlock.SetSideMargin(sideMargin);
@@ -432,17 +454,13 @@ namespace DiagramLayout.Builder
             {
                 var lineInfo = _conduitNetworkQueryService.CreateConduitLineInfoFromConduitSegment(conduitSegmentInfo);
 
-                rightLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, child.Conduit.Position, BlockSideEnum.East, 1, child.Conduit.Position, lineInfo.EndRouteNode.Name, "LabelMediumText");
+                var terminalConnection = rightLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, child.Conduit.Position, BlockSideEnum.East, 1, child.Conduit.Position, lineInfo.EndRouteNode.Name, "LabelMediumText");
             }
 
             rightLabelBlock.SetSideMargin(sideMargin);
 
             rightLabelBlock.Measure(new Layout.Size());
             builder.ContentObjects.Add(rightLabelBlock);
-
-
-
-
 
 
             return conduitBlock.DesiredSize.Height;
@@ -522,9 +540,37 @@ namespace DiagramLayout.Builder
         private BlockPort AddMultiConduitPort(LineBlock lineBlock, BlockSideEnum side, int nTerminals, string outerConduitColor, double spaceBetweenTerminals = -1, double terminalSize = -1, double portMargin = -1)
         {
             BlockPort port = new BlockPort(side, "MultiConduit" + outerConduitColor, null, spaceBetweenTerminals, terminalSize, portMargin);
-
+         
             for (int i = 0; i < nTerminals; i++)
-                port.AddTerminal(new BlockPortTerminal(true, "InnerConduit" + MockupHelper.GetColorStringFromConduitNumber(i+1)));
+            {
+                var newTerminal = new BlockPortTerminal(true, "InnerConduit" + MockupHelper.GetColorStringFromConduitNumber(i + 1));
+                port.AddTerminal(newTerminal);
+            }
+
+            lineBlock.AddPort(port);
+
+            return port;
+        }
+
+        private BlockPort AddMultiConduitPort(LineBlock lineBlock, BlockSideEnum side, List<ConduitClosureTerminalInfo> terminals, string outerConduitColor, double spaceBetweenTerminals = -1, double terminalSize = -1, double portMargin = -1)
+        {
+            BlockPort port = new BlockPort(side, "MultiConduit" + outerConduitColor, null, spaceBetweenTerminals, terminalSize, portMargin);
+
+            foreach (var terminal in terminals)
+            {
+                if (terminal.LineSegment is ConduitSegmentInfo)
+                {
+                    ConduitSegmentInfo conduitSegment = terminal.LineSegment as ConduitSegmentInfo;
+                    bool visible = false;
+
+                    if (terminal.ConnectionKind == ConduitClosureInternalConnectionKindEnum.NotConnected)
+                        visible = true;
+
+                    var blockTerminal = new BlockPortTerminal(visible, "InnerConduit" + conduitSegment.Conduit.Color.ToString());
+                    blockTerminal.SetReference(conduitSegment.Id, "InnerConduitSegment");
+                    port.AddTerminal(blockTerminal);
+                }
+            }
 
             lineBlock.AddPort(port);
 

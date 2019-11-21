@@ -60,6 +60,7 @@ namespace Demo.BuildTestNetwork.Builders
                         string[] buildCodeSplit = buildCode.Split('-');
                         newConduitBuildInfo.BuildCodeSpecificationCode = buildCodeSplit[0];
                         newConduitBuildInfo.BuildCodeConduitId = Int32.Parse(buildCodeSplit[1]);
+                       
 
                         if (buildCode.StartsWith("S"))
                             newConduitBuildInfo.MultiConduit = false;

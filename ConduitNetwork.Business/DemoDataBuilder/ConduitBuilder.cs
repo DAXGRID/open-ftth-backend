@@ -81,7 +81,7 @@ namespace ConduitNetwork.Business.DemoDataBuilder
             }
 
             // Handle common Emetelle conduit types
-            if (conduitType.StartsWith("E"))
+            else if (conduitType.StartsWith("E"))
             {
                 assetInfo.Manufacturer = new ManufacturerInfo()
                 {
@@ -118,6 +118,28 @@ namespace ConduitNetwork.Business.DemoDataBuilder
                 else
                     throw new ArgumentException("Don't know how to handle Emetelle conduit type: " + conduitType);
             }
+            // Handle flex conduit
+            else if (conduitType.StartsWith("FLEX"))
+            {
+                assetInfo.Manufacturer = new ManufacturerInfo()
+                {
+                    Name = "GM Plast"
+                };
+
+                assetInfo.Model = new ProductModelInfo()
+                {
+                    Name = "Ø40 Flex"
+                };
+
+                outerConduitDiameter = 40;
+                conduitColor = ConduitColorEnum.Red;
+            }
+            else
+            {
+                throw new Exception("Don't know how to handle conduit spec: " + conduitType);
+            }
+
+          
 
             var conduitInfo = new ConduitInfo()
             {

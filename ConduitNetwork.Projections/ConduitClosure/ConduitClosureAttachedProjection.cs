@@ -36,6 +36,7 @@ namespace ConduitNetwork.Projections.ConduitClosure
             },
             OnConduitClosurePassingByConduitAttached);
 
+
             // Conduit end attached to closure
             ProjectEvent<ConduitClosureConduitEndAttached>(
             (session, e) =>
@@ -44,7 +45,60 @@ namespace ConduitNetwork.Projections.ConduitClosure
             },
             OnConduitClosureConduitEndAttached);
 
+
+            // Inner conduit added to multi conduit
+            ProjectEvent<MultiConduitInnerConduitAdded>((session, e) =>
+            {
+                // Try find conduit closure affected by inner conduit addition
+                if (conduitClosureRepository.CheckIfConduitClosureIsRelatedToLine(e.MultiConduitId))
+                {
+                    var conduitClosure = conduitClosureRepository.GetConduitClosureInfoByRelatedLineId(e.MultiConduitId);
+
+                    if (conduitClosure.Sides.Exists(s => s.Ports.Exists(p => p.MultiConduitId == e.MultiConduitId)))
+                    {
+                        return conduitClosure.Id;
+                    }
+                }
+
+                return Guid.Empty;
+            },
+            OnMultiConduitInnerConduitAdded);
+
         }
+
+
+        private void OnMultiConduitInnerConduitAdded(ConduitClosureInfo conduitClosureInfo, MultiConduitInnerConduitAdded @event)
+        {
+            // Get conduit
+            var conduit = conduitNetworkQueryService.GetConduitInfo(@event.MultiConduitId);
+            var innerConduit = conduit.Children.Find(c => c.Position == @event.MultiConduitIndex);
+
+            // Find port where multi conduit is connected
+
+            ConduitClosureSideInfo foundSide = null;
+            ConduitClosurePortInfo foundPort = null;
+
+            foreach (var side in conduitClosureInfo.Sides)
+            {
+                foreach (var port in side.Ports)
+                {
+                    if (port.MultiConduitId == @event.MultiConduitId)
+                    {
+                        foundSide = side;
+                        foundPort = port;
+                    }
+
+                }
+            }
+
+            if (foundPort != null)
+            {
+                AttachSingleConduitToPortTerminal(conduitClosureInfo, innerConduit.Id, foundSide.Position, foundPort.Position, @event.MultiConduitIndex);
+                conduitClosureRepository.UpdateConduitClosureInfo(conduitClosureInfo);
+            }
+
+        }
+
 
         private void OnConduitClosurePassingByConduitAttached(ConduitClosureInfo conduitClosureInfo, ConduitClosurePassingByConduitAttached @event)
         {
@@ -54,11 +108,11 @@ namespace ConduitNetwork.Projections.ConduitClosure
             if (conduit is MultiConduitInfo)
             {
                 // Incomming side
-                AttachMultiConduitToPort(conduitClosureInfo, @event, @event.IncommingSide);
+                AttachMultiConduitToPort(conduitClosureInfo, @event.ConduitId, @event.IncommingSide, @event.IncommingSide, @event.IncommingPortPosition, @event.OutgoingSide, @event.OutgoingPortPosition);
                 AttachInnerConduitsToTerminals(conduitClosureInfo, @event, @event.IncommingSide);
 
                 // Outgoing side
-                AttachMultiConduitToPort(conduitClosureInfo, @event, @event.OutgoingSide);
+                AttachMultiConduitToPort(conduitClosureInfo, @event.ConduitId, @event.OutgoingSide, @event.IncommingSide, @event.IncommingPortPosition, @event.OutgoingSide, @event.OutgoingPortPosition);
                 AttachInnerConduitsToTerminals(conduitClosureInfo, @event, @event.OutgoingSide);
 
                 conduitClosureRepository.UpdateConduitClosureInfo(conduitClosureInfo);
@@ -72,66 +126,36 @@ namespace ConduitNetwork.Projections.ConduitClosure
 
             if (conduit is MultiConduitInfo)
             {
-                //AttachMultiConduitToPort(conduitClosureInfo, @event, @event.Side);
-                //AttachInnerConduitsToTerminals(conduitClosureInfo, @event, @event.IncommingSide);
+                AttachMultiConduitEndToPort(conduitClosure, @event.ConduitId, @event.Side, @event.PortPosition);
+                //AttachInnerConduitsToTerminals(conduitClosure, @event, @event.IncommingSide);
+                conduitClosureRepository.UpdateConduitClosureInfo(conduitClosure);
             }
             else if (conduit is SingleConduitInfo)
             {
-                AttachSingleConduitToPortTerminal(conduitClosure, @event);
+                AttachSingleConduitToPortTerminal(conduitClosure, @event.ConduitId, @event.Side, @event.PortPosition, @event.TerminalPosition);
                 conduitClosureRepository.UpdateConduitClosureInfo(conduitClosure);
             }
         }
 
-        private void AttachSingleConduitToPortTerminal(ConduitClosureInfo conduitClosureInfo, ConduitClosureConduitEndAttached @event)
+        private ConduitClosurePortInfo AttachMultiConduitEndToPort(ConduitClosureInfo conduitClosureInfo, Guid conduitId, ConduitClosureInfoSide sidePosition, int portPosition)
         {
             // Get conduit
-            var conduit = conduitNetworkQueryService.GetConduitInfo(@event.ConduitId);
+            var conduit = conduitNetworkQueryService.GetConduitInfo(conduitId);
 
             // Find the conduit segment that is related to the point of interest of the conduit closure
             var relatedSegmentInfo = FindRelatedSegmentInfo(conduit, conduitClosureInfo.PointOfInterestId);
-
-            var side = conduitClosureInfo.Sides.Find(s => s.Position == @event.Side);
-            var portPosition = @event.PortPosition;
-            var endKind = relatedSegmentInfo.RelationType == ConduitRelationTypeEnum.Incomming ? ConduitEndKindEnum.Incomming : ConduitEndKindEnum.Outgoing;
-
-            // Create port
-            var newPort = new ConduitClosurePortInfo()
-            {
-                Position = portPosition,
-                ConnectionKind = ConduitClosureInternalConnectionKindEnum.NotConnected
-            };
-
-
-            // Create terminal
-            var newTerminal = new ConduitClosureTerminalInfo()
-            {
-                Position = @event.TerminalPosition,
-                ConnectionKind = ConduitClosureInternalConnectionKindEnum.NotConnected,
-                LineId = @event.ConduitId,
-                LineSegmentId = relatedSegmentInfo.Segment.Id,
-                LineSegmentEndKind = endKind
-            };
-
-            newPort.Terminals.Add(newTerminal);
-
-            side.Ports.Add(newPort);
-
-        }
-
-
-        private ConduitClosurePortInfo AttachMultiConduitToPort(ConduitClosureInfo conduitClosureInfo, ConduitClosurePassingByConduitAttached @event, ConduitClosureSideEnum sidePosition)
-        {
-            // Get conduit
-            var conduit = conduitNetworkQueryService.GetConduitInfo(@event.ConduitId);
 
             // Get conduit end kind (to be placed on terminal)
-            var endKind = @event.IncommingSide == sidePosition ? ConduitEndKindEnum.Incomming : ConduitEndKindEnum.Outgoing;
+            var endKind = ConduitEndKindEnum.Outgoing;
 
-            // Find the conduit segment that is related to the point of interest of the conduit closure
-            var relatedSegmentInfo = FindRelatedSegmentInfo(conduit, conduitClosureInfo.PointOfInterestId);
+            if (relatedSegmentInfo.RelationType == ConduitRelationTypeEnum.Incomming)
+                endKind = ConduitEndKindEnum.Incomming;
+            else if (relatedSegmentInfo.RelationType == ConduitRelationTypeEnum.Outgoing)
+                endKind = ConduitEndKindEnum.Outgoing;
+            else
+                throw new Exception("Cannot attach conduit: " + conduitId + " in conduitClosure: " + conduitClosureInfo.Id + " because the outer conduit is not cut.");
 
             var side = conduitClosureInfo.Sides.Find(s => s.Position == sidePosition);
-            var portPosition = @event.IncommingSide == sidePosition ? @event.IncommingPortPosition : @event.OutgoingPortPosition;
 
             // Create port
             var newPort = new ConduitClosurePortInfo()
@@ -164,7 +188,98 @@ namespace ConduitNetwork.Projections.ConduitClosure
             return newPort;
         }
 
-        private void AttachInnerConduitsToTerminals(ConduitClosureInfo conduitClosureInfo, ConduitClosurePassingByConduitAttached @event, ConduitClosureSideEnum sidePosition)
+
+        private void AttachSingleConduitToPortTerminal(ConduitClosureInfo conduitClosureInfo, Guid conduitId, ConduitClosureInfoSide sideParam, int portPosition, int terminalPosition)
+        {
+            // Get conduit
+            var conduit = conduitNetworkQueryService.GetConduitInfo(conduitId);
+
+            // Find the conduit segment that is related to the point of interest of the conduit closure
+            var relatedSegmentInfo = FindRelatedSegmentInfo(conduit, conduitClosureInfo.PointOfInterestId);
+
+            var side = conduitClosureInfo.Sides.Find(s => s.Position == sideParam);
+            var endKind = relatedSegmentInfo.RelationType == ConduitRelationTypeEnum.Incomming ? ConduitEndKindEnum.Incomming : ConduitEndKindEnum.Outgoing;
+
+            // Find or create port
+            ConduitClosurePortInfo port = null;
+            
+            if (!side.Ports.Exists(p => p.Position == portPosition))
+            {
+                port = new ConduitClosurePortInfo()
+                {
+                    Position = portPosition,
+                    ConnectionKind = ConduitClosureInternalConnectionKindEnum.NotConnected
+                };
+
+                side.Ports.Add(port);
+            }
+            else
+                port = side.Ports.Find(p => p.Position == portPosition);
+
+
+            // Create terminal
+            var newTerminal = new ConduitClosureTerminalInfo()
+            {
+                Position = terminalPosition,
+                ConnectionKind = ConduitClosureInternalConnectionKindEnum.NotConnected,
+                LineId = conduitId,
+                LineSegmentId = relatedSegmentInfo.Segment.Id,
+                LineSegmentEndKind = endKind
+            };
+
+            port.Terminals.Add(newTerminal);
+
+            
+
+        }
+
+
+        private ConduitClosurePortInfo AttachMultiConduitToPort(ConduitClosureInfo conduitClosureInfo, Guid conduitId, ConduitClosureInfoSide sidePosition, ConduitClosureInfoSide incommingSide, int incommingPortPosition, ConduitClosureInfoSide outgoingSide, int outgoingPortPosition)
+        {
+            // Get conduit
+            var conduit = conduitNetworkQueryService.GetConduitInfo(conduitId);
+
+            // Get conduit end kind (to be placed on terminal)
+            var endKind = incommingSide == sidePosition ? ConduitEndKindEnum.Incomming : ConduitEndKindEnum.Outgoing;
+
+            // Find the conduit segment that is related to the point of interest of the conduit closure
+            var relatedSegmentInfo = FindRelatedSegmentInfo(conduit, conduitClosureInfo.PointOfInterestId);
+
+            var side = conduitClosureInfo.Sides.Find(s => s.Position == sidePosition);
+            var portPosition = incommingSide == sidePosition ? incommingPortPosition : outgoingPortPosition;
+
+            // Create port
+            var newPort = new ConduitClosurePortInfo()
+            {
+                Position = portPosition,
+                ConnectionKind = ConduitClosureInternalConnectionKindEnum.NotConnected,
+                MultiConduitId = conduit.Id,
+                MultiConduitSegmentId = relatedSegmentInfo.Segment.Id,
+                MultiConduitSegmentEndKind = endKind
+            };
+
+            // Try find other side
+            var otherSidePort = FindRelatedPort(conduitClosureInfo, relatedSegmentInfo.Segment.Id);
+
+            if (otherSidePort != null)
+            {
+                newPort.ConnectedToSide = otherSidePort.Side;
+                newPort.ConnectedToPort = otherSidePort.Port;
+                newPort.ConnectionKind = otherSidePort.ConnectionKind;
+
+                // Update the other end as well
+                var otherEndPort = conduitClosureInfo.Sides.Find(s => s.Position == otherSidePort.Side).Ports.Find(p => p.Position == otherSidePort.Port);
+                otherEndPort.ConnectedToSide = sidePosition;
+                otherEndPort.ConnectedToPort = portPosition;
+                otherEndPort.ConnectionKind = otherSidePort.ConnectionKind;
+            }
+
+            side.Ports.Add(newPort);
+
+            return newPort;
+        }
+
+        private void AttachInnerConduitsToTerminals(ConduitClosureInfo conduitClosureInfo, ConduitClosurePassingByConduitAttached @event, ConduitClosureInfoSide sidePosition)
         {
             // Get side
             var side = conduitClosureInfo.Sides.Find(s => s.Position == sidePosition);
@@ -376,14 +491,14 @@ namespace ConduitNetwork.Projections.ConduitClosure
 
         private class RelatedConduitClosurePortInfo
         {
-            public ConduitClosureSideEnum Side { get; set; }
+            public ConduitClosureInfoSide Side { get; set; }
             public int Port { get; set; }
             public ConduitClosureInternalConnectionKindEnum ConnectionKind { get; set; }
         }
 
         private class RelatedConduitClosureTerminalInfo
         {
-            public ConduitClosureSideEnum Side { get; set; }
+            public ConduitClosureInfoSide Side { get; set; }
             public int Port { get; set; }
             public int Terminal { get; set; }
             public ConduitClosureInternalConnectionKindEnum ConnectionKind { get; set; }

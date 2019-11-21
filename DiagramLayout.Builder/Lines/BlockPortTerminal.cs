@@ -35,6 +35,15 @@ namespace DiagramLayout.Builder.Lines
             set { _length = value; }
         }
 
+        private Guid _refId;
+        private string _refClass;
+
+        public void SetReference(Guid refId, string refClass)
+        {
+            this._refId = refId;
+            this._refClass = refClass;
+        }
+
         public double Thickness
         {
             get { return Port.PortThickness / 2 + (Port.PortThickness / 2); }
@@ -53,6 +62,10 @@ namespace DiagramLayout.Builder.Lines
 
             // Create terminal diagram object
             var terminalPolygon = new DiagramObject();
+
+            if (_refClass != null)
+                terminalPolygon.IdentifiedObject = new IdentifiedObjectReference() { RefId = _refId, RefClass = _refClass };
+
             terminalPolygon.Style = _style == null ? "LinkBlockTerminal" : _style;
 
             var rectWidth = Port.IsVertical ? Port.PortThickness + (Port.PortThickness / 2) : Length;

@@ -16,6 +16,15 @@ namespace DiagramLayout.Builder.Lines
         public string Label { get; set; }
         public string Style { get; set; }
 
+        private Guid _refId;
+        private string _refClass;
+
+        public void SetReference(Guid refId, string refClass)
+        {
+            this._refId = refId;
+            this._refClass = refClass;
+        }
+
         internal IEnumerable<DiagramObject> CreateDiagramObjects()
         {
             List<DiagramObject> result = new List<DiagramObject>();
@@ -40,6 +49,7 @@ namespace DiagramLayout.Builder.Lines
 
                 result.Add(new DiagramObject()
                 {
+                    IdentifiedObject = _refClass == null ? null : new IdentifiedObjectReference() { RefId = _refId, RefClass = _refClass },
                     Style = Style is null ? "Cable" : Style,
                     Label = this.Label,
                     Geometry = poly
@@ -51,6 +61,7 @@ namespace DiagramLayout.Builder.Lines
 
                 result.Add(new DiagramObject()
                 {
+                    IdentifiedObject = _refClass == null ? null : new IdentifiedObjectReference() { RefId = _refId, RefClass = _refClass },
                     Style = Style is null ? "Cable" : Style,
                     Label = this.Label,
                     Geometry = curve

@@ -19,6 +19,8 @@ namespace ConduitNetwork.QueryService.ConduitClosure
 
         private Dictionary<Guid, ConduitClosureInfo> _conduitClosureByPointOfInterestId = new Dictionary<Guid, ConduitClosureInfo>();
 
+        private Dictionary<Guid, ConduitClosureInfo> _conduitClosureByLineId = new Dictionary<Guid, ConduitClosureInfo>();
+
 
         public ConduitClosureRepository(IDocumentStore documentStore, IConduitNetworkQueryService conduitNetworkQueryService)
         {
@@ -39,6 +41,7 @@ namespace ConduitNetwork.QueryService.ConduitClosure
         {
             _conduitClosureInfos = new Dictionary<Guid, ConduitClosureInfo>();
             _conduitClosureByPointOfInterestId = new Dictionary<Guid, ConduitClosureInfo>();
+            _conduitClosureByLineId = new Dictionary<Guid, ConduitClosureInfo>();
 
             // Read everything into memory for fast access
             using (var session = documentStore.LightweightSession())
@@ -76,6 +79,21 @@ namespace ConduitNetwork.QueryService.ConduitClosure
 
             // Resolve references
             ResolveConduitSegmentReferences(conduitClosureInfo);
+
+            // Index conduits
+            IndexConduits(conduitClosureInfo);
+        }
+
+        private void IndexConduits(ConduitClosureInfo conduitClosureInfo)
+        {
+            foreach (var side in conduitClosureInfo.Sides)
+            {
+                foreach (var port in side.Ports)
+                {
+                    if (port.MultiConduitSegment != null && !_conduitClosureByLineId.ContainsKey(port.MultiConduitSegment.ConduitId))
+                        _conduitClosureByLineId[port.MultiConduitSegment.ConduitId] = conduitClosureInfo;
+                }
+            }
         }
 
         private void ResolveConduitSegmentReferences(ConduitClosureInfo conduitClosureInfo)
@@ -131,6 +149,22 @@ namespace ConduitNetwork.QueryService.ConduitClosure
         public bool CheckIfConduitClosureAlreadyAddedToPointOfInterest(Guid pointOfInterestId)
         {
             if (_conduitClosureByPointOfInterestId.ContainsKey(pointOfInterestId))
+                return true;
+            else
+                return false;
+        }
+
+        public ConduitClosureInfo GetConduitClosureInfoByRelatedLineId(Guid lineId)
+        {
+            if (_conduitClosureByLineId.ContainsKey(lineId))
+                return _conduitClosureByLineId[lineId];
+
+            throw new KeyNotFoundException("Cannot find any conduit closure info related to line with id: " + lineId);
+        }
+
+        public bool CheckIfConduitClosureIsRelatedToLine(Guid lineId)
+        {
+            if (_conduitClosureByLineId.ContainsKey(lineId))
                 return true;
             else
                 return false;

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ConduitNetwork.Events.Model
 {
-    public enum ConduitClosureSideEnum
+    public enum ConduitClosureInfoSide
     {
         Top = 1,
         Right = 2,

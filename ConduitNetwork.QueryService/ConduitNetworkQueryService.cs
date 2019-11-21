@@ -431,14 +431,16 @@ namespace ConduitNetwork.QueryService
                 {
                     if (!_singleConduitJuncionInfos.ContainsKey(segment.FromJunctionId))
                     {
-                        var newJunction = new SingleConduitSegmentJunctionInfo() { Id = segment.FromJunctionId, ToConduitSegment = segment };
+                        var newJunction = new SingleConduitSegmentJunctionInfo() { Id = segment.FromJunctionId };
+                        newJunction.AddToConduitSegment(segment);
                         _singleConduitJuncionInfos.Add(newJunction.Id, newJunction);
                         segment.FromJunction = newJunction;
                     }
                     else
                     {
                         var existingJunction = _singleConduitJuncionInfos[segment.FromJunctionId];
-                        existingJunction.ToConduitSegment = segment;
+                        //existingJunction.ToConduitSegments = segment;
+                        existingJunction.AddToConduitSegment(segment);
                         segment.FromJunction = existingJunction;
                     }
                 }
@@ -448,14 +450,15 @@ namespace ConduitNetwork.QueryService
                 {
                     if (!_singleConduitJuncionInfos.ContainsKey(segment.ToJunctionId))
                     {
-                        var newJunction = new SingleConduitSegmentJunctionInfo() { Id = segment.ToJunctionId, FromConduitSegment = segment };
+                        var newJunction = new SingleConduitSegmentJunctionInfo() { Id = segment.ToJunctionId };
+                        newJunction.AddFromConduitSegment(segment);
                         _singleConduitJuncionInfos.Add(newJunction.Id, newJunction);
                         segment.ToJunction = newJunction;
                     }
                     else
                     {
                         var existingJunction = _singleConduitJuncionInfos[segment.ToJunctionId];
-                        existingJunction.FromConduitSegment = segment;
+                        existingJunction.AddFromConduitSegment(segment);
                         segment.ToJunction = existingJunction;
                     }
                 }

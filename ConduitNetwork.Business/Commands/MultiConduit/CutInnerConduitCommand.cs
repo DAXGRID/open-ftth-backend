@@ -10,5 +10,6 @@ namespace ConduitNetwork.Business.Commands
         public Guid MultiConduitId { get; set; }
         public Guid PointOfInterestId { get; set; }
         public int InnerConduitSequenceNumber { get; set; }
+        public Guid InnerConduitId { get; set; }
     }
 }

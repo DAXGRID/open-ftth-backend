@@ -168,10 +168,7 @@ namespace ConduitNetwork.Projections.ConduitClosure
                     }
                 }
             }
-
         }
-
-
 
         private void OnMultiConduitOuterConduitCut(ConduitClosureInfo conduitClosure, MultiConduitOuterConduitCut @event)
         {
@@ -405,7 +402,7 @@ namespace ConduitNetwork.Projections.ConduitClosure
 
         private class RelatedConduitClosurePortInfo
         {
-            public ConduitClosureSideEnum Side { get; set; }
+            public ConduitClosureInfoSide Side { get; set; }
             public int Port { get; set; }
             public int Terminal { get; set; }
             public ConduitClosureInternalConnectionKindEnum ConnectionKind { get; set; }

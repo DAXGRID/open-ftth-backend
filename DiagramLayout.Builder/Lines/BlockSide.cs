@@ -10,6 +10,8 @@ namespace DiagramLayout.Builder.Lines
         private readonly BlockSideEnum _side;
         public BlockSideEnum Side => _side;
 
+        public bool CenterAlignment = false;
+
         private double _sideMargin = 40;
         public double SideMargin
         {
@@ -20,9 +22,12 @@ namespace DiagramLayout.Builder.Lines
         private double _spaceBetweenPorts = 20;
 
         private List<BlockPort> _ports = new List<BlockPort>();
-               
-        public BlockSide(BlockSideEnum side)
+        private LineBlock _lineBlock = null;
+
+
+        public BlockSide(LineBlock lineBlock, BlockSideEnum side)
         {
+            _lineBlock = lineBlock;
             _side = side;
         }
 
@@ -67,6 +72,20 @@ namespace DiagramLayout.Builder.Lines
             double portX = offsetX;
             double portY = offsetY;
 
+            if (CenterAlignment && (_side == BlockSideEnum.North || _side == BlockSideEnum.South))
+            {
+                double totalPortLength = 0;
+
+                foreach (var port in _ports)
+                    totalPortLength += port.Length;
+
+                double spaceLeft = _lineBlock.MinWidth - totalPortLength;
+
+                double portSpace = spaceLeft / (_ports.Count + 1);
+                _sideMargin = portSpace;
+                _spaceBetweenPorts = portSpace;
+            }
+
             if (_side == BlockSideEnum.Vest || _side == BlockSideEnum.East)
                 portY += _sideMargin;
             else if (_side == BlockSideEnum.North || _side == BlockSideEnum.South)
@@ -97,6 +116,7 @@ namespace DiagramLayout.Builder.Lines
                 portX += xStep;
                 portY += yStep;
             }
+
 
 
             return result;

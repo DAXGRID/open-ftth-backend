@@ -24,6 +24,15 @@ namespace DiagramLayout.Builder.Lines
         public double PortEndX { get; set; }
         public double PortEndY { get; set; }
 
+        private Guid _refId;
+        private string _refClass;
+
+        public void SetReference(Guid refId, string refClass)
+        {
+            this._refId = refId;
+            this._refClass = refClass;
+        }
+
 
         public BlockPort(BlockSideEnum side, string style = null, string label = null, double spaceBetweenTerminals = -1, double terminalSize = -1, double portMargin = -1)
         {
@@ -101,10 +110,12 @@ namespace DiagramLayout.Builder.Lines
             var portOffsetX = offsetX;
             var portOffsetY = offsetY;
 
-          
-
             // Create port diagram object
             var portPolygon = new DiagramObject();
+
+            if (_refClass != null)
+                portPolygon.IdentifiedObject = new IdentifiedObjectReference() { RefId = _refId, RefClass = _refClass };
+
             if (_style != null)
                 portPolygon.Style = _style;
             else

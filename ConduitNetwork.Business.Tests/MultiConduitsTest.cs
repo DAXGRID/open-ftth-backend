@@ -533,5 +533,128 @@ namespace ConduitNetwork.Business.Tests
 
         }
 
+        [Fact]
+        public async void AddInnerConduitTest()
+        {
+            var conduitNetworkQueryService = serviceContext.ServiceProvider.GetService<IConduitNetworkQueryService>();
+            var conduitSpecRepo = serviceContext.ServiceProvider.GetService<IConduitSpecificationRepository>();
+
+            var fixture = new Fixture();
+
+            // Register walk from cabinet 1 -> junction 1
+            var registerWalkCmd = fixture.Build<RegisterWalkOfInterestCommand>()
+                .With(x => x.RouteElementIds, new List<Guid> { testCabinet1, testCabinet1ToJunction1, testJunction1 })
+                .Create();
+
+            serviceContext.CommandBus.Send(registerWalkCmd).Wait();
+
+            // Create flex conduit
+            var addMultiConduitCommand = fixture.Build<PlaceMultiConduitCommand>()
+                .With(x => x.WalkOfInterestId, registerWalkCmd.WalkOfInterestId)
+                .With(x => x.Name, string.Empty)
+                .With(x => x.DemoDataSpec, "FLEX-1")
+                .Create();
+
+            await serviceContext.CommandBus.Send(addMultiConduitCommand);
+
+            // Add inner conduit 1
+            var addInnerConduitCmd1 = fixture.Build<AddInnerConduitCommand>()
+                .With(x => x.MultiConduitId, addMultiConduitCommand.MultiConduitId)
+                .With(x => x.Color, Events.Model.ConduitColorEnum.Blue)
+                .With(x => x.OuterDiameter, 12)
+                .With(x => x.InnerDiameter, 10)
+                .Create();
+
+            await serviceContext.CommandBus.Send(addInnerConduitCmd1);
+
+            var multiConduitInfo = conduitNetworkQueryService.GetMultiConduitInfo(addMultiConduitCommand.MultiConduitId);
+
+            // Check that multi conduit now has one child at positon 1
+            Assert.True(multiConduitInfo.Children.Count == 1);
+            Assert.True(multiConduitInfo.Children.Count(c => c.Position == 1) == 1);
+
+            // Add inner conduit 2
+            var addInnerConduitCmd2 = fixture.Build<AddInnerConduitCommand>()
+                .With(x => x.MultiConduitId, addMultiConduitCommand.MultiConduitId)
+                .With(x => x.Color, Events.Model.ConduitColorEnum.Blue)
+                .With(x => x.OuterDiameter, 12)
+                .With(x => x.InnerDiameter, 10)
+                .Create();
+
+            await serviceContext.CommandBus.Send(addInnerConduitCmd2);
+
+            multiConduitInfo = conduitNetworkQueryService.GetMultiConduitInfo(addMultiConduitCommand.MultiConduitId);
+
+            // Check that multi conduit now has two children
+            Assert.True(multiConduitInfo.Children.Count == 2);
+            Assert.True(multiConduitInfo.Children.Count(c => c.Position == 2) == 1);
+
+        }
+
+        [Fact]
+        public async void ConnectConduitSegmentTest()
+        {
+            var conduitNetworkQueryService = serviceContext.ServiceProvider.GetService<IConduitNetworkQueryService>();
+            var conduitSpecRepo = serviceContext.ServiceProvider.GetService<IConduitSpecificationRepository>();
+
+            var fixture = new Fixture();
+
+            // Register walk from cabinet 1 -> junction 1
+            var multiConduitRegisterWalkCmd = fixture.Build<RegisterWalkOfInterestCommand>()
+                .With(x => x.RouteElementIds, new List<Guid> { testCabinet1, testCabinet1ToJunction1, testJunction1 })
+                .Create();
+
+            await serviceContext.CommandBus.Send(multiConduitRegisterWalkCmd);
+
+            // Create a GM Plast Flatliner 10x12/8 using demo data builder
+            var createMultiConduitCmd = fixture.Build<PlaceMultiConduitCommand>()
+                .With(x => x.WalkOfInterestId, multiConduitRegisterWalkCmd.WalkOfInterestId)
+                .With(x => x.Name, string.Empty)
+                .With(x => x.DemoDataSpec, "G10F-2-BL") // Flatliner with 10 inner conduits, conduit name = 2, black marking
+                .Create();
+
+            await serviceContext.CommandBus.Send(createMultiConduitCmd);
+
+
+            // Create flex conduit
+            var flexConduitRegisterWalkCmd = fixture.Build<RegisterWalkOfInterestCommand>()
+                .With(x => x.RouteElementIds, new List<Guid> { testJunction1, testJunction1ToJunction2, testJunction2 })
+                .Create();
+
+            await serviceContext.CommandBus.Send(flexConduitRegisterWalkCmd);
+
+            var createFlexConduitCmd = fixture.Build<PlaceMultiConduitCommand>()
+                .With(x => x.WalkOfInterestId, flexConduitRegisterWalkCmd.WalkOfInterestId)
+                .With(x => x.Name, string.Empty)
+                .With(x => x.DemoDataSpec, "FLEX-1")
+                .Create();
+
+            await serviceContext.CommandBus.Send(createFlexConduitCmd);
+
+
+            // Connection inner conduit 3 of multi conduit to flex conduit
+
+            var multiConduit = conduitNetworkQueryService.GetMultiConduitInfo(createMultiConduitCmd.MultiConduitId);
+            var fromSegment = multiConduit.Children.Find(c => c.Position == 3).Segments[0];
+
+            var flexConduit = conduitNetworkQueryService.GetMultiConduitInfo(createFlexConduitCmd.MultiConduitId);
+            var toSegment = flexConduit.Segments[0];
+
+            var connectConduitSegmentCmd = fixture.Build<ConnectConduitSegmentCommand>()
+              .With(x => x.PointOfInterestId, testJunction1)
+              .With(x => x.FromConduitSegmentId, fromSegment.Id)
+              .With(x => x.ToConduitSegmentId, toSegment.Id)
+              .Create();
+
+            await serviceContext.CommandBus.Send(connectConduitSegmentCmd);
+
+            // Flex conduit now must have one child
+            flexConduit = conduitNetworkQueryService.GetMultiConduitInfo(createFlexConduitCmd.MultiConduitId);
+            Assert.Single(flexConduit.Children);
+
+            // Flex conduit inner conduit 1 must be connected upstream to flatliner inner conduit 3
+            Assert.NotNull(flexConduit.Children[0].Segments[0].FromJunction);
+            //Assert.True(flexConduit.Children[0].Segments[0].FromJunction.NeighborElements.Exists(n => n.iConduit.Parent.Id == createMultiConduitCmd.MultiConduitId);
+        }
     }
 }

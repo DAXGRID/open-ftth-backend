@@ -61,6 +61,9 @@ namespace EquipmentService.GraphQL.ConduitClosure
                       conduitNetwork.Clean();
                       conduitClosureRepository.Clean();
 
+                      // Add additional demo objects by code
+                      CreateAdditionalDemoObject(commandBus);
+
                       return "Read models cleaned and test data was rebuilt.";
 
                   }
@@ -71,6 +74,42 @@ namespace EquipmentService.GraphQL.ConduitClosure
                   }
               }
           );
+
+
+        }
+
+        void CreateAdditionalDemoObject(IMediator commandBus)
+        {
+            var conduitClosureId = Guid.Parse("4ba4e2de-a06d-4168-b85b-a65490a9f313");
+            var pointOfInterestId = Guid.Parse("0b2168f2-d9be-455c-a4de-e9169f000122");
+
+            // Create conduit closure in J-1010
+            var createConduitClosureCmd = new PlaceConduitClosureCommand()
+            {
+                ConduitClosureId = conduitClosureId,
+                PointOfInterestId = pointOfInterestId
+            };
+
+            commandBus.Send(createConduitClosureCmd).Wait();
+
+            // Attached the two flex conduits from J-1010 to SP-1010 to conduit closure
+            var attachFlexConduitCmd1 = new AttachConduitEndToClosureCommand()
+            {
+                ConduitClosureId = conduitClosureId,
+                ConduitId = Guid.Parse("9f779e83-9ffd-e5dd-2cfe-cb58197f74b0"),
+                Side = ConduitClosureInfoSide.Top
+            };
+
+            commandBus.Send(attachFlexConduitCmd1).Wait();
+
+            var attachFlexConduitCmd2 = new AttachConduitEndToClosureCommand()
+            {
+                ConduitClosureId = conduitClosureId,
+                ConduitId = Guid.Parse("a7425e14-ba84-c958-c89f-6e00d84355a4"),
+                Side = ConduitClosureInfoSide.Top
+            };
+
+            commandBus.Send(attachFlexConduitCmd2).Wait();
 
 
         }
