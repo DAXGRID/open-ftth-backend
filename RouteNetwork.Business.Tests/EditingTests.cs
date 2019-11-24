@@ -11,6 +11,7 @@ using RouteNetwork.ReadModel;
 using System;
 using System.Linq;
 using Xunit;
+using Xunit.Extensions.Ordering;
 
 namespace RouteNetwork.Business.Tests
 {
@@ -24,6 +25,7 @@ namespace RouteNetwork.Business.Tests
         }
     }
 
+    [Order(1)]
     public class EditingTests : IClassFixture<EditingContainerFixture>
     {
         public TestRouteNetworkType1 testRouteNetwork;
@@ -38,7 +40,7 @@ namespace RouteNetwork.Business.Tests
             var testRouteNetwork = new TestRouteNetworkType1(container.CommandBus, routeNetworkState);
         }
 
-        [Fact]
+        [Fact, Order(1)]
         public void AddNodeCheckProjectionTest()
         {
             var fixture = new Fixture();
@@ -98,7 +100,7 @@ namespace RouteNetwork.Business.Tests
             Assert.Equal((string)addSecondNodeCmd.Geometry.GeoJsonCoordinates, queryServiceRouteInfo.Geometry.GeoJsonCoordinates);
         }
 
-        [Fact]
+        [Fact, Order(2)]
         public void AddSegmentCheckProjectionTest()
         {
             var routeNetworkQueryService = container.ServiceProvider.GetService<IRouteNetworkState>();
@@ -113,7 +115,7 @@ namespace RouteNetwork.Business.Tests
                 .With(x => x.NodeFunctionKind, RouteNodeFunctionKindEnum.FlexPoint)
                 .Create();
 
-            container.CommandBus.Send(addFirstNodeCmd);
+            container.CommandBus.Send(addFirstNodeCmd).Wait();
 
             // Add another node
             var addSecondNodeCmd = fixture.Build<AddNodeCommand>()
@@ -124,7 +126,7 @@ namespace RouteNetwork.Business.Tests
               .With(x => x.NodeFunctionKind, RouteNodeFunctionKindEnum.ServiceDeliveryPoint)
               .Create();
 
-            container.CommandBus.Send(addSecondNodeCmd);
+            container.CommandBus.Send(addSecondNodeCmd).Wait(); 
 
             // Add segment between the two above created nodes
             var addSegmentCmd = fixture.Build<AddSegmentCommand>()
@@ -135,7 +137,7 @@ namespace RouteNetwork.Business.Tests
               .With(x => x.SegmentKind, RouteSegmentKindEnum.Underground)
               .Create();
 
-            container.CommandBus.Send(addSegmentCmd);
+            container.CommandBus.Send(addSegmentCmd).Wait();
 
             // Get segment info from query service to check if projection stuff works as expected
             var routeSegmentInfo = routeNetworkQueryService.GetRouteSegmentInfo(addSegmentCmd.Id);
@@ -147,7 +149,7 @@ namespace RouteNetwork.Business.Tests
             Assert.Equal((string)addSegmentCmd.Geometry.GeoJsonCoordinates, routeSegmentInfo.Geometry.GeoJsonCoordinates);
         }
 
-        [Fact]
+        [Fact, Order(3)]
         public async void CreateSegmentWithMissingNodeTest()
         {
             var fixture = new Fixture();
@@ -175,7 +177,7 @@ namespace RouteNetwork.Business.Tests
             Exception ex = await Assert.ThrowsAsync<ArgumentException>(() => container.CommandBus.Send(addSegmentCmd));
         }
 
-        [Fact]
+        [Fact, Order(4)]
         public async void HappySplitSegmentTest()
         {
             var fixture = new Fixture();
@@ -232,7 +234,7 @@ namespace RouteNetwork.Business.Tests
             await container.CommandBus.Send(happySplitSegmentCmd);
         }
 
-        [Fact]
+        [Fact, Order(5)]
         public async void SadSplitSegmentTest()
         {
             var fixture = new Fixture();
@@ -291,7 +293,7 @@ namespace RouteNetwork.Business.Tests
         }
 
 
-        [Fact]
+        [Fact, Order(6)]
         public async void CreateTwoNodesWithSameIdTest()
         {
             var fixture = new Fixture();
@@ -315,7 +317,7 @@ namespace RouteNetwork.Business.Tests
             Assert.Contains("already exists", ex.Message);
         }
 
-        [Fact]
+        [Fact, Order(7)]
         public async void CreateNodesWithBadGeometryTest()
         {
             var fixture = new Fixture();

@@ -30,7 +30,7 @@ namespace RouteNetwork.QueryService
             _walkOfInterests = new Dictionary<Guid, WalkOfInterestInfo>();
 
             // Fetch everything into memory for fast access
-            using (var session = documentStore.LightweightSession())
+            using (var session = documentStore.QuerySession())
             {
                 var routeNodeInfoQuery = session.Query<RouteNodeInfo>();
 
@@ -40,7 +40,7 @@ namespace RouteNetwork.QueryService
                 }
             }
 
-            using (var session = documentStore.LightweightSession())
+            using (var session = documentStore.QuerySession())
             {
                 var routeSegmentInfoQuery = session.Query<RouteSegmentInfo>();
 
@@ -50,7 +50,7 @@ namespace RouteNetwork.QueryService
                 }
             }
 
-            using (var session = documentStore.LightweightSession())
+            using (var session = documentStore.QuerySession())
             { 
                 var walkOfInterests = session.Query<WalkOfInterestInfo>();
 

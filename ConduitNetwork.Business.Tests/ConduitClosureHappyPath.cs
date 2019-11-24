@@ -38,7 +38,6 @@ namespace ConduitNetwork.Business.Tests
         private static PlaceMultiConduitCommand _emetelleCmd;
         private static PlaceSingleConduitCommand _createSingleConduit1Cmd;
         private static PlaceSingleConduitCommand _createSingleConduit2Cmd;
-        private static PlaceMultiConduitCommand _createFlexConduitCmd;
 
         // Command executed in the tests
         private static PlaceConduitClosureCommand _createConduitClosureCmd;
@@ -124,14 +123,7 @@ namespace ConduitNetwork.Business.Tests
 
             serviceContext.CommandBus.Send(_createSingleConduit2Cmd).Wait();
 
-            // Create flex conduit
-            _createFlexConduitCmd = fixture.Build<PlaceMultiConduitCommand>()
-                .With(x => x.WalkOfInterestId, registerSingleConduitWalk.WalkOfInterestId)
-                .With(x => x.Name, string.Empty)
-                .With(x => x.DemoDataSpec, "FLEX-1")
-                .Create();
-
-            serviceContext.CommandBus.Send(_createFlexConduitCmd);
+          
 
         }
 
@@ -408,20 +400,40 @@ namespace ConduitNetwork.Business.Tests
 
             var fixture = new Fixture();
 
-            // Create conduit closure
-            if (_createConduitClosureCmd == null)
-            {
-                _createConduitClosureCmd = fixture.Build<PlaceConduitClosureCommand>()
-                    .With(x => x.PointOfInterestId, _testNetwork.GetNodeByName("CC-1").Id)
+            // Create condult closure in HH-10
+            var createConduitClosureCmd = fixture.Build<PlaceConduitClosureCommand>()
+                    .With(x => x.PointOfInterestId, _testNetwork.GetNodeByName("HH-10").Id)
                     .Create();
 
-                serviceContext.CommandBus.Send(_createConduitClosureCmd).Wait();
-            }
+            serviceContext.CommandBus.Send(createConduitClosureCmd).Wait();
+            
+
+            // Walk of interest between CC-1 and HH-10
+            var flexWalk = fixture.Build<RegisterWalkOfInterestCommand>()
+                .With(x => x.RouteElementIds, new List<Guid> {
+                    _testNetwork.GetNodeByName("CC-1").Id,
+                    _testNetwork.GetSegmentByName("CC-1_HH-10").Id,
+                    _testNetwork.GetNodeByName("HH-10").Id
+                })
+                .Create();
+
+            serviceContext.CommandBus.Send(flexWalk);
+
+
+            // Create flex conduit
+            var createFlexConduitCmd = fixture.Build<PlaceMultiConduitCommand>()
+                .With(x => x.WalkOfInterestId, flexWalk.WalkOfInterestId)
+                .With(x => x.Name, string.Empty)
+                .With(x => x.DemoDataSpec, "FLEX-1")
+                .Create();
+
+            serviceContext.CommandBus.Send(createFlexConduitCmd);
+
 
             // Attach flex conduit to the top of the closure
             var attachFlexConduit = fixture.Build<AttachConduitEndToClosureCommand>()
-               .With(x => x.ConduitClosureId, _createConduitClosureCmd.ConduitClosureId)
-               .With(x => x.ConduitId, _createFlexConduitCmd.MultiConduitId)
+               .With(x => x.ConduitClosureId, createConduitClosureCmd.ConduitClosureId)
+               .With(x => x.ConduitId, createFlexConduitCmd.MultiConduitId)
                .With(x => x.Side, ConduitClosureInfoSide.Top)
                .With(x => x.PortPosition, 0)
                .With(x => x.TerminalPosition, 0)
@@ -429,19 +441,22 @@ namespace ConduitNetwork.Business.Tests
 
             serviceContext.CommandBus.Send(attachFlexConduit).Wait();
 
-            var conduitClosure = conduitClosureRepository.GetConduitClosureInfo(_createConduitClosureCmd.ConduitClosureId);
+
+            // Check result
+
+            var conduitClosure = conduitClosureRepository.GetConduitClosureInfo(createConduitClosureCmd.ConduitClosureId);
 
             var topSide = conduitClosure.Sides.Find(s => s.Position == Events.Model.ConduitClosureInfoSide.Top);
-            var topPort = topSide.Ports.Find(p => p.MultiConduitId == _createFlexConduitCmd.MultiConduitId);
+            var topPort = topSide.Ports.Find(p => p.MultiConduitId == createFlexConduitCmd.MultiConduitId);
 
             // Check port
-            Assert.Equal(_createFlexConduitCmd.MultiConduitId, topPort.MultiConduitId);
+            Assert.Equal(createFlexConduitCmd.MultiConduitId, topPort.MultiConduitId);
             Assert.Equal(ConduitClosureInternalConnectionKindEnum.NotConnected, topPort.ConnectionKind);
             Assert.Empty(topPort.Terminals); // Because the flex conduit have no inner conduits yet, no terminals should exist
 
             // Add first inner conduit to flex conduit
             var addInnerConduitCmd1 = fixture.Build<AddInnerConduitCommand>()
-                .With(x => x.MultiConduitId, _createFlexConduitCmd.MultiConduitId)
+                .With(x => x.MultiConduitId, createFlexConduitCmd.MultiConduitId)
                 .With(x => x.Color, Events.Model.ConduitColorEnum.Blue)
                 .With(x => x.OuterDiameter, 12)
                 .With(x => x.InnerDiameter, 10)
@@ -450,11 +465,11 @@ namespace ConduitNetwork.Business.Tests
             serviceContext.CommandBus.Send(addInnerConduitCmd1);
 
             // Check that closure port terminal was properly added as part of adding inner conduit
-            conduitClosure = conduitClosureRepository.GetConduitClosureInfo(_createConduitClosureCmd.ConduitClosureId);
+            conduitClosure = conduitClosureRepository.GetConduitClosureInfo(createConduitClosureCmd.ConduitClosureId);
             topSide = conduitClosure.Sides.Find(s => s.Position == Events.Model.ConduitClosureInfoSide.Top);
             Assert.Single(topSide.Ports); // Top must still have one port
 
-            topPort = topSide.Ports.Find(p => p.MultiConduitId == _createFlexConduitCmd.MultiConduitId);
+            topPort = topSide.Ports.Find(p => p.MultiConduitId == createFlexConduitCmd.MultiConduitId);
 
             Assert.Single(topPort.Terminals); // Must have one terminal now
 
@@ -462,7 +477,7 @@ namespace ConduitNetwork.Business.Tests
 
             // Add second inner conduit to flex conduit
             var addInnerConduitCmd2 = fixture.Build<AddInnerConduitCommand>()
-                .With(x => x.MultiConduitId, _createFlexConduitCmd.MultiConduitId)
+                .With(x => x.MultiConduitId, createFlexConduitCmd.MultiConduitId)
                 .With(x => x.Color, Events.Model.ConduitColorEnum.Blue)
                 .With(x => x.OuterDiameter, 12)
                 .With(x => x.InnerDiameter, 10)
@@ -471,11 +486,11 @@ namespace ConduitNetwork.Business.Tests
             serviceContext.CommandBus.Send(addInnerConduitCmd2);
 
             // Check that closure port terminal was properly added as part of adding inner conduit
-            conduitClosure = conduitClosureRepository.GetConduitClosureInfo(_createConduitClosureCmd.ConduitClosureId);
+            conduitClosure = conduitClosureRepository.GetConduitClosureInfo(createConduitClosureCmd.ConduitClosureId);
             topSide = conduitClosure.Sides.Find(s => s.Position == Events.Model.ConduitClosureInfoSide.Top);
             Assert.Single(topSide.Ports); // Top must still have one port
 
-            topPort = topSide.Ports.Find(p => p.MultiConduitId == _createFlexConduitCmd.MultiConduitId);
+            topPort = topSide.Ports.Find(p => p.MultiConduitId == createFlexConduitCmd.MultiConduitId);
 
             Assert.Equal(2, topPort.Terminals.Count); // Must have two terminal now
 

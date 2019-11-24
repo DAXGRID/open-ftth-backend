@@ -91,7 +91,7 @@ namespace EquipmentService.GraphQL.Types
 
                   List<ConduitRelation> result = new List<ConduitRelation>();
 
-                  var conduitSegmentRels = conduitNetworkEqueryService.GetConduitSegmentsRelatedToPointOfInterest(context.Source.Id, conduitSegmentId.ToString());
+                  var conduitSegmentRels = conduitNetworkEqueryService.GetConduitSegmentsRelatedToPointOfInterest(context.Source.Id, conduitSegmentId == Guid.Empty ? null : conduitSegmentId.ToString());
 
                   
 
