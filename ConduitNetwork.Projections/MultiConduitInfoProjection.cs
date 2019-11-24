@@ -2,6 +2,7 @@
 using ConduitNetwork.Events.Model;
 using ConduitNetwork.QueryService;
 using ConduitNetwork.ReadModel;
+using Core.ReadModel.Network;
 using Marten.Events.Projections;
 using RouteNetwork.QueryService;
 using System;
@@ -39,17 +40,17 @@ namespace ConduitNetwork.Projections
             multiConduitInfo.InnerDiameter = @event.ConduitInfo.InnerDiameter;
             multiConduitInfo.OuterDiameter = @event.ConduitInfo.OuterDiameter;
 
-            multiConduitInfo.Children = new List<ConduitInfo>();
+            multiConduitInfo.Children = new List<ILine>();
 
             // Create segment info (as is looks before any cuts or connections)
             var segment = new MultiConduitSegmentInfo();
             segment.Id = Guid.NewGuid();
             segment.ConduitId = @event.MultiConduitId;
             segment.SequenceNumber = 1;
-            segment.FromNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(multiConduitInfo.WalkOfInterestId).StartNodeId;
-            segment.ToNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(multiConduitInfo.WalkOfInterestId).EndNodeId;
+            segment.FromRouteNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(multiConduitInfo.WalkOfInterestId).StartNodeId;
+            segment.ToRouteNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(multiConduitInfo.WalkOfInterestId).EndNodeId;
 
-            multiConduitInfo.Segments = new List<ConduitSegmentInfo>() { segment };
+            multiConduitInfo.Segments = new List<ILineSegment>() { segment };
 
             conduitNetworkQueryService.UpdateMultiConduitInfo(multiConduitInfo);
         }

@@ -118,7 +118,7 @@ namespace ConduitNetwork.Projections.ConduitClosure
             var multiConduit = conduitNetworkQueryService.GetMultiConduitInfo(@event.MultiConduitId);
 
             // Get the inner conduit
-            var innerConduit = multiConduit.Children.Find(c => c.Position == @event.InnerConduitSequenceNumber);
+            var innerConduit = multiConduit.Children.OfType<ConduitInfo>().Single(c => c.SequenceNumber == @event.InnerConduitSequenceNumber);
 
             ConnectTerminals(conduitClosure, innerConduit, @event.PointOfInterestId, @event.ConnectedJunctionId, @event.ConnectedEndKind);
 
@@ -143,10 +143,10 @@ namespace ConduitNetwork.Projections.ConduitClosure
                     ConduitSegmentInfo connectedSegment = null;
 
                     // Get the segment on the other side of the junction
-                    if (segment.FromJunctionId == junctionId && segment.FromJunction.NeighborElements.OfType<ConduitSegmentInfo>().Any(n => n != segment))
-                        connectedSegment = segment.FromJunction.NeighborElements.OfType<ConduitSegmentInfo>().First(n => n != segment);
-                    else if (segment.ToJunctionId == junctionId && segment.ToJunction.NeighborElements.OfType<ConduitSegmentInfo>().Any(n => n != segment))
-                        connectedSegment = segment.ToJunction.NeighborElements.OfType<ConduitSegmentInfo>().First(n => n != segment);
+                    if (segment.FromNodeId == junctionId && segment.FromNode.NeighborElements.OfType<ConduitSegmentInfo>().Any(n => n != segment))
+                        connectedSegment = segment.FromNode.NeighborElements.OfType<ConduitSegmentInfo>().First(n => n != segment);
+                    else if (segment.ToNodeId == junctionId && segment.ToNode.NeighborElements.OfType<ConduitSegmentInfo>().Any(n => n != segment))
+                        connectedSegment = segment.ToNode.NeighborElements.OfType<ConduitSegmentInfo>().First(n => n != segment);
 
                     // Check if terminal with related segment exisits
                     if (connectedSegment != null && conduitClosure.Sides.Exists(s => s.Ports.Exists(p => p.Terminals.Exists(t => t.LineSegmentId == connectedSegment.Id))))
@@ -223,7 +223,7 @@ namespace ConduitNetwork.Projections.ConduitClosure
             var multiConduit = conduitNetworkQueryService.GetMultiConduitInfo(@event.MultiConduitId);
 
             // Get the inner conduit that is cut
-            var innerConduit = multiConduit.Children.Find(c => c.Position == @event.InnerConduitSequenceNumber);
+            var innerConduit = multiConduit.Children.OfType<ConduitInfo>().Single(c => c.SequenceNumber == @event.InnerConduitSequenceNumber);
 
             var relatedSegments = FindRelatedSegmentInfo(innerConduit, @event.PointOfInterestId);
 
@@ -344,9 +344,9 @@ namespace ConduitNetwork.Projections.ConduitClosure
 
             var walkOfInterest = routeNetworkQueryService.GetWalkOfInterestInfo(conduit.GetRootConduit().WalkOfInterestId);
 
-            foreach (var existingSegment in conduit.Segments)
+            foreach (var existingSegment in conduit.Segments.OfType<ConduitSegmentInfo>())
             {
-                var segmentWalk = walkOfInterest.SubWalk2(existingSegment.FromNodeId, existingSegment.ToNodeId);
+                var segmentWalk = walkOfInterest.SubWalk2(existingSegment.FromRouteNodeId, existingSegment.ToRouteNodeId);
 
                 if (segmentWalk.StartNodeId == pointOfInterestId)
                 {

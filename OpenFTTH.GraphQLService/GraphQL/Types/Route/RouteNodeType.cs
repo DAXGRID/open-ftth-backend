@@ -124,7 +124,7 @@ namespace EquipmentService.GraphQL.Types
                       }
 
                       // Check if segment is cut at node
-                      if (conduitSegmentRel.Segment.Conduit.Segments.Exists(s => s.FromNodeId == context.Source.Id || s.ToNodeId == context.Source.Id))
+                      if (conduitSegmentRel.Segment.Conduit.Segments.Exists(s => s.FromRouteNodeId == context.Source.Id || s.ToRouteNodeId == context.Source.Id))
                           rel.CanBeCutAtNode = false;
                       else
                           rel.CanBeCutAtNode = true;

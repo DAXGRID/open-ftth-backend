@@ -4,6 +4,7 @@ using ConduitNetwork.Business.Specifications;
 using ConduitNetwork.Events;
 using ConduitNetwork.Events.Model;
 using ConduitNetwork.QueryService;
+using Core.ReadModel.Network;
 using Infrastructure.EventSourcing;
 using RouteNetwork.QueryService;
 using System;
@@ -97,7 +98,7 @@ namespace ConduitNetwork.Business.Aggregates
             // Check if single conduit is already cut
             var singleConduitInfo = conduitNetworkQueryService.GetSingleConduitInfo(Id);
 
-            if (singleConduitInfo.Segments.Exists(s => s.FromNodeId == pointOfInterestId || s.ToNodeId == pointOfInterestId))
+            if (singleConduitInfo.Segments.Exists(s => s.FromRouteNodeId == pointOfInterestId || s.ToRouteNodeId == pointOfInterestId))
                 throw new ArgumentException("Single conduit: " + Id + " is already cut at: " + pointOfInterestId);
 
             // Check that conduit is cut at a node part of conduit walk of interest
@@ -125,7 +126,7 @@ namespace ConduitNetwork.Business.Aggregates
             if (endKind == 0)
                 throw new ArgumentException("End kind must be specified. Otherwise the system don't know with end of the segment to connect, if a conduit has been cut into two pieces in a node.");
 
-            if (!singleConduitInfo.Segments.Exists(s => s.FromNodeId == pointOfInterestId || s.ToNodeId == pointOfInterestId))
+            if (!singleConduitInfo.Segments.Exists(s => s.FromRouteNodeId == pointOfInterestId || s.ToRouteNodeId == pointOfInterestId))
                 throw new ArgumentException("The single conduit: " + Id + " is not cut at: " + pointOfInterestId);
 
             // Check that conduit is connected at a node part of conduit walk of interest
@@ -134,31 +135,31 @@ namespace ConduitNetwork.Business.Aggregates
             if (!walkOfInterest.AllNodeIds.Contains(pointOfInterestId))
                 throw new ArgumentException("The point of interest: " + pointOfInterestId + " was not found in walk of interest:" + singleConduitInfo.WalkOfInterestId + " of single conduit: " + Id);
 
-            ConduitSegmentInfo connectingSegment = null;
+            ILineSegment connectingSegment = null;
 
             // Check incomming
             if (endKind == ConduitEndKindEnum.Incomming)
             {
-                if (!singleConduitInfo.Segments.Exists(s => s.ToNodeId == pointOfInterestId))
+                if (!singleConduitInfo.Segments.Exists(s => s.ToRouteNodeId == pointOfInterestId))
                     throw new ArgumentException("No segments are incomming to point of interest: " + pointOfInterestId + " in single conduit: " + Id);
 
-                connectingSegment = singleConduitInfo.Segments.Find(s => s.ToNodeId == pointOfInterestId);
+                connectingSegment = singleConduitInfo.Segments.Find(s => s.ToRouteNodeId == pointOfInterestId);
 
                 // Check if already connect to a junction
-                if (connectingSegment.ToJunctionId != Guid.Empty)
-                    throw new ArgumentException("the incomming segment: " + connectingSegment.Id + " is already connected to a junction: " + connectingSegment.ToJunctionId);
+                if (connectingSegment.ToNodeId != Guid.Empty)
+                    throw new ArgumentException("the incomming segment: " + connectingSegment.Id + " is already connected to a junction: " + connectingSegment.ToNodeId);
             }
             // Check outgoing
             else
             {
-                if (!singleConduitInfo.Segments.Exists(s => s.FromNodeId == pointOfInterestId))
+                if (!singleConduitInfo.Segments.Exists(s => s.FromRouteNodeId == pointOfInterestId))
                     throw new ArgumentException("No segments are outgoing from point of interest: " + pointOfInterestId + " in single conduit: " + Id);
 
-                connectingSegment = singleConduitInfo.Segments.Find(s => s.FromNodeId == pointOfInterestId);
+                connectingSegment = singleConduitInfo.Segments.Find(s => s.FromRouteNodeId == pointOfInterestId);
 
                 // Check if already connect to a junction
-                if (connectingSegment.FromJunctionId != Guid.Empty)
-                    throw new ArgumentException("the outgoing segment: " + connectingSegment.Id + " is already connected to a junction: " + connectingSegment.FromJunctionId);
+                if (connectingSegment.FromNodeId != Guid.Empty)
+                    throw new ArgumentException("the outgoing segment: " + connectingSegment.Id + " is already connected to a junction: " + connectingSegment.FromNodeId);
             }
 
 

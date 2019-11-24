@@ -71,7 +71,7 @@ namespace ConduitNetwork.Projections.ConduitClosure
         {
             // Get conduit
             var conduit = conduitNetworkQueryService.GetConduitInfo(@event.MultiConduitId);
-            var innerConduit = conduit.Children.Find(c => c.Position == @event.MultiConduitIndex);
+            var innerConduit = conduit.Children.OfType<ConduitInfo>().Single(c => c.SequenceNumber == @event.MultiConduitIndex);
 
             // Find port where multi conduit is connected
 
@@ -301,7 +301,7 @@ namespace ConduitNetwork.Projections.ConduitClosure
             foreach (var innerConduit in multiConduit.Children)
             {
                 // Get related segment info
-                var relatedSegmentInfo = FindRelatedSegmentInfo(innerConduit, conduitClosureInfo.PointOfInterestId);
+                var relatedSegmentInfo = FindRelatedSegmentInfo((ConduitInfo)innerConduit, conduitClosureInfo.PointOfInterestId);
 
                 // Create terminal
                 var newTerminal = new ConduitClosureTerminalInfo()
@@ -450,9 +450,9 @@ namespace ConduitNetwork.Projections.ConduitClosure
         {
             var walkOfInterest = routeNetworkQueryService.GetWalkOfInterestInfo(conduit.GetRootConduit().WalkOfInterestId);
 
-            foreach (var existingSegment in conduit.Segments)
+            foreach (var existingSegment in conduit.Segments.OfType<ConduitSegmentInfo>())
             {
-                var segmentWalk = walkOfInterest.SubWalk2(existingSegment.FromNodeId, existingSegment.ToNodeId);
+                var segmentWalk = walkOfInterest.SubWalk2(existingSegment.FromRouteNodeId, existingSegment.ToRouteNodeId);
 
                 if (segmentWalk.StartNodeId == pointOfInterestId)
                 {

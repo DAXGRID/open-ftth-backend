@@ -27,7 +27,7 @@ namespace EquipmentService.GraphQL.Types
             Field<ConduitKindEnumType>("Kind", "Kind of conduit (multi or single conduit)");
             Field(x => x.Id, type: typeof(IdGraphType)).Description("Guid property");
             Field(x => x.Name, type: typeof(IdGraphType)).Description("The uility might give each conduit a name/number");
-            Field(x => x.Position, type: typeof(IdGraphType)).Description("The position of the conduit inside a multi conduit. Field only populated on inner conduits (conduits inside a multi conduit)");
+            Field(x => x.SequenceNumber, type: typeof(IdGraphType)).Description("The position of the conduit inside a multi conduit. Field only populated on inner conduits (conduits inside a multi conduit)");
             Field<ConduitShapeKindEnumType>("Shape", "Shape of conduit - flat, round etc.");
             Field<ConduitColorEnumType>("Color", "Color of the conduit itself");
             Field<ConduitColorEnumType>("ColorMarking", "Normally a colored stripe to distinguish between many conduits of same type in a trench");

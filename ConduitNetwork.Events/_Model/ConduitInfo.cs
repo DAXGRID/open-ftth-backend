@@ -1,5 +1,7 @@
 ﻿using Asset.Model;
 using ConduitNetwork.Events.Model;
+using Core.GraphSupport.Model;
+using Core.ReadModel.Network;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -7,7 +9,7 @@ using System.Text;
 
 namespace ConduitNetwork.Events.Model
 {
-    public class ConduitInfo
+    public class ConduitInfo : ILine
     {
         public Guid Id { get; set; }
         public Guid WalkOfInterestId { get; set; }
@@ -19,26 +21,34 @@ namespace ConduitNetwork.Events.Model
         public int InnerDiameter { get; set; }
         public string TextMarking { get; set; }
         public ConduitColorEnum ColorMarking { get; set; }
-        public int Position { get; set; }
+        public int SequenceNumber { get; set; }
         public AssetInfo AssetInfo { get; set; }
-        public List<ConduitSegmentInfo> Segments { get; set; }
+        public List<ILineSegment> Segments { get; set; }
 
 
         #region Properties that should not be persisted
 
         [IgnoreDataMember]
-        public List<ConduitInfo> Children { get; set; }
+        public List<ILine> Children { get; set; }
 
         [IgnoreDataMember]
-        public ConduitInfo Parent { get; set; }
+        public ILine Parent { get; set; }
 
         #endregion
+
+        public LineKindEnum LineKind
+        {
+            get
+            {
+                return LineKindEnum.Conduit;
+            }
+        }
 
 
         public virtual ConduitInfo GetRootConduit()
         {
             if (Parent != null)
-                return Parent;
+                return (ConduitInfo)Parent;
             else
                 return this;
         }

@@ -1,5 +1,6 @@
 ﻿using ConduitNetwork.Events.Model;
 using ConduitNetwork.ReadModel;
+using Core.ReadModel.Network;
 using RouteNetwork.ReadModel;
 using System;
 using System.Collections.Generic;
@@ -14,19 +15,19 @@ namespace ConduitNetwork.Projections
         {
             ConduitSegmentInfo newSegment = null;
 
-            List<ConduitSegmentInfo> newSegmentList = new List<ConduitSegmentInfo>();
+            List<ILineSegment> newSegmentList = new List<ILineSegment>();
 
             int newSequenceNumber = 1;
 
-            var fromNodeId = conduitInfo.Segments[0].FromNodeId;
+            var fromNodeId = conduitInfo.Segments[0].FromRouteNodeId;
 
             foreach (var existingSegment in conduitInfo.Segments)
             {
-                List<Guid> segmentWalk = walkOfInterest.SubWalk(existingSegment.FromNodeId, existingSegment.ToNodeId);
+                List<Guid> segmentWalk = walkOfInterest.SubWalk(existingSegment.FromRouteNodeId, existingSegment.ToRouteNodeId);
 
                 newSegmentList.Add(existingSegment);
                 existingSegment.SequenceNumber = newSequenceNumber;
-                existingSegment.FromNodeId = fromNodeId;
+                existingSegment.FromRouteNodeId = fromNodeId;
 
                 // If the segment is cut by point of interest, divide it
                 if (segmentWalk.Contains(nodeWhereToCut.Id))
@@ -40,27 +41,27 @@ namespace ConduitNetwork.Projections
                         newSegment = new MultiConduitSegmentInfo();
 
                     newSegment.Id = Guid.NewGuid();
-                    newSegment.ConduitId = existingSegment.ConduitId;
+                    newSegment.ConduitId = ((ConduitSegmentInfo)existingSegment).ConduitId;
                     newSegment.SequenceNumber = newSequenceNumber;
-                    newSegment.FromNodeId = nodeWhereToCut.Id;
-                    newSegment.ToNodeId = existingSegment.ToNodeId;  // we need copy to side info
-                    newSegment.ToJunctionId = existingSegment.ToJunctionId; // we need copy to side info
-                    newSegment.ToJunction = existingSegment.ToJunction; // we need copy to side info
+                    newSegment.FromRouteNodeId = nodeWhereToCut.Id;
+                    newSegment.ToRouteNodeId = existingSegment.ToRouteNodeId;  // we need copy to side info
+                    newSegment.ToNodeId = existingSegment.ToNodeId; // we need copy to side info
+                    newSegment.ToNode = existingSegment.ToNode; // we need copy to side info
 
                     // Update the existing segment
-                    existingSegment.ToNodeId = nodeWhereToCut.Id;
-                    existingSegment.ToJunctionId = Guid.Empty; // cannot possible have to junction anymore if it had so (transfered to new segment)
-                    existingSegment.ToJunction = null; // cannot possible have to junction anymore if it had so (transfered to new segment)
+                    existingSegment.ToRouteNodeId = nodeWhereToCut.Id;
+                    existingSegment.ToNodeId = Guid.Empty; // cannot possible have to junction anymore if it had so (transfered to new segment)
+                    existingSegment.ToNode = null; // cannot possible have to junction anymore if it had so (transfered to new segment)
 
                     // Set from node on next segment to from node on inserted segment
-                    fromNodeId = newSegment.ToNodeId;
+                    fromNodeId = newSegment.ToRouteNodeId;
 
                     newSegmentList.Add(newSegment);
                 }
                 else
                 {
                     // set from node to this one to node
-                    fromNodeId = existingSegment.ToNodeId;
+                    fromNodeId = existingSegment.ToRouteNodeId;
                 }
 
                 newSequenceNumber++;

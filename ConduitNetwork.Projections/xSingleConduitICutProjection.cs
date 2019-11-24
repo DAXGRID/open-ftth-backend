@@ -6,6 +6,7 @@ using Marten.Events.Projections;
 using RouteNetwork.QueryService;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ConduitNetwork.Projections
 {
@@ -26,7 +27,7 @@ namespace ConduitNetwork.Projections
             {
                 // To get to the right single conduit, we need look it up through the multi conduit
                 var mutltiConduitInfo = this.conduitNetworkQueryService.GetMultiConduitInfo(innerConduitAdded.MultiConduitId);
-                return mutltiConduitInfo.Children.Find(c => c.Position == innerConduitAdded.InnerConduitSequenceNumber).Id;
+                return mutltiConduitInfo.Children.OfType<ConduitInfo>().Single(c => c.SequenceNumber == innerConduitAdded.InnerConduitSequenceNumber).Id;
             },
             InnerConduitCut);
         }

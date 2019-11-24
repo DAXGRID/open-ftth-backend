@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ConduitNetwork.Events.Model;
 using ConduitNetwork.ReadModel;
+using Core.ReadModel.Network;
 using Marten;
 using RouteNetwork.QueryService;
 using RouteNetwork.ReadModel;
@@ -97,7 +98,7 @@ namespace ConduitNetwork.QueryService
             }
 
             // Check if conduit is cut
-            if (conduitToCheck.Segments.Exists(s => s.FromNodeId == pointOfInterestId || s.ToNodeId == pointOfInterestId))
+            if (conduitToCheck.Segments.Exists(s => s.FromRouteNodeId == pointOfInterestId || s.ToRouteNodeId == pointOfInterestId))
                 return true;
             else
                 return false;
@@ -158,10 +159,10 @@ namespace ConduitNetwork.QueryService
 
                 ConduitRelationInfo relInfo = new ConduitRelationInfo();
 
-                if (conduitSegment.ToNodeId == pointOfInterestId)
+                if (conduitSegment.ToRouteNodeId == pointOfInterestId)
                     result.Add(new ConduitRelationInfo() { Segment = conduitSegment, Type = ConduitRelationTypeEnum.Incomming });
 
-                if (conduitSegment.FromNodeId == pointOfInterestId)
+                if (conduitSegment.FromRouteNodeId == pointOfInterestId)
                     result.Add(new ConduitRelationInfo() { Segment = conduitSegment, Type = ConduitRelationTypeEnum.Outgoing });
 
             }
@@ -243,7 +244,7 @@ namespace ConduitNetwork.QueryService
                 {
                     alreadyChecked.Add(rootConduit);
 
-                    var walkOfInterest = routeNetworkQueryService.GetWalkOfInterestInfo(rootConduit.WalkOfInterestId).SubWalk2(segment.FromNodeId, segment.ToNodeId);
+                    var walkOfInterest = routeNetworkQueryService.GetWalkOfInterestInfo(rootConduit.WalkOfInterestId).SubWalk2(segment.FromRouteNodeId, segment.ToRouteNodeId);
 
                     // add node ids
                     foreach (var nodeId in walkOfInterest.AllNodeIds)
@@ -315,7 +316,7 @@ namespace ConduitNetwork.QueryService
                 _pointOfInterestIndex.Update(existingMultiConduitInfo, multiConduitInfo);
 
                 // Save the children
-                multiConduitInfo.Children = new List<ConduitInfo>();
+                multiConduitInfo.Children = new List<ILine>();
                 multiConduitInfo.Children.AddRange(existingMultiConduitInfo.Children);
 
                 _mapper.Map<MultiConduitInfo, MultiConduitInfo>(multiConduitInfo, existingMultiConduitInfo);
@@ -368,7 +369,7 @@ namespace ConduitNetwork.QueryService
                 {
                     // Add to multi conduit children
                     if (_multiConduitInfos[singleConduitInfo.MultiConduitId].Children == null)
-                        _multiConduitInfos[singleConduitInfo.MultiConduitId].Children = new List<ConduitInfo>();
+                        _multiConduitInfos[singleConduitInfo.MultiConduitId].Children = new List<ILine>();
 
                     _multiConduitInfos[singleConduitInfo.MultiConduitId].Children.Add(singleConduitInfo);
                 }
@@ -381,7 +382,7 @@ namespace ConduitNetwork.QueryService
             var conduitWalkOfInterest = routeNetworkQueryService.GetWalkOfInterestInfo(condutiInfo.GetRootConduit().WalkOfInterestId);
 
             // Resolve references inside segment
-            foreach (var segment in condutiInfo.Segments)
+            foreach (var segment in condutiInfo.Segments.OfType<ConduitSegmentInfo>())
             {
                 // Resolve conduit reference
                 segment.Conduit = condutiInfo;
@@ -391,9 +392,9 @@ namespace ConduitNetwork.QueryService
                 {
                     // Create parents list if null
                     if (segment.Parents == null)
-                        segment.Parents = new List<ConduitSegmentInfo>();
+                        segment.Parents = new List<ILineSegment>();
 
-                    var innerConduitSegmentWalkOfInterest = conduitWalkOfInterest.SubWalk2(segment.FromNodeId, segment.ToNodeId);
+                    var innerConduitSegmentWalkOfInterest = conduitWalkOfInterest.SubWalk2(segment.FromRouteNodeId, segment.ToRouteNodeId);
 
                     var multiConduit = segment.Conduit.Parent;
 
@@ -402,9 +403,9 @@ namespace ConduitNetwork.QueryService
                     {
                         // Create childre list if null
                         if (multiConduitSegment.Children == null)
-                            multiConduitSegment.Children = new List<ConduitSegmentInfo>();
+                            multiConduitSegment.Children = new List<ILineSegment>();
 
-                        var multiConduitSegmentWalkOfInterest = conduitWalkOfInterest.SubWalk2(multiConduitSegment.FromNodeId, multiConduitSegment.ToNodeId);
+                        var multiConduitSegmentWalkOfInterest = conduitWalkOfInterest.SubWalk2(multiConduitSegment.FromRouteNodeId, multiConduitSegment.ToRouteNodeId);
 
                         // Create hash set for quick lookup
                         HashSet<Guid> multiConduitSegmentWalkOfInterestSegmetns = new HashSet<Guid>();
@@ -427,39 +428,39 @@ namespace ConduitNetwork.QueryService
                 }
 
                 // From Junction
-                if (segment.FromJunctionId != Guid.Empty)
+                if (segment.FromNodeId != Guid.Empty)
                 {
-                    if (!_singleConduitJuncionInfos.ContainsKey(segment.FromJunctionId))
+                    if (!_singleConduitJuncionInfos.ContainsKey(segment.FromNodeId))
                     {
-                        var newJunction = new SingleConduitSegmentJunctionInfo() { Id = segment.FromJunctionId };
+                        var newJunction = new SingleConduitSegmentJunctionInfo() { Id = segment.FromNodeId };
                         newJunction.AddToConduitSegment(segment);
                         _singleConduitJuncionInfos.Add(newJunction.Id, newJunction);
-                        segment.FromJunction = newJunction;
+                        segment.FromNode = newJunction;
                     }
                     else
                     {
-                        var existingJunction = _singleConduitJuncionInfos[segment.FromJunctionId];
+                        var existingJunction = _singleConduitJuncionInfos[segment.FromNodeId];
                         //existingJunction.ToConduitSegments = segment;
                         existingJunction.AddToConduitSegment(segment);
-                        segment.FromJunction = existingJunction;
+                        segment.FromNode = existingJunction;
                     }
                 }
 
                 // To Junction
-                if (segment.ToJunctionId != Guid.Empty)
+                if (segment.ToNodeId != Guid.Empty)
                 {
-                    if (!_singleConduitJuncionInfos.ContainsKey(segment.ToJunctionId))
+                    if (!_singleConduitJuncionInfos.ContainsKey(segment.ToNodeId))
                     {
-                        var newJunction = new SingleConduitSegmentJunctionInfo() { Id = segment.ToJunctionId };
+                        var newJunction = new SingleConduitSegmentJunctionInfo() { Id = segment.ToNodeId };
                         newJunction.AddFromConduitSegment(segment);
                         _singleConduitJuncionInfos.Add(newJunction.Id, newJunction);
-                        segment.ToJunction = newJunction;
+                        segment.ToNode = newJunction;
                     }
                     else
                     {
-                        var existingJunction = _singleConduitJuncionInfos[segment.ToJunctionId];
+                        var existingJunction = _singleConduitJuncionInfos[segment.ToNodeId];
                         existingJunction.AddFromConduitSegment(segment);
-                        segment.ToJunction = existingJunction;
+                        segment.ToNode = existingJunction;
                     }
                 }
             }

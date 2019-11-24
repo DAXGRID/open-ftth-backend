@@ -16,7 +16,7 @@ namespace EquipmentService.GraphQL.Types
         {
             Description = "Interface for accessing general line segment information.";
 
-            Field(x => x.LineSegmentKind, type: typeof(LineSegmentKindType)).Description("Type of line segment - i.e. conduit, power cable, signal cable etc.");
+            Field(x => x.Line.LineKind, type: typeof(LineSegmentKindType)).Description("Type of line segment - i.e. conduit, power cable, signal cable etc.");
         }
     }
 }

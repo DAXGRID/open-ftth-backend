@@ -2,10 +2,12 @@
 using ConduitNetwork.Events.Model;
 using ConduitNetwork.QueryService;
 using ConduitNetwork.ReadModel;
+using Core.ReadModel.Network;
 using Marten.Events.Projections;
 using RouteNetwork.QueryService;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ConduitNetwork.Projections
 {
@@ -52,7 +54,7 @@ namespace ConduitNetwork.Projections
             {
                 // To get to the right single conduit, we need look it up through the multi conduit
                 var mutltiConduitInfo = this.conduitNetworkQueryService.GetMultiConduitInfo(innerConduitAdded.MultiConduitId);
-                return mutltiConduitInfo.Children.Find(c => c.Position == innerConduitAdded.InnerConduitSequenceNumber).Id;
+                return mutltiConduitInfo.Children.OfType<ConduitInfo>().Single(c => c.SequenceNumber == innerConduitAdded.InnerConduitSequenceNumber).Id;
             },
             InnerConduitCut);
             
@@ -63,7 +65,7 @@ namespace ConduitNetwork.Projections
             {
                 // To get to the right single conduit, we need look it up through the multi conduit
                 var mutltiConduitInfo = this.conduitNetworkQueryService.GetMultiConduitInfo(innerConduitConnected.MultiConduitId);
-                return mutltiConduitInfo.Children.Find(c => c.Position == innerConduitConnected.InnerConduitSequenceNumber).Id;
+                return mutltiConduitInfo.Children.OfType<ConduitInfo>().Single(c => c.SequenceNumber == innerConduitConnected.InnerConduitSequenceNumber).Id;
             },
             InnerConduitConnected);
         }
@@ -87,10 +89,10 @@ namespace ConduitNetwork.Projections
             segment.Id = Guid.NewGuid();
             segment.ConduitId = @event.SingleConduitId;
             segment.SequenceNumber = 1;
-            segment.FromNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(singleConduitInfo.WalkOfInterestId).StartNodeId;
-            segment.ToNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(singleConduitInfo.WalkOfInterestId).EndNodeId;
+            segment.FromRouteNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(singleConduitInfo.WalkOfInterestId).StartNodeId;
+            segment.ToRouteNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(singleConduitInfo.WalkOfInterestId).EndNodeId;
 
-            singleConduitInfo.Segments = new List<ConduitSegmentInfo>() { segment };
+            singleConduitInfo.Segments = new List<ILineSegment>() { segment };
 
             conduitNetworkQueryService.UpdateSingleConduitInfo(singleConduitInfo);
         }
@@ -108,13 +110,13 @@ namespace ConduitNetwork.Projections
 
             if (@event.ConnectedEndKind == ConduitEndKindEnum.Incomming)
             {
-                var segmentToConnect = singleConduitInfo.Segments.Find(s => s.ToNodeId == @event.PointOfInterestId);
-                segmentToConnect.ToJunctionId = @event.ConnectedJunctionId;
+                var segmentToConnect = singleConduitInfo.Segments.Find(s => s.ToRouteNodeId == @event.PointOfInterestId);
+                segmentToConnect.ToNodeId = @event.ConnectedJunctionId;
             }
             else
             {
-                var segmentToConnect = singleConduitInfo.Segments.Find(s => s.FromNodeId == @event.PointOfInterestId);
-                segmentToConnect.FromJunctionId = @event.ConnectedJunctionId;
+                var segmentToConnect = singleConduitInfo.Segments.Find(s => s.FromRouteNodeId == @event.PointOfInterestId);
+                segmentToConnect.FromNodeId = @event.ConnectedJunctionId;
             }
 
             singleConduitInfo.Name = singleConduitInfo.Name;
@@ -125,7 +127,7 @@ namespace ConduitNetwork.Projections
         {
             singleConduitInfo.MultiConduitId = @event.MultiConduitId;
             singleConduitInfo.Kind = ConduitKindEnum.InnerConduit;
-            singleConduitInfo.Position = @event.MultiConduitIndex;
+            singleConduitInfo.SequenceNumber = @event.MultiConduitIndex;
             singleConduitInfo.Id = @event.ConduitInfo.Id;
             singleConduitInfo.Color = @event.ConduitInfo.Color;
             singleConduitInfo.Shape = @event.ConduitInfo.Shape;
@@ -142,10 +144,10 @@ namespace ConduitNetwork.Projections
             segment.Id = Guid.NewGuid();
             segment.SequenceNumber = 1;
             segment.ConduitId = @event.ConduitInfo.Id;
-            segment.FromNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(multiConduitInfo.WalkOfInterestId).StartNodeId;
-            segment.ToNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(multiConduitInfo.WalkOfInterestId).EndNodeId;
+            segment.FromRouteNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(multiConduitInfo.WalkOfInterestId).StartNodeId;
+            segment.ToRouteNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(multiConduitInfo.WalkOfInterestId).EndNodeId;
 
-            singleConduitInfo.Segments = new List<ConduitSegmentInfo>() { segment };
+            singleConduitInfo.Segments = new List<ILineSegment>() { segment };
 
 
             conduitNetworkQueryService.UpdateSingleConduitInfo(singleConduitInfo);
@@ -180,13 +182,13 @@ namespace ConduitNetwork.Projections
 
             if (@event.ConnectedEndKind == ConduitEndKindEnum.Incomming)
             {
-                var segmentToConnect = singleConduitInfo.Segments.Find(s => s.ToNodeId == @event.PointOfInterestId);
-                segmentToConnect.ToJunctionId = @event.ConnectedJunctionId;
+                var segmentToConnect = singleConduitInfo.Segments.Find(s => s.ToRouteNodeId == @event.PointOfInterestId);
+                segmentToConnect.ToNodeId = @event.ConnectedJunctionId;
             }
             else
             {
-                var segmentToConnect = singleConduitInfo.Segments.Find(s => s.FromNodeId == @event.PointOfInterestId);
-                segmentToConnect.FromJunctionId = @event.ConnectedJunctionId;
+                var segmentToConnect = singleConduitInfo.Segments.Find(s => s.FromRouteNodeId == @event.PointOfInterestId);
+                segmentToConnect.FromNodeId = @event.ConnectedJunctionId;
             }
 
             singleConduitInfo.Name = singleConduitInfo.Name;

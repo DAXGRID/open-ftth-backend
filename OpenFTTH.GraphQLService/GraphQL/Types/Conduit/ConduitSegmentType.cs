@@ -42,14 +42,14 @@ namespace EquipmentService.GraphQL.Types
             "FromRouteNode",
             resolve: context =>
             {
-                return routeNetworkQueryService.GetRouteNodeInfo(context.Source.FromNodeId);
+                return routeNetworkQueryService.GetRouteNodeInfo(context.Source.FromRouteNodeId);
             });
 
             Field<RouteNodeType>(
             "ToRouteNode",
             resolve: context =>
             {
-                return routeNetworkQueryService.GetRouteNodeInfo(context.Source.ToNodeId);
+                return routeNetworkQueryService.GetRouteNodeInfo(context.Source.ToRouteNodeId);
             });
 
             Field<ListGraphType<RouteSegmentType>>(
@@ -58,7 +58,7 @@ namespace EquipmentService.GraphQL.Types
            {
                List<RouteSegmentInfo> result = new List<RouteSegmentInfo>();
 
-               var woi = routeNetworkQueryService.GetWalkOfInterestInfo(context.Source.Conduit.GetRootConduit().WalkOfInterestId).SubWalk2(context.Source.FromNodeId, context.Source.ToNodeId);
+               var woi = routeNetworkQueryService.GetWalkOfInterestInfo(context.Source.Conduit.GetRootConduit().WalkOfInterestId).SubWalk2(context.Source.FromRouteNodeId, context.Source.ToRouteNodeId);
 
                foreach (var segmentId in woi.AllSegmentIds)
                {
@@ -74,7 +74,7 @@ namespace EquipmentService.GraphQL.Types
             {
                 List<RouteNodeInfo> result = new List<RouteNodeInfo>();
 
-                var woi = routeNetworkQueryService.GetWalkOfInterestInfo(context.Source.Conduit.GetRootConduit().WalkOfInterestId).SubWalk2(context.Source.FromNodeId, context.Source.ToNodeId);
+                var woi = routeNetworkQueryService.GetWalkOfInterestInfo(context.Source.Conduit.GetRootConduit().WalkOfInterestId).SubWalk2(context.Source.FromRouteNodeId, context.Source.ToRouteNodeId);
 
                 foreach (var nodeId in woi.AllNodeIds)
                 {
@@ -84,7 +84,7 @@ namespace EquipmentService.GraphQL.Types
                 return result;
             });
 
-            Field(x => x.LineSegmentKind, type: typeof(LineSegmentKindType)).Description("Type of line segment - i.e. conduit, power cable, signal cable etc.");
+            Field(x => x.Line.LineKind, type: typeof(LineSegmentKindType)).Description("Type of line segment - i.e. conduit, power cable, signal cable etc.");
 
 
             Interface<LineSegmentInterface>();

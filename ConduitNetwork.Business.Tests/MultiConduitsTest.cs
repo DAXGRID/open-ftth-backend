@@ -15,6 +15,7 @@ using RouteNetwork.QueryService;
 using ConduitNetwork.ReadModel;
 using ConduitNetwork.QueryService;
 using ConduitNetwork.Business.Specifications;
+using ConduitNetwork.Events.Model;
 
 namespace ConduitNetwork.Business.Tests
 {
@@ -219,12 +220,12 @@ namespace ConduitNetwork.Business.Tests
             Assert.Equal(12, multiConduitInfo.Children.Count);
 
             // Check that inner conduit number 12 is Aqua
-            Assert.Equal(Events.Model.ConduitColorEnum.Aqua, multiConduitInfo.Children.Find(c => c.Position == 12).Color);
+            Assert.Equal(Events.Model.ConduitColorEnum.Aqua, multiConduitInfo.Children.OfType<ConduitInfo>().Single(c => c.SequenceNumber == 12).Color);
 
             // Check various inner conduit properties
-            Assert.Equal(1, multiConduitInfo.Children.Count(c => c.Color == Events.Model.ConduitColorEnum.Red));
-            Assert.Equal(1, multiConduitInfo.Children.Count(c => c.Color == Events.Model.ConduitColorEnum.Green));
-            Assert.Equal(1, multiConduitInfo.Children.Count(c => c.Name.Contains("8")));
+            Assert.Equal(1, multiConduitInfo.Children.OfType<ConduitInfo>().Count(c => c.Color == Events.Model.ConduitColorEnum.Red));
+            Assert.Equal(1, multiConduitInfo.Children.OfType<ConduitInfo>().Count(c => c.Color == Events.Model.ConduitColorEnum.Green));
+            Assert.Equal(1, multiConduitInfo.Children.OfType<ConduitInfo>().Count(c => c.Name.Contains("8")));
         }
 
         [Fact]
@@ -351,17 +352,17 @@ namespace ConduitNetwork.Business.Tests
             await serviceContext.CommandBus.Send(cutInnerConduitCmd1);
 
             // Check that read model has been updated to reflect the new reality
-            var innerConduitFromMultiConduit = multiConduit.Children.Find(c => c.Position == 2);
+            var innerConduitFromMultiConduit = multiConduit.Children.OfType<ConduitInfo>().Single(c => c.SequenceNumber == 2);
             Assert.Equal(2, innerConduitFromMultiConduit.Segments.Count);
 
             var innerConduit = conduitNetworkQueryService.GetSingleConduitInfo(innerConduitFromMultiConduit.Id);
             Assert.Equal(2, innerConduit.Segments.Count);
 
-            Assert.Equal(testCabinet1, innerConduit.Segments[0].FromNodeId);
-            Assert.Equal(testJunction2, innerConduit.Segments[0].ToNodeId);
+            Assert.Equal(testCabinet1, innerConduit.Segments[0].FromRouteNodeId);
+            Assert.Equal(testJunction2, innerConduit.Segments[0].ToRouteNodeId);
 
-            Assert.Equal(testJunction2, innerConduit.Segments[1].FromNodeId);
-            Assert.Equal(testSdu2, innerConduit.Segments[1].ToNodeId);
+            Assert.Equal(testJunction2, innerConduit.Segments[1].FromRouteNodeId);
+            Assert.Equal(testSdu2, innerConduit.Segments[1].ToRouteNodeId);
 
             // Cut outer conduit at junction 1
             var cutOuterConduitCmd2 = fixture.Build<CutOuterConduitCommand>()
@@ -381,20 +382,20 @@ namespace ConduitNetwork.Business.Tests
             await serviceContext.CommandBus.Send(cutInnerConduitCmd2);
 
             // Check that read model has been updated to reflect the new reality
-            innerConduitFromMultiConduit = multiConduit.Children.Find(c => c.Position == 2);
+            innerConduitFromMultiConduit = multiConduit.Children.OfType<ConduitInfo>().Single(c => c.SequenceNumber == 2);
             Assert.Equal(3, innerConduitFromMultiConduit.Segments.Count);
 
             innerConduit = conduitNetworkQueryService.GetSingleConduitInfo(innerConduitFromMultiConduit.Id);
             Assert.Equal(3, innerConduit.Segments.Count);
 
-            Assert.Equal(testCabinet1, innerConduit.Segments[0].FromNodeId);
-            Assert.Equal(testJunction1, innerConduit.Segments[0].ToNodeId);
+            Assert.Equal(testCabinet1, innerConduit.Segments[0].FromRouteNodeId);
+            Assert.Equal(testJunction1, innerConduit.Segments[0].ToRouteNodeId);
 
-            Assert.Equal(testJunction1, innerConduit.Segments[1].FromNodeId);
-            Assert.Equal(testJunction2, innerConduit.Segments[1].ToNodeId);
+            Assert.Equal(testJunction1, innerConduit.Segments[1].FromRouteNodeId);
+            Assert.Equal(testJunction2, innerConduit.Segments[1].ToRouteNodeId);
 
-            Assert.Equal(testJunction2, innerConduit.Segments[2].FromNodeId);
-            Assert.Equal(testSdu2, innerConduit.Segments[2].ToNodeId);
+            Assert.Equal(testJunction2, innerConduit.Segments[2].FromRouteNodeId);
+            Assert.Equal(testSdu2, innerConduit.Segments[2].ToRouteNodeId);
 
         }
 
@@ -494,7 +495,7 @@ namespace ConduitNetwork.Business.Tests
             var singleConduitJunction = conduitNetworkQueryService.GetSingleConduitSegmentJunctionInfo(ourConduitJunctionId);
 
             // The inner conduit must be connected to our conduit junction
-            var innerConduitInfo = multiConduitInfo.Children.Find(c => c.Position == 2);
+            var innerConduitInfo = multiConduitInfo.Children.OfType<ConduitInfo>().Single(c => c.SequenceNumber == 2);
             Assert.Single(innerConduitInfo.Segments.Where(s => s.NeighborElements.Contains(singleConduitJunction)));
 
             // The SDU conduit must be connected to our conduit junction as well
@@ -571,7 +572,7 @@ namespace ConduitNetwork.Business.Tests
 
             // Check that multi conduit now has one child at positon 1
             Assert.True(multiConduitInfo.Children.Count == 1);
-            Assert.True(multiConduitInfo.Children.Count(c => c.Position == 1) == 1);
+            Assert.True(multiConduitInfo.Children.OfType<ConduitInfo>().Count(c => c.SequenceNumber == 1) == 1);
 
             // Add inner conduit 2
             var addInnerConduitCmd2 = fixture.Build<AddInnerConduitCommand>()
@@ -587,7 +588,7 @@ namespace ConduitNetwork.Business.Tests
 
             // Check that multi conduit now has two children
             Assert.True(multiConduitInfo.Children.Count == 2);
-            Assert.True(multiConduitInfo.Children.Count(c => c.Position == 2) == 1);
+            Assert.True(multiConduitInfo.Children.OfType<ConduitInfo>().Count(c => c.SequenceNumber == 2) == 1);
 
         }
 
@@ -635,7 +636,7 @@ namespace ConduitNetwork.Business.Tests
             // Connection inner conduit 3 of multi conduit to flex conduit
 
             var multiConduit = conduitNetworkQueryService.GetMultiConduitInfo(createMultiConduitCmd.MultiConduitId);
-            var fromSegment = multiConduit.Children.Find(c => c.Position == 3).Segments[0];
+            var fromSegment = multiConduit.Children.OfType<ConduitInfo>().Single(c => c.SequenceNumber == 3).Segments[0];
 
             var flexConduit = conduitNetworkQueryService.GetMultiConduitInfo(createFlexConduitCmd.MultiConduitId);
             var toSegment = flexConduit.Segments[0];
@@ -653,7 +654,7 @@ namespace ConduitNetwork.Business.Tests
             Assert.Single(flexConduit.Children);
 
             // Flex conduit inner conduit 1 must be connected upstream to flatliner inner conduit 3
-            Assert.NotNull(flexConduit.Children[0].Segments[0].FromJunction);
+            Assert.NotNull(((ConduitInfo)flexConduit.Children[0]).Segments[0].FromNode);
             //Assert.True(flexConduit.Children[0].Segments[0].FromJunction.NeighborElements.Exists(n => n.iConduit.Parent.Id == createMultiConduitCmd.MultiConduitId);
         }
     }

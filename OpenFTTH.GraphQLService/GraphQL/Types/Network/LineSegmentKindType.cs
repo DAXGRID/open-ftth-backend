@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace EquipmentService.GraphQL.Types
 {
-    public class LineSegmentKindType : EnumerationGraphType<LineSegmentKindEnum>
+    public class LineSegmentKindType : EnumerationGraphType<LineKindEnum>
     {
         public LineSegmentKindType()
         {

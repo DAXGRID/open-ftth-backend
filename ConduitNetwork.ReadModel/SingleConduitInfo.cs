@@ -14,8 +14,8 @@ namespace ConduitNetwork.ReadModel
         {
             string result = Name;
 
-            if (Position != 0)
-                result += " (" + Position + ")";
+            if (SequenceNumber != 0)
+                result += " (" + SequenceNumber + ")";
 
             if (Parent != null)
                 result += " -> " + Parent.ToString();

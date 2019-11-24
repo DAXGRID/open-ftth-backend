@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Core.ReadModel.Network
 {
-    public enum LineSegmentKindEnum
+    public enum LineKindEnum
     {
         Route = 101,
         Conduit = 201,

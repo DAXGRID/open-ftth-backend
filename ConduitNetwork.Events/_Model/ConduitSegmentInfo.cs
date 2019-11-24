@@ -9,13 +9,12 @@ namespace ConduitNetwork.Events.Model
 {
     public class ConduitSegmentInfo : GraphEdge, ILineSegment
     {
-        public Guid Id { get; set; }
         public Guid ConduitId { get; set; }
         public int SequenceNumber { get; set; }
+        public Guid FromRouteNodeId { get; set; }
+        public Guid ToRouteNodeId { get; set; }
         public Guid FromNodeId { get; set; }
         public Guid ToNodeId { get; set; }
-        public Guid FromJunctionId { get; set; }
-        public Guid ToJunctionId { get; set; }
 
 
         #region Properties that should not be persisted
@@ -24,33 +23,32 @@ namespace ConduitNetwork.Events.Model
         public ConduitInfo Conduit { get; set; }
 
         [IgnoreDataMember]
-        public List<ConduitSegmentInfo> Parents { get; set; }
-
-        [IgnoreDataMember]
-        public List<ConduitSegmentInfo> Children { get; set; }
-
-        [IgnoreDataMember]
-        public ConduitSegmentJunctionInfo FromJunction { get; set; }
-
-        [IgnoreDataMember]
-        public ConduitSegmentJunctionInfo ToJunction { get; set; }
-
-        #endregion
-
-        public LineSegmentKindEnum LineSegmentKind {
-            get
-            {
-                return LineSegmentKindEnum.Conduit;
-            }
+        public ILine Line
+        {
+            get { return Conduit; }
+            set { Conduit = (ConduitInfo)value; }
         }
 
+        [IgnoreDataMember]
+        public List<ILineSegment> Parents { get; set; }
+
+        [IgnoreDataMember]
+        public List<ILineSegment> Children { get; set; }
+
+        [IgnoreDataMember]
+        public INode FromNode { get; set; }
+
+        [IgnoreDataMember]
+        public INode ToNode { get; set; }
+
+        #endregion
 
         public override List<IGraphElement> IngoingElements
         {
             get
             {
-                if (FromJunction != null)
-                    return new List<IGraphElement>() { FromJunction };
+                if (FromNode != null)
+                    return new List<IGraphElement>() { FromNode };
                 else
                     return new List<IGraphElement>();
             }
@@ -60,8 +58,8 @@ namespace ConduitNetwork.Events.Model
         {
             get
             {
-                if (ToJunction != null)
-                    return new List<IGraphElement>() { ToJunction };
+                if (ToNode != null)
+                    return new List<IGraphElement>() { ToNode };
                 else
                     return new List<IGraphElement>();
             }
@@ -72,11 +70,11 @@ namespace ConduitNetwork.Events.Model
             {
                 List<IGraphElement> result = new List<IGraphElement>();
 
-                if (FromJunction != null)
-                    result.Add(FromJunction);
+                if (FromNode != null)
+                    result.Add(FromNode);
 
-                if (ToJunction != null)
-                    result.Add(ToJunction);
+                if (ToNode != null)
+                    result.Add(ToNode);
 
                 return result;
             }

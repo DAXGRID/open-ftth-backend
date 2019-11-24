@@ -1,4 +1,5 @@
 ﻿using Core.GraphSupport.Model;
+using Core.ReadModel.Network;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace ConduitNetwork.Events.Model
 {
-    public class ConduitSegmentJunctionInfo : GraphNode
+    public class ConduitSegmentJunctionInfo : GraphNode, INode
     {
         public Guid Id { get; set; }
         [IgnoreDataMember]

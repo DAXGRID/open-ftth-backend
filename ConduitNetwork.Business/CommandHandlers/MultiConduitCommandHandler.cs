@@ -58,7 +58,7 @@ namespace ConduitNetwork.Business.CommandHandlers
                 var innerConduitSegment = conduitRelations.Find(c => c.Segment.ConduitId == request.InnerConduitId);
 
                 request.MultiConduitId = innerConduitSegment.Segment.Conduit.GetRootConduit().Id;
-                request.InnerConduitSequenceNumber = innerConduitSegment.Segment.Conduit.Position;
+                request.InnerConduitSequenceNumber = innerConduitSegment.Segment.Conduit.SequenceNumber;
             }
 
 
@@ -155,7 +155,7 @@ namespace ConduitNetwork.Business.CommandHandlers
             {
                 // Connect to inner conduit to junction
                 var fromMultiConduit = repo.Load<MultiConduit>(fromConduitSegmentRel.Segment.Conduit.Parent.Id);
-                fromMultiConduit.ConnectInnerConduit(request.PointOfInterestId, fromConduitSegmentRel.Segment.Conduit.Position, fromEndKind, junctionId, routeNetworkQueryService, conduitNetworkQueryService);
+                fromMultiConduit.ConnectInnerConduit(request.PointOfInterestId, fromConduitSegmentRel.Segment.Conduit.SequenceNumber, fromEndKind, junctionId, routeNetworkQueryService, conduitNetworkQueryService);
                 repo.Store(fromMultiConduit);
 
                 // Create inner conduit in multi conduit
@@ -173,12 +173,12 @@ namespace ConduitNetwork.Business.CommandHandlers
             {
                 // Connect from inner conduit to junction
                 var fromMultiConduit = repo.Load<MultiConduit>(fromConduitSegmentRel.Segment.Conduit.Parent.Id);
-                fromMultiConduit.ConnectInnerConduit(request.PointOfInterestId, fromConduitSegmentRel.Segment.Conduit.Position, fromEndKind, junctionId, routeNetworkQueryService, conduitNetworkQueryService);
+                fromMultiConduit.ConnectInnerConduit(request.PointOfInterestId, fromConduitSegmentRel.Segment.Conduit.SequenceNumber, fromEndKind, junctionId, routeNetworkQueryService, conduitNetworkQueryService);
                 repo.Store(fromMultiConduit);
 
                 // Connect from inner conduit to junction
                 var toMultiConduit = repo.Load<MultiConduit>(toConduitSegmentRel.Segment.Conduit.Parent.Id);
-                toMultiConduit.ConnectInnerConduit(request.PointOfInterestId, toConduitSegmentRel.Segment.Conduit.Position, toEndKind, junctionId, routeNetworkQueryService, conduitNetworkQueryService);
+                toMultiConduit.ConnectInnerConduit(request.PointOfInterestId, toConduitSegmentRel.Segment.Conduit.SequenceNumber, toEndKind, junctionId, routeNetworkQueryService, conduitNetworkQueryService);
                 repo.Store(toMultiConduit);
             }
             else

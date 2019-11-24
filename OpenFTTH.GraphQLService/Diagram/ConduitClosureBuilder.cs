@@ -9,6 +9,7 @@ using RouteNetwork.QueryService;
 using RouteNetwork.ReadModel;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DiagramLayout.Builder
 {
@@ -400,9 +401,9 @@ namespace DiagramLayout.Builder
             portConnection.SetReference(conduitSegmentInfo.ConduitId, "Conduit");
 
             // Connect west and east terminals
-            foreach (var child in conduitSegmentInfo.Children)
+            foreach (var child in conduitSegmentInfo.Children.OfType<ConduitSegmentInfo>())
             {
-                var terminalConnection = conduitBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, child.Conduit.Position, BlockSideEnum.East, 1, child.Conduit.Position, null, "InnerConduit" + child.Conduit.Color.ToString(), LineShapeTypeEnum.Polygon);
+                var terminalConnection = conduitBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, child.Conduit.SequenceNumber, BlockSideEnum.East, 1, child.Conduit.SequenceNumber, null, "InnerConduit" + child.Conduit.Color.ToString(), LineShapeTypeEnum.Polygon);
                 terminalConnection.SetReference(child.Conduit.Id, "SingleConduit");
             }
 
@@ -424,11 +425,11 @@ namespace DiagramLayout.Builder
             AddBigConduitPort(leftLabelBlock, BlockSideEnum.East, nTerminals, null, -1, -1, 10);
 
             // Connect west and east terminals
-            foreach (var child in conduitSegmentInfo.Children)
+            foreach (var child in conduitSegmentInfo.Children.OfType<ConduitSegmentInfo>())
             {
                 var lineInfo = _conduitNetworkQueryService.CreateConduitLineInfoFromConduitSegment(conduitSegmentInfo);
 
-                leftLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, child.Conduit.Position, BlockSideEnum.East, 1, child.Conduit.Position, lineInfo.StartRouteNode.Name, "LabelMediumText");
+                leftLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, child.Conduit.SequenceNumber, BlockSideEnum.East, 1, child.Conduit.SequenceNumber, lineInfo.StartRouteNode.Name, "LabelMediumText");
             }
 
             leftLabelBlock.SetSideMargin(sideMargin);
@@ -450,11 +451,11 @@ namespace DiagramLayout.Builder
             AddBigConduitPort(rightLabelBlock, BlockSideEnum.East, nTerminals, null, -1, -1, 10);
 
             // Connect west and east terminals
-            foreach (var child in conduitSegmentInfo.Children)
+            foreach (var child in conduitSegmentInfo.Children.OfType<ConduitSegmentInfo>())
             {
                 var lineInfo = _conduitNetworkQueryService.CreateConduitLineInfoFromConduitSegment(conduitSegmentInfo);
 
-                var terminalConnection = rightLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, child.Conduit.Position, BlockSideEnum.East, 1, child.Conduit.Position, lineInfo.EndRouteNode.Name, "LabelMediumText");
+                var terminalConnection = rightLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, child.Conduit.SequenceNumber, BlockSideEnum.East, 1, child.Conduit.SequenceNumber, lineInfo.EndRouteNode.Name, "LabelMediumText");
             }
 
             rightLabelBlock.SetSideMargin(sideMargin);

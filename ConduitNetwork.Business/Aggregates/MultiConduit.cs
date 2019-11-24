@@ -4,6 +4,7 @@ using ConduitNetwork.Business.Specifications;
 using ConduitNetwork.Events;
 using ConduitNetwork.Events.Model;
 using ConduitNetwork.QueryService;
+using Core.ReadModel.Network;
 using Infrastructure.EventSourcing;
 using RouteNetwork.QueryService;
 using System;
@@ -126,7 +127,7 @@ namespace ConduitNetwork.Business.Aggregates
 
             var multiConduitInfo = conduitNetworkQueryService.GetMultiConduitInfo(Id);
 
-            if (multiConduitInfo.Segments.Exists(s => s.FromNodeId == pointOfInterestId || s.ToNodeId == pointOfInterestId))
+            if (multiConduitInfo.Segments.Exists(s => s.FromRouteNodeId == pointOfInterestId || s.ToRouteNodeId == pointOfInterestId))
                 throw new ArgumentException("Multi conduit: " + Id + " is already cut at: " + pointOfInterestId);
 
             // Check that conduit is cut at a node part of conduit walk of interest
@@ -158,18 +159,18 @@ namespace ConduitNetwork.Business.Aggregates
                 throw new ArgumentException("PointOfInterestId cannot be null or empty");
 
             // Inner conduit number check
-            if (!multiConduitInfo.Children.Exists(i => i.Position == sequenceNumber))
+            if (!multiConduitInfo.Children.OfType<ConduitInfo>().Any(i => i.SequenceNumber == sequenceNumber))
                 throw new ArgumentException("Cannot find inner conduit number: " + sequenceNumber + " in multi conduit: " + Id);
 
 
-            var singleConduitInfo = conduitNetworkQueryService.GetSingleConduitInfo(multiConduitInfo.Children.Find(i => i.Position == sequenceNumber).Id);
+            var singleConduitInfo = conduitNetworkQueryService.GetSingleConduitInfo(multiConduitInfo.Children.OfType<ConduitInfo>().Single(i => i.SequenceNumber == sequenceNumber).Id);
 
             // Multi conduit cut check
-            if (!multiConduitInfo.Segments.Exists(s => s.FromNodeId == pointOfInterestId || s.ToNodeId == pointOfInterestId))
+            if (!multiConduitInfo.Segments.Exists(s => s.FromRouteNodeId == pointOfInterestId || s.ToRouteNodeId == pointOfInterestId))
                 throw new ArgumentException("Multi conduit: " + Id + " is not cut at: " + pointOfInterestId + " You cannot cut a inner conduit before the outer conduit is cut.");
 
             // Inner conduit cut check
-            if (singleConduitInfo.Segments.Exists(s => s.FromNodeId == pointOfInterestId || s.ToNodeId == pointOfInterestId))
+            if (singleConduitInfo.Segments.Exists(s => s.FromRouteNodeId == pointOfInterestId || s.ToRouteNodeId == pointOfInterestId))
                 throw new ArgumentException("Inner conduit number: " + sequenceNumber + " in multi conduit: " + Id + " is already cut at: " + pointOfInterestId);
 
             // Check that conduit is cut at a node part of conduit walk of interest
@@ -199,7 +200,7 @@ namespace ConduitNetwork.Business.Aggregates
 
             if (multiConduitInfo.Children != null && multiConduitInfo.Children.Count > 0)
             {
-                var lastInnerConduitSeqNo = multiConduitInfo.Children.Max(c => c.Position);
+                var lastInnerConduitSeqNo = multiConduitInfo.Children.OfType<ConduitInfo>().Max(c => c.SequenceNumber);
                 seqNo = lastInnerConduitSeqNo + 1;
             }
 
@@ -241,12 +242,12 @@ namespace ConduitNetwork.Business.Aggregates
             var multiConduitInfo = conduitNetworkQueryService.GetMultiConduitInfo(Id);
 
             // Inner conduit number check
-            if (!multiConduitInfo.Children.Exists(i => i.Position == sequenceNumber))
+            if (!multiConduitInfo.Children.OfType<ConduitInfo>().Any(i => i.SequenceNumber == sequenceNumber))
                 throw new ArgumentException("Cannot find inner conduit number: " + sequenceNumber + " in multi conduit: " + Id);
 
-            var singleConduitInfo = conduitNetworkQueryService.GetSingleConduitInfo(multiConduitInfo.Children.Find(i => i.Position == sequenceNumber).Id);
+            var singleConduitInfo = conduitNetworkQueryService.GetSingleConduitInfo(multiConduitInfo.Children.OfType<ConduitInfo>().Single(i => i.SequenceNumber == sequenceNumber).Id);
 
-            if (!singleConduitInfo.Segments.Exists(s => s.FromNodeId == pointOfInterestId || s.ToNodeId == pointOfInterestId))
+            if (!singleConduitInfo.Segments.Exists(s => s.FromRouteNodeId == pointOfInterestId || s.ToRouteNodeId == pointOfInterestId))
                 throw new ArgumentException("Inner conduit number: " + sequenceNumber + " in multi conduit: " + Id + " is not cut at: " + pointOfInterestId);
 
             // Check that conduit is connected at a node part of conduit walk of interest
@@ -256,38 +257,38 @@ namespace ConduitNetwork.Business.Aggregates
                 throw new ArgumentException("The point of interest: " + pointOfInterestId + " was not found in walk of interest:" + multiConduitInfo.WalkOfInterestId + " of multi conduit: " + Id);
 
             // Check incomming
-            if (endKind == ConduitEndKindEnum.Incomming && !multiConduitInfo.Segments.Exists(s => s.ToNodeId == pointOfInterestId))
+            if (endKind == ConduitEndKindEnum.Incomming && !multiConduitInfo.Segments.Exists(s => s.ToRouteNodeId == pointOfInterestId))
                 throw new ArgumentException("No segments are incomming to point of interest: " + pointOfInterestId + " in multi conduit: " + Id);
 
             // Check outgoing
-            if (endKind == ConduitEndKindEnum.Outgoing && !multiConduitInfo.Segments.Exists(s => s.FromNodeId == pointOfInterestId))
+            if (endKind == ConduitEndKindEnum.Outgoing && !multiConduitInfo.Segments.Exists(s => s.FromRouteNodeId == pointOfInterestId))
                 throw new ArgumentException("No segments are outgoing from point of interest: " + pointOfInterestId + " in multi conduit: " + Id);
 
-            ConduitSegmentInfo connectingSegment = null;
+            ILineSegment connectingSegment = null;
 
             // Check incomming inner conduit
             if (endKind == ConduitEndKindEnum.Incomming)
             {
-                if (!singleConduitInfo.Segments.Exists(s => s.ToNodeId == pointOfInterestId))
+                if (!singleConduitInfo.Segments.Exists(s => s.ToRouteNodeId == pointOfInterestId))
                     throw new ArgumentException("No inner conduit segments are incomming to point of interest: " + pointOfInterestId + " in single conduit: " + Id);
 
-                connectingSegment = singleConduitInfo.Segments.Find(s => s.ToNodeId == pointOfInterestId);
+                connectingSegment = singleConduitInfo.Segments.Find(s => s.ToRouteNodeId == pointOfInterestId);
 
                 // Check if already connect to a junction
-                if (connectingSegment.ToJunctionId != Guid.Empty)
-                    throw new ArgumentException("the incomming  inner conduit segment: " + connectingSegment.Id + " is already connected to a junction: " + connectingSegment.ToJunctionId);
+                if (connectingSegment.ToNodeId != Guid.Empty)
+                    throw new ArgumentException("the incomming  inner conduit segment: " + connectingSegment.Id + " is already connected to a junction: " + connectingSegment.ToNodeId);
             }
             // Check outgoing inner conduit
             else
             {
-                if (!singleConduitInfo.Segments.Exists(s => s.FromNodeId == pointOfInterestId))
+                if (!singleConduitInfo.Segments.Exists(s => s.FromRouteNodeId == pointOfInterestId))
                     throw new ArgumentException("No  inner conduit segments are outgoing from point of interest: " + pointOfInterestId + " in single conduit: " + Id);
 
-                connectingSegment = singleConduitInfo.Segments.Find(s => s.FromNodeId == pointOfInterestId);
+                connectingSegment = singleConduitInfo.Segments.Find(s => s.FromRouteNodeId == pointOfInterestId);
 
                 // Check if already connect to a junction
-                if (connectingSegment.FromJunctionId != Guid.Empty)
-                    throw new ArgumentException("the outgoing  inner conduit segment: " + connectingSegment.Id + " is already connected to a junction: " + connectingSegment.FromJunctionId);
+                if (connectingSegment.FromNodeId != Guid.Empty)
+                    throw new ArgumentException("the outgoing  inner conduit segment: " + connectingSegment.Id + " is already connected to a junction: " + connectingSegment.FromNodeId);
             }
 
 
@@ -313,14 +314,14 @@ namespace ConduitNetwork.Business.Aggregates
             // Find from direction
             ConduitEndKindEnum fromEndKind = ConduitEndKindEnum.Incomming;
 
-            if (fromSegment.FromNodeId == pointOfInterestId)
+            if (fromSegment.FromRouteNodeId == pointOfInterestId)
                 fromEndKind = ConduitEndKindEnum.Outgoing;
 
             RaiseEvent(new MultiConduitInnerConduitConnected
             {
                 MultiConduitId = Id,
                 PointOfInterestId = pointOfInterestId,
-                InnerConduitSequenceNumber = fromSegment.Conduit.Position,
+                InnerConduitSequenceNumber = fromSegment.Line.SequenceNumber,
                 ConnectedEndKind = fromEndKind,
                 ConnectedJunctionId = junctionId
             });

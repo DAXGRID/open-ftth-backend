@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using AutoMapper;
+using ConduitNetwork.Events.Model;
 using ConduitNetwork.ReadModel.ConduitClosure;
 using Marten;
 
@@ -103,7 +104,7 @@ namespace ConduitNetwork.QueryService.ConduitClosure
                 foreach (var port in side.Ports)
                 {
                     if (port.MultiConduitSegment == null && port.MultiConduitSegmentId != Guid.Empty)
-                        port.MultiConduitSegment = conduitNetworkQueryService.GetMultiConduitInfo(port.MultiConduitId).Segments.Find(s => s.Id == port.MultiConduitSegmentId);
+                        port.MultiConduitSegment = (ConduitSegmentInfo)conduitNetworkQueryService.GetMultiConduitInfo(port.MultiConduitId).Segments.Find(s => s.Id == port.MultiConduitSegmentId);
 
                     foreach (var terminal in port.Terminals)
                     {
