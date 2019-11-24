@@ -5,15 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="8.1.1" />
-    <PackageReference Include="MediatR" Version="7.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\ConduitNetwork.QueryService\ConduitNetwork.QueryService.csproj" />
     <ProjectReference Include="..\FiberNetwork.Events\FiberNetwork.Events.csproj" />
     <ProjectReference Include="..\FiberNetwork.QueryService\FiberNetwork.QueryService.csproj" />
-    <ProjectReference Include="..\Infrastructure.EventSourcing\Infrastructure.EventSourcing.csproj" />
     <ProjectReference Include="..\RouteNetwork.QueryService\RouteNetwork.State.csproj" />
   </ItemGroup>
 

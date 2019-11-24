@@ -29,79 +29,14 @@ namespace FiberNetwork.Business.Aggregates
             if (fiberNetworkQueryService.CheckIfFiberCableIdExists(fiberCableId))
                 throw new ArgumentException("A fiber cable with id: " + fiberCableId + " already exists");
 
-            /*
-
-            // Create the multi conduit itself
-            if (demoDataSpec != null && demoDataSpec != "")
+            var fiberCablePlaceEvent = new FiberCablePlaced()
             {
-                var multiConduitPlaced = ConduitEventBuilder.CreateMultiConduitPlacedEvent(fiberCableId, walkOfInterestId, demoDataSpec);
-                RaiseEvent(multiConduitPlaced);
+                WalkOfInterestId = walkOfInterestId,
+                FiberCableId = fiberCableId,
+                NumberOfFibers = numberOfFiber,
+            };
 
-                // Create all the inner conduits (if the multi conduit has such - the demo data builder will know)
-                if (!demoDataSpec.StartsWith("FLEX"))
-                {
-                    var innerConduitAddedEvents = ConduitEventBuilder.CreateInnerConduitAddedEvents(multiConduitPlaced, demoDataSpec);
-
-                    foreach (var innerConduitAddedEvent in innerConduitAddedEvents)
-                        RaiseEvent(innerConduitAddedEvent);
-                }
-            }
-            else
-            {
-                var conduitSpec = conduitSpecificationRepository.GetConduitSpecification(conduitSpecificationId);
-
-                var assetInfo = new AssetInfo();
-                assetInfo.Model = conduitSpec.ProductModels[0];
-                assetInfo.Manufacturer = conduitSpec.ProductModels[0].Manufacturer;
-
-                var conduitInfo = new ConduitInfo()
-                {
-                    Id = fiberCableId,
-                    Name = name,
-                    Shape = conduitSpec.Shape,
-                    Color = conduitSpec.Color,
-                    ColorMarking = markingColor,
-                    TextMarking = markingText,
-                    OuterDiameter = conduitSpec.OuterDiameter,
-                    InnerDiameter = conduitSpec.InnerDiameter
-                };
-
-                var multiConduitEvent = new MultiConduitPlaced()
-                {
-                    WalkOfInterestId = walkOfInterestId,
-                    MultiConduitId = fiberCableId,
-                    ConduitInfo = conduitInfo,
-                    AssetInfo = assetInfo
-                };
-
-                RaiseEvent(multiConduitEvent);
-
-
-                // Create all the inner conduit
-                foreach (var innerConduitSpec in conduitSpec.ChildSpecifications)
-                {
-                    var innerConduitInfo = new ConduitInfo()
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Subrør " + innerConduitSpec.SequenceNumber,
-                        Color = innerConduitSpec.Color,
-                        InnerDiameter = innerConduitSpec.InnerDiameter,
-                        OuterDiameter = innerConduitSpec.OuterDiameter,
-                        Shape = innerConduitSpec.Shape,
-                        ColorMarking = ConduitColorEnum.None
-                    };
-
-                    var innerConduitAddedEvent = new MultiConduitInnerConduitAdded()
-                    {
-                        MultiConduitId = fiberCableId,
-                        MultiConduitIndex = innerConduitSpec.SequenceNumber,
-                        ConduitInfo = innerConduitInfo
-                    };
-
-                    RaiseEvent(innerConduitAddedEvent);
-                }
-            }
-            */
+            RaiseEvent(fiberCablePlaceEvent);
         }
 
         internal void ConnectFiber(Guid pointOfInterestId, int fiberSequenceNumber /*, ConduitEndKindEnum endKind */, Guid junctionId, IRouteNetworkState routeNetworkQueryService, IFiberNetworkQueryService fiberNetworkQueryService)

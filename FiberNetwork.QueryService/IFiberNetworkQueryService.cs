@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FiberNetwork.Events.Model;
+using System;
 
 namespace FiberNetwork.QueryService
 {
@@ -6,10 +7,11 @@ namespace FiberNetwork.QueryService
     {
         bool CheckIfFiberCableIdExists(Guid id);
 
+        FiberCableInfo GetFiberCableInfo(Guid id);
+        
         /*
         ConduitInfo GetConduitInfo(Guid id);
 
-        MultiConduitInfo GetMultiConduitInfo(Guid id);
 
         SingleConduitInfo GetSingleConduitInfo(Guid id);
 

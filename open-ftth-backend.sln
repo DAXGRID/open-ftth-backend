@@ -83,6 +83,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FiberNetwork.Events", "Fibe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiberNetwork.QueryService", "FiberNetwork.QueryService\FiberNetwork.QueryService.csproj", "{5557E454-43A8-4274-B1D8-59974ECCDFB8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiberNetwork.Projections", "FiberNetwork.Projections\FiberNetwork.Projections.csproj", "{0BB8384E-FD86-473D-8343-7AFDDA969549}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -213,6 +215,10 @@ Global
 		{5557E454-43A8-4274-B1D8-59974ECCDFB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5557E454-43A8-4274-B1D8-59974ECCDFB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5557E454-43A8-4274-B1D8-59974ECCDFB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BB8384E-FD86-473D-8343-7AFDDA969549}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BB8384E-FD86-473D-8343-7AFDDA969549}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BB8384E-FD86-473D-8343-7AFDDA969549}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BB8384E-FD86-473D-8343-7AFDDA969549}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -247,6 +253,7 @@ Global
 		{CB8251F6-558C-4FF4-8283-0D4B85769427} = {CA91977F-C799-4894-84AF-30541ADF3413}
 		{A8073C73-D43E-4723-AC81-AFAACC41670A} = {CA91977F-C799-4894-84AF-30541ADF3413}
 		{5557E454-43A8-4274-B1D8-59974ECCDFB8} = {CA91977F-C799-4894-84AF-30541ADF3413}
+		{0BB8384E-FD86-473D-8343-7AFDDA969549} = {CA91977F-C799-4894-84AF-30541ADF3413}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {814D4D42-0578-4C79-B650-5B9F77DE6E51}

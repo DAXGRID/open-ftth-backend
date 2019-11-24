@@ -8,6 +8,9 @@ namespace Core.ReadModel.Network
     public interface ILine
     {
         Guid Id { get;}
+
+        Guid WalkOfInterestId { get; }
+
         LineKindEnum LineKind { get; }
 
         /// <summary>

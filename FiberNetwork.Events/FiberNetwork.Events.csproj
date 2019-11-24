@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Asset.Model\Asset.Model.csproj" />
+    <ProjectReference Include="..\Core.ReadModel\Core.ReadModel.csproj" />
   </ItemGroup>
 
 </Project>

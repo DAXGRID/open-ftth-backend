@@ -7,9 +7,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoFixture" Version="4.11.0" />
+    <PackageReference Include="AutoMapper" Version="8.1.1" />
+    <PackageReference Include="Marten" Version="3.6.1" />
+    <PackageReference Include="MediatR" Version="7.0.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ConduitNetwork.Business\ConduitNetwork.Business.csproj" />
+    <ProjectReference Include="..\ConduitNetwork.Projections\ConduitNetwork.Projections.csproj" />
+    <ProjectReference Include="..\ConduitNetwork.QueryService\ConduitNetwork.QueryService.csproj" />
+    <ProjectReference Include="..\FiberNetwork.Business\FiberNetwork.Business.csproj" />
+    <ProjectReference Include="..\FiberNetwork.Projections\FiberNetwork.Projections.csproj" />
+    <ProjectReference Include="..\Infrastructure.EventSourcing\Infrastructure.EventSourcing.csproj" />
+    <ProjectReference Include="..\RouteNetwork.Business\RouteNetwork.Business.csproj" />
   </ItemGroup>
 
 </Project>

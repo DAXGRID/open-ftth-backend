@@ -8,7 +8,7 @@ using System.Text;
 
 namespace RouteNetwork.ReadModel
 {
-    public sealed class RouteSegmentInfo : GraphEdge, IRouteElementInfo, ILine, INetworkElement
+    public sealed class RouteSegmentInfo : GraphEdge, IRouteElementInfo,  INetworkElement
     {
         public Guid Id { get; set; }
         public Guid FromNodeId { get; set; }
@@ -87,6 +87,7 @@ namespace RouteNetwork.ReadModel
 
         public LineKindEnum LineSegmentKind => LineKindEnum.Route;
 
+        /*
         List<ILine> ILine.Children {
             get { return new List<ILine>(); }
             set { }
@@ -101,6 +102,7 @@ namespace RouteNetwork.ReadModel
         public ILine Parent { get { return null; } set { } }
 
         public int SequenceNumber { get; set; }
+        */
 
         public override string ToString()
         {
