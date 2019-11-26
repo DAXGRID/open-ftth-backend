@@ -1,5 +1,6 @@
 ﻿using ConduitNetwork.Events.Model;
 using ConduitNetwork.ReadModel;
+using Core.ReadModel.Network;
 using System;
 using System.Collections.Generic;
 
@@ -23,7 +24,7 @@ namespace ConduitNetwork.QueryService
         List<ConduitRelationInfo> GetConduitSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string conduitId = null);
         List<ConduitRelationInfo> GetConduitSegmentsRelatedToRouteSegment(Guid routeSegmentId, string conduitId = null);
 
-        ConduitLineInfo CreateConduitLineInfoFromConduitSegment(ConduitSegmentInfo sourceConduitSegment);
+        IConnectivity CreateConduitLineInfoFromConduitSegment(ConduitSegmentInfo sourceConduitSegment);
         void Clean();
     }
 }

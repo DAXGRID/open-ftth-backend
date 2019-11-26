@@ -35,8 +35,8 @@ namespace RouteNetwork.Projections
         // Update our route node info object
         private void OnRouteSegmentAdded(RouteSegmentInfo routeSegment, RouteSegmentPlanned @event)
         {
-            routeSegment.FromNodeId = @event.FromNodeId;
-            routeSegment.ToNodeId = @event.ToNodeId;
+            routeSegment.FromRouteNodeId = @event.FromNodeId;
+            routeSegment.ToRouteNodeId = @event.ToNodeId;
             routeSegment.SegmentKind = @event.SegmentKind;
             routeSegment.Geometry = @event.InitialGeometry;
 

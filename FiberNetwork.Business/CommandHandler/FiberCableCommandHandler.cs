@@ -28,7 +28,7 @@ namespace FiberNetwork.Business.CommandHandlers
 
         public Task<Unit> Handle(PlaceFiberCableCommand request, CancellationToken cancellationToken)
         {
-            var fiberCable = new FiberCable(request.FiberCalbeId, request.WalkOfInterestId, request.NumberOfFibers, request.Name, fiberNetworkQueryService);
+            var fiberCable = new FiberCable(request.FiberCableId, request.WalkOfInterestId, request.NumberOfFibers, request.Name, fiberNetworkQueryService);
             repo.Store(fiberCable);
 
             return Unit.Task;

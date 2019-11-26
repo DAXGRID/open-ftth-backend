@@ -7,7 +7,7 @@ namespace FiberNetwork.Business.Commands
 {
     public class PlaceFiberCableCommand : IRequest
     {
-        public Guid FiberCalbeId { get; set; }
+        public Guid FiberCableId { get; set; }
         public Guid WalkOfInterestId { get; set; }
         public string Name { get; set; }
         public int NumberOfFibers { get; set; }

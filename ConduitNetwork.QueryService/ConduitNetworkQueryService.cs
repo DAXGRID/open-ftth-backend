@@ -213,9 +213,9 @@ namespace ConduitNetwork.QueryService
 
 
         #region utility functions that can be used to create derived info objects
-        public ConduitLineInfo CreateConduitLineInfoFromConduitSegment(ConduitSegmentInfo sourceConduitSegment)
+        public IConnectivity CreateConduitLineInfoFromConduitSegment(ConduitSegmentInfo sourceConduitSegment)
         {
-            var result = new ConduitLineInfo();
+            var result = new ConduitConnectivityInfo();
 
             HashSet<Guid> startNodesFound = new HashSet<Guid>();
             HashSet<Guid> endNodesFound = new HashSet<Guid>();
@@ -234,11 +234,11 @@ namespace ConduitNetwork.QueryService
             var traceResult = sourceConduitSegment.UndirectionalDFS<ConduitSegmentJunctionInfo, ConduitSegmentInfo>();
 
             // Pull out the conduit segments from the trace result
-            var conduitSegments = traceResult.Where(t => t is ConduitSegmentInfo).Select(t => t as ConduitSegmentInfo);
+            var conduitSegments = traceResult.Where(t => t is ConduitSegmentInfo).Select(t => t as ILineSegment);
 
             foreach (var segment in conduitSegments)
             {
-                var rootConduit = segment.Conduit.GetRootConduit();
+                var rootConduit = ((ConduitSegmentInfo)segment).Conduit.GetRootConduit();
 
                 if (!alreadyChecked.Contains(rootConduit))
                 {
@@ -284,15 +284,15 @@ namespace ConduitNetwork.QueryService
             result.StartRouteSegment = routeNetworkQueryService.GetRouteSegmentInfo(startSegmentId);
             result.EndRouteSegment = routeNetworkQueryService.GetRouteSegmentInfo(endSegmentId);
 
-            result.AllRouteNodes = new List<RouteNodeInfo>();
+            result.AllRouteNodes = new List<INode>();
             foreach (var nodeId in allNodeIds)
                 result.AllRouteNodes.Add(routeNetworkQueryService.GetRouteNodeInfo(nodeId));
 
-            result.AllRouteSegments = new List<RouteSegmentInfo>();
+            result.AllRouteSegments = new List<ILineSegment>();
             foreach (var segmentId in allSegmentIds)
                 result.AllRouteSegments.Add(routeNetworkQueryService.GetRouteSegmentInfo(segmentId));
 
-            result.AllConduitSegments = conduitSegments.ToList();
+            result.AllSegments = conduitSegments.ToList();
 
             return result;
         }

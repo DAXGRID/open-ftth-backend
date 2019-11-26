@@ -1,5 +1,7 @@
 ﻿using ConduitNetwork.Events.Model;
 using ConduitNetwork.QueryService;
+using ConduitNetwork.ReadModel;
+using FiberNetwork.Events.Model;
 using GraphQL.DataLoader;
 using GraphQL.Types;
 using QueryModel.Conduit;
@@ -12,31 +14,47 @@ using System.Threading.Tasks;
 
 namespace EquipmentService.GraphQL.Types
 {
-    public class ConduitSegmentType : ObjectGraphType<ConduitSegmentInfo>
+    public class FiberCableSegment : ObjectGraphType<FiberCableSegmentInfo>
     {
         IRouteNetworkState routeNetworkQueryService;
         IConduitNetworkQueryService conduitNetworkEqueryService;
 
-        public ConduitSegmentType(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IDataLoaderContextAccessor dataLoader)
+        public FiberCableSegment(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IDataLoaderContextAccessor dataLoader)
         {
             this.routeNetworkQueryService = routeNetworkQueryService;
             this.conduitNetworkEqueryService = conduitNetworkEqueryService;
 
-            Description = "A conduit segment will initially be the original whole length piece of conduit. When the user starts to cut the conduit at various nodes, more conduit segments will emerge. Graph connectivity is maintained on segment level.";
+            Description = "A fiber cable will initially contain one segment that spans the whole length of fiber cable that was originally placed in the route network. When the user starts to cut the cable at various nodes, more fiber cable segments will emerge. However, the original fiber cable asset is the same, now just cut in pieces. The segment represent the pieces. Graph connectivity is maintained on segment level. Use the fiberCable field to access fiber cable asset information.";
+
+            Interface<LineSegmentInterface>();
+
+            Field(x => x.Line, type: typeof(LineInterface)).Description("Line that this segment belongs to.");
+
+            Field(x => x.Line.LineKind, type: typeof(LineSegmentKindType)).Description("Type of line segment - i.e. multi conduit, single conduit, fiber cable etc.");
 
             Field(x => x.Id, type: typeof(IdGraphType)).Description("Guid property");
 
-            Field(x => x.Conduit, type:typeof(ConduitInfoType)).Description("The original conduit that this segment is part of.");
+            Field(x => x.Parents, type: typeof(ListGraphType<LineSegmentInterface>)).Description("The parent segments of this segment, if this segment is contained within another segment network - i.e. a fiber cable segment running within one of more conduit segments.");
 
-            Field(x => x.Children, type: typeof(ListGraphType<ConduitSegmentType>)).Description("The children of a multi conduit segment.");
-            Field(x => x.Parents, type: typeof(ListGraphType<ConduitSegmentType>)).Description("The parents of an inner conduit segment.");
 
+            Field<FiberCableType>(
+            "FiberCable",
+            "The original fiber cable that segment belongs to.",
+            resolve: context =>
+            {
+                return context.Source.Line;
+            });
+
+            Field(x => x.Children, type: typeof(ListGraphType<LineSegmentInterface>)).Description("The children of a multi conduit segment.");
+
+            /*
             Field<ConduitLineType>(
             "Line",
             resolve: context =>
             {
                 return conduitNetworkEqueryService.CreateConduitLineInfoFromConduitSegment(context.Source);
             });
+            */
 
             Field<RouteNodeType>(
             "FromRouteNode",
@@ -52,6 +70,7 @@ namespace EquipmentService.GraphQL.Types
                 return routeNetworkQueryService.GetRouteNodeInfo(context.Source.ToRouteNodeId);
             });
 
+            /*
             Field<ListGraphType<RouteSegmentType>>(
            "AllRouteSegments",
            resolve: context =>
@@ -83,11 +102,11 @@ namespace EquipmentService.GraphQL.Types
 
                 return result;
             });
+            */
 
-            Field(x => x.Line.LineKind, type: typeof(LineSegmentKindType)).Description("Type of line segment - i.e. conduit, power cable, signal cable etc.");
+          
 
-
-            //Interface<LineSegmentInterface>();
+            
         }
     }
 }

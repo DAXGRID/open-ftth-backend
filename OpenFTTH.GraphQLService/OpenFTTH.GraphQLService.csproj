@@ -29,6 +29,7 @@
     <ProjectReference Include="..\DiagramLayout.Builder\DiagramLayout.Builder.csproj" />
     <ProjectReference Include="..\DiagramLayout.IO\DiagramLayout.IO.csproj" />
     <ProjectReference Include="..\DiagramLayout.Model\DiagramLayout.Model.csproj" />
+    <ProjectReference Include="..\FiberNetwork.Events\FiberNetwork.Events.csproj" />
     <ProjectReference Include="..\Infrastructure.EventSourcing\Infrastructure.EventSourcing.csproj" />
     <ProjectReference Include="..\QueryModel\QueryModel.csproj" />
     <ProjectReference Include="..\RouteNetwork.Business\RouteNetwork.Business.csproj" />

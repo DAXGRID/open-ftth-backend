@@ -36,6 +36,12 @@ namespace ConduitNetwork.Events.Model
         public List<ILineSegment> Children { get; set; }
 
         [IgnoreDataMember]
+        public INode FromRouteNode { get; set; }
+
+        [IgnoreDataMember]
+        public INode ToRouteNode { get; set; }
+
+        [IgnoreDataMember]
         public INode FromNode { get; set; }
 
         [IgnoreDataMember]

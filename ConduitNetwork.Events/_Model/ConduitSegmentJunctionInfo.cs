@@ -10,6 +10,9 @@ namespace ConduitNetwork.Events.Model
     public class ConduitSegmentJunctionInfo : GraphNode, INode
     {
         public Guid Id { get; set; }
+
+        public string Name { get; set; }
+
         [IgnoreDataMember]
         private List<ConduitSegmentInfo> FromConduitSegments { get; set; }
 

@@ -142,8 +142,8 @@ namespace RouteNetwork.Business.Tests
             // Get segment info from query service to check if projection stuff works as expected
             var routeSegmentInfo = routeNetworkQueryService.GetRouteSegmentInfo(addSegmentCmd.Id);
             Assert.Equal(addSegmentCmd.Id, routeSegmentInfo.Id);
-            Assert.Equal(addSegmentCmd.FromNodeId, routeSegmentInfo.FromNodeId);
-            Assert.Equal(addSegmentCmd.ToNodeId, routeSegmentInfo.ToNodeId);
+            Assert.Equal(addSegmentCmd.FromNodeId, routeSegmentInfo.FromRouteNodeId);
+            Assert.Equal(addSegmentCmd.ToNodeId, routeSegmentInfo.ToRouteNodeId);
             Assert.Equal(addSegmentCmd.SegmentKind, routeSegmentInfo.SegmentKind);
             Assert.Equal((string)addSegmentCmd.Geometry.GeoJsonType, routeSegmentInfo.Geometry.GeoJsonType);
             Assert.Equal((string)addSegmentCmd.Geometry.GeoJsonCoordinates, routeSegmentInfo.Geometry.GeoJsonCoordinates);

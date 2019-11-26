@@ -13,11 +13,11 @@ namespace FiberNetwork.QueryService
 {
     public class FiberNetworkQueryService : IFiberNetworkQueryService
     {
-        private IDocumentStore documentStore = null;
+        private IDocumentStore _documentStore = null;
 
         private PointOfInterestIndex _pointOfInterestIndex;
 
-        private IRouteNetworkState routeNetworkQueryService = null;
+        private IRouteNetworkState _routeNetworkQueryService = null;
 
         private Dictionary<Guid, FiberCableInfo> _fiberCableInfos = new Dictionary<Guid, FiberCableInfo>();
         
@@ -26,8 +26,8 @@ namespace FiberNetwork.QueryService
 
         public FiberNetworkQueryService(IDocumentStore documentStore, IRouteNetworkState routeNetworkQueryService)
         {
-            this.documentStore = documentStore;
-            this.routeNetworkQueryService = routeNetworkQueryService;
+            this._documentStore = documentStore;
+            this._routeNetworkQueryService = routeNetworkQueryService;
             this._pointOfInterestIndex = new PointOfInterestIndex(routeNetworkQueryService);
           
 
@@ -45,16 +45,16 @@ namespace FiberNetwork.QueryService
         private void Load()
         {
             _fiberCableInfos = new Dictionary<Guid, FiberCableInfo>();
-            _pointOfInterestIndex = new PointOfInterestIndex(routeNetworkQueryService);
+            _pointOfInterestIndex = new PointOfInterestIndex(_routeNetworkQueryService);
 
-            using (var session = documentStore.LightweightSession())
+            using (var session = _documentStore.LightweightSession())
             {
                 // Fetch everything into memory for fast access
                 var fiberCables = session.Query<FiberCableInfo>();
 
                 foreach (var fiberCable in fiberCables)
                 {
-                    UpdateMultiConduitInfo(fiberCable);
+                    UpdateFiberCableInfo(fiberCable);
                 }
             }
         }
@@ -100,30 +100,30 @@ namespace FiberNetwork.QueryService
         }
         */
 
-        public List<FiberRelationInfo> GetConduitSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string conduitId = null)
+        public List<ILineSegmentRelation> GetLineSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string lineId = null)
         {
-            List<FiberRelationInfo> result = new List<FiberRelationInfo>();
+            List<ILineSegmentRelation> result = new List<ILineSegmentRelation>();
 
             var fiberSegments = _pointOfInterestIndex.GetConduitSegmentsThatEndsInRouteNode(pointOfInterestId);
 
             foreach (var fiberSegment in fiberSegments)
             {
                 // If conduit segment id set, skip until we read conduit segment specified
-                if (conduitId != null)
+                if (lineId != null)
                 {
-                    var idToCheck = Guid.Parse(conduitId);
+                    var idToCheck = Guid.Parse(lineId);
 
-                    if (fiberSegment.Id != idToCheck && fiberSegment.Conduit.Id != idToCheck)
+                    if (fiberSegment.Id != idToCheck && fiberSegment.Line.Id != idToCheck)
                         continue;
                 }
 
                 FiberRelationInfo relInfo = new FiberRelationInfo();
 
                 if (fiberSegment.ToRouteNodeId == pointOfInterestId)
-                    result.Add(new FiberRelationInfo() { Segment = fiberSegment, Type = FiberRelationTypeEnum.Incomming });
+                    result.Add(new FiberRelationInfo() { Segment = fiberSegment, Type = LineSegmentRelationTypeEnum.Incomming });
 
                 if (fiberSegment.FromRouteNodeId == pointOfInterestId)
-                    result.Add(new FiberRelationInfo() { Segment = fiberSegment, Type = FiberRelationTypeEnum.Outgoing });
+                    result.Add(new FiberRelationInfo() { Segment = fiberSegment, Type = LineSegmentRelationTypeEnum.Outgoing });
 
             }
 
@@ -132,39 +132,39 @@ namespace FiberNetwork.QueryService
             foreach (var fiberSegment in fiberSegmentPassBy)
             {
                 // If conduit segment id set, skip until we read conduit segment specified
-                if (conduitId != null)
+                if (lineId != null)
                 {
-                    var idToCheck = Guid.Parse(conduitId);
+                    var idToCheck = Guid.Parse(lineId);
 
-                    if (fiberSegment.Id != idToCheck && fiberSegment.Conduit.Id != idToCheck)
+                    if (fiberSegment.Id != idToCheck && fiberSegment.Line.Id != idToCheck)
                         continue;
                 }
 
-                result.Add(new FiberRelationInfo() { Segment = fiberSegment, Type = FiberRelationTypeEnum.PassThrough });
+                result.Add(new FiberRelationInfo() { Segment = fiberSegment, Type = LineSegmentRelationTypeEnum.PassThrough });
             }
 
             return result;
         }
 
 
-        public List<FiberRelationInfo> GetConduitSegmentsRelatedToRouteSegment(Guid routeSegmentId, string conduitId = null)
+        public List<ILineSegmentRelation> GetLineSegmentsRelatedToRouteSegment(Guid routeSegmentId, string lineId = null)
         {
-            List<FiberRelationInfo> result = new List<FiberRelationInfo>();
+            List<ILineSegmentRelation> result = new List<ILineSegmentRelation>();
 
             var fiberSegments = _pointOfInterestIndex.GetConduitSegmentsThatPassedByRouteSegment(routeSegmentId);
 
             foreach (var conduitSegment in fiberSegments)
             {
                 // If conduit segment id set, skip until we read conduit segment specified
-                if (conduitId != null)
+                if (lineId != null)
                 {
-                    var idToCheck = Guid.Parse(conduitId);
+                    var idToCheck = Guid.Parse(lineId);
 
                     if (conduitSegment.Id != idToCheck)
                         continue;
                 }
 
-                result.Add(new FiberRelationInfo() { Segment = conduitSegment, Type = FiberRelationTypeEnum.PassThrough });
+                result.Add(new FiberRelationInfo() { Segment = conduitSegment, Type = LineSegmentRelationTypeEnum.PassThrough });
             }
 
             return result;
@@ -264,7 +264,7 @@ namespace FiberNetwork.QueryService
 
         #region functions called during projection and snapshot reading
 
-        public void UpdateMultiConduitInfo(FiberCableInfo fiberCableInfo, bool load = false)
+        public void UpdateFiberCableInfo(FiberCableInfo fiberCableInfo, bool load = false)
         {
             // Resolve segment references
             ResolveSegmentReferences(fiberCableInfo);
@@ -295,97 +295,108 @@ namespace FiberNetwork.QueryService
             }
         }
 
-        private void ResolveSegmentReferences(FiberInfo fiberInfo)
+        private void ResolveSegmentReferences(FiberCableInfo fiberCableInfo)
         {
-            /*
-            var conduitWalkOfInterest = routeNetworkQueryService.GetWalkOfInterestInfo(fiberInfo.GetRoot().WalkOfInterestId);
+            var conduitWalkOfInterest = _routeNetworkQueryService.GetWalkOfInterestInfo(fiberCableInfo.GetRoot().WalkOfInterestId);
 
             // Resolve references inside segment
-            foreach (var segment in fiberInfo.Segments.OfType<FiberSegmentInfo>())
+            foreach (var segment in fiberCableInfo.Segments.OfType<FiberSegmentInfo>())
             {
-                // Resolve conduit reference
-                segment.Conduit = fiberInfo;
+                // Resolve fiber cable reference
+                segment.Line = fiberCableInfo;
 
-                // Resolve conduit segment parent/child relationship
-                if (segment.Conduit.Kind == ConduitKindEnum.InnerConduit)
+                // Resolve FromRouteNode
+                if (segment.FromRouteNode == null && segment.FromRouteNodeId != Guid.Empty)
+                    segment.FromRouteNode = _routeNetworkQueryService.GetRouteNodeInfo(segment.FromRouteNodeId);
+
+                // Resolve ToRouteNode
+                if (segment.ToRouteNode == null && segment.ToRouteNodeId != Guid.Empty)
+                    segment.ToRouteNode = _routeNetworkQueryService.GetRouteNodeInfo(segment.ToRouteNodeId);
+
+
+            }
+
+            /*
+            // Resolve fiber to fiber cable parent/child relationship
+            if (segment.Line.LineKind == LineKindEnum.Fiber)
+            {
+                // Create parents list if null
+                if (segment.Parents == null)
+                    segment.Parents = new List<ILineSegment>();
+
+                var fiberWalkOfInterest = conduitWalkOfInterest.SubWalk2(segment.FromRouteNodeId, segment.ToRouteNodeId);
+
+                var fiberCable = segment.Line.Parent;
+
+                // Go through each segment of the multi conduit to find if someone intersects with the inner conduit segment
+                foreach (var fiberCableSegment in fiberCable.Segments)
                 {
-                    // Create parents list if null
-                    if (segment.Parents == null)
-                        segment.Parents = new List<ILineSegment>();
+                    // Create childre list if null
+                    if (fiberCableSegment.Children == null)
+                        fiberCableSegment.Children = new List<ILineSegment>();
 
-                    var innerConduitSegmentWalkOfInterest = conduitWalkOfInterest.SubWalk2(segment.FromRouteNodeId, segment.ToRouteNodeId);
+                    var fiberCableSegmentWalkOfInterest = conduitWalkOfInterest.SubWalk2(fiberCableSegment.FromRouteNodeId, fiberCableSegment.ToRouteNodeId);
 
-                    var multiConduit = segment.Conduit.Parent;
+                    // Create hash set for quick lookup
+                    HashSet<Guid> fiberCableSegmentWalkOfInterestSegments = new HashSet<Guid>();
+                    foreach (var segmentId in fiberCableSegmentWalkOfInterest.AllSegmentIds)
+                        fiberCableSegmentWalkOfInterestSegments.Add(segmentId);
 
-                    // Go through each segment of the multi conduit to find if someone intersects with the inner conduit segment
-                    foreach (var multiConduitSegment in multiConduit.Segments)
+                    // Check if overlap from segments of the inner conduit to the the multi conduit segment
+                    foreach (var fiberSegmentId in fiberWalkOfInterest.AllSegmentIds)
                     {
-                        // Create childre list if null
-                        if (multiConduitSegment.Children == null)
-                            multiConduitSegment.Children = new List<ILineSegment>();
-
-                        var multiConduitSegmentWalkOfInterest = conduitWalkOfInterest.SubWalk2(multiConduitSegment.FromRouteNodeId, multiConduitSegment.ToRouteNodeId);
-
-                        // Create hash set for quick lookup
-                        HashSet<Guid> multiConduitSegmentWalkOfInterestSegmetns = new HashSet<Guid>();
-                        foreach (var segmentId in multiConduitSegmentWalkOfInterest.AllSegmentIds)
-                            multiConduitSegmentWalkOfInterestSegmetns.Add(segmentId);
-                        
-                        // check if overlap from segments of the inner conduit to the the multi conduit segment
-                        foreach (var innerConduitSegmentId in innerConduitSegmentWalkOfInterest.AllSegmentIds)
+                        if (fiberCableSegmentWalkOfInterestSegments.Contains(fiberSegmentId))
                         {
-                            if (multiConduitSegmentWalkOfInterestSegmetns.Contains(innerConduitSegmentId))
-                            {
-                                if (!multiConduitSegment.Children.Contains(segment))
-                                    multiConduitSegment.Children.Add(segment);
+                            if (!fiberCableSegment.Children.Contains(segment))
+                                fiberCableSegment.Children.Add(segment);
 
-                                if (!segment.Parents.Contains(multiConduitSegment))
-                                    segment.Parents.Add(multiConduitSegment);
-                            }
+                            if (!segment.Parents.Contains(fiberCableSegment))
+                                segment.Parents.Add(fiberCableSegment);
                         }
                     }
                 }
 
-                // From Junction
-                if (segment.FromNodeId != Guid.Empty)
+            // From Junction
+            if (segment.FromNodeId != Guid.Empty)
+            {
+                if (!_singleConduitJuncionInfos.ContainsKey(segment.FromNodeId))
                 {
-                    if (!_singleConduitJuncionInfos.ContainsKey(segment.FromNodeId))
-                    {
-                        var newJunction = new SingleConduitSegmentJunctionInfo() { Id = segment.FromNodeId };
-                        newJunction.AddToConduitSegment(segment);
-                        _singleConduitJuncionInfos.Add(newJunction.Id, newJunction);
-                        segment.FromNode = newJunction;
-                    }
-                    else
-                    {
-                        var existingJunction = _singleConduitJuncionInfos[segment.FromNodeId];
-                        //existingJunction.ToConduitSegments = segment;
-                        existingJunction.AddToConduitSegment(segment);
-                        segment.FromNode = existingJunction;
-                    }
+                    var newJunction = new SingleConduitSegmentJunctionInfo() { Id = segment.FromNodeId };
+                    newJunction.AddToConduitSegment(segment);
+                    _singleConduitJuncionInfos.Add(newJunction.Id, newJunction);
+                    segment.FromNode = newJunction;
                 }
-
-                // To Junction
-                if (segment.ToNodeId != Guid.Empty)
+                else
                 {
-                    if (!_singleConduitJuncionInfos.ContainsKey(segment.ToNodeId))
-                    {
-                        var newJunction = new SingleConduitSegmentJunctionInfo() { Id = segment.ToNodeId };
-                        newJunction.AddFromConduitSegment(segment);
-                        _singleConduitJuncionInfos.Add(newJunction.Id, newJunction);
-                        segment.ToNode = newJunction;
-                    }
-                    else
-                    {
-                        var existingJunction = _singleConduitJuncionInfos[segment.ToNodeId];
-                        existingJunction.AddFromConduitSegment(segment);
-                        segment.ToNode = existingJunction;
-                    }
+                    var existingJunction = _singleConduitJuncionInfos[segment.FromNodeId];
+                    //existingJunction.ToConduitSegments = segment;
+                    existingJunction.AddToConduitSegment(segment);
+                    segment.FromNode = existingJunction;
+                }
+            }
+
+            // To Junction
+            if (segment.ToNodeId != Guid.Empty)
+            {
+                if (!_singleConduitJuncionInfos.ContainsKey(segment.ToNodeId))
+                {
+                    var newJunction = new SingleConduitSegmentJunctionInfo() { Id = segment.ToNodeId };
+                    newJunction.AddFromConduitSegment(segment);
+                    _singleConduitJuncionInfos.Add(newJunction.Id, newJunction);
+                    segment.ToNode = newJunction;
+                }
+                else
+                {
+                    var existingJunction = _singleConduitJuncionInfos[segment.ToNodeId];
+                    existingJunction.AddFromConduitSegment(segment);
+                    segment.ToNode = existingJunction;
                 }
             }
             */
-
         }
+
+
+    
 
         #endregion
 

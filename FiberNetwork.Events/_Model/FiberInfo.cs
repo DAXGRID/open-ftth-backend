@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 
 namespace FiberNetwork.Events.Model
 {
-    public class FiberInfo : ILine
+    public abstract class FiberInfo : ILine
     {
         public Guid Id { get; set; }
         public Guid WalkOfInterestId { get; set; }
@@ -23,13 +23,7 @@ namespace FiberNetwork.Events.Model
 
         #endregion
 
-        public LineKindEnum LineKind
-        {
-            get
-            {
-                return LineKindEnum.SignalFiberCable;
-            }
-        }
+        public abstract LineKindEnum LineKind { get; }
 
         public ILine GetRoot()
         {

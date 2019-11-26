@@ -36,11 +36,11 @@ namespace ConduitNetwork.Events.Model
 
         #endregion
 
-        public LineKindEnum LineKind
+        public virtual LineKindEnum LineKind
         {
             get
             {
-                return LineKindEnum.Conduit;
+                return LineKindEnum.Unknown;
             }
         }
 

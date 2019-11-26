@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace EquipmentService.GraphQL.Types
 {
-    public class ConduitLineType : ObjectGraphType<ConduitLineInfo>
+    public class ConduitLineType : ObjectGraphType<ConduitConnectivityInfo>
     {
         public ConduitLineType(IDataLoaderContextAccessor dataLoader)
         {
@@ -23,7 +23,7 @@ namespace EquipmentService.GraphQL.Types
             Field(x => x.AllRouteNodes, type: typeof(ListGraphType<RouteNodeType>)).Description("All line nodes");
             Field(x => x.AllRouteSegments, type: typeof(ListGraphType<RouteNodeType>)).Description("All line segments");
 
-            Field(x => x.AllConduitSegments, type: typeof(ListGraphType<ConduitSegmentType>)).Description("All conduit segments making up the line");
+            Field(x => x.AllSegments, type: typeof(ListGraphType<ConduitSegmentType>)).Description("All conduit segments making up the line");
 
 
             /*

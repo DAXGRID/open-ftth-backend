@@ -1,15 +1,16 @@
-﻿using FiberNetwork.Events.Model;
+﻿using Core.ReadModel.Network;
+using FiberNetwork.Events.Model;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace FiberNetwork.Events.Model
 {
-    public class FiberRelationInfo
+    public class FiberRelationInfo : ILineSegmentRelation
     {
-        public FiberRelationTypeEnum Type { get; set; }
+        public LineSegmentRelationTypeEnum Type { get; set; }
 
-        public FiberSegmentInfo Segment { get; set; }
+        public ILineSegment Segment { get; set; }
 
         public override string ToString()
         {

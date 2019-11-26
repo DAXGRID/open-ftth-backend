@@ -12,6 +12,8 @@ namespace Core.ReadModel.Network
         List<ILineSegment> Children { get; set; }
         Guid FromRouteNodeId { get; set; }
         Guid ToRouteNodeId { get; set; }
+        INode FromRouteNode { get; set; }
+        INode ToRouteNode { get; set; }
         Guid FromNodeId { get; set; }
         Guid ToNodeId { get; set; }
         INode FromNode { get; set; }

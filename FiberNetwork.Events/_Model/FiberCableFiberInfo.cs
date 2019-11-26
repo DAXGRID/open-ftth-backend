@@ -7,13 +7,16 @@ using System.Runtime.Serialization;
 
 namespace FiberNetwork.Events.Model
 {
-    public class FiberCableInfo : FiberInfo
+    /// <summary>
+    /// A fiber within a fiber cable
+    /// </summary>
+    public class FiberCableFiberInfo : FiberInfo
     {
-        public override LineKindEnum LineKind { get => LineKindEnum.FiberCable; }
+        public override LineKindEnum LineKind { get => LineKindEnum.Fiber; }
 
         public override string ToString()
         {
-            string result = "Nexans " + Children.Count + " fiber";
+            string result = "Fiber no " + SequenceNumber;
 
             return result;;
         }

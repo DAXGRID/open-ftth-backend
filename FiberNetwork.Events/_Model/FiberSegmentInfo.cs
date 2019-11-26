@@ -9,24 +9,23 @@ namespace FiberNetwork.Events.Model
 {
     public class FiberSegmentInfo : GraphEdge, ILineSegment
     {
-        public Guid FiberCableId { get; set; }
+        public Guid LineId { get; set; }
         public int SequenceNumber { get; set; }
         public Guid FromRouteNodeId { get; set; }
         public Guid ToRouteNodeId { get; set; }
         public Guid FromNodeId { get; set; }
         public Guid ToNodeId { get; set; }
 
-
         #region Properties that should not be persisted
 
         [IgnoreDataMember]
-        public FiberInfo Conduit { get; set; }
+        public FiberInfo FiberInfo { get; set; }
 
         [IgnoreDataMember]
         public ILine Line
         {
-            get { return Conduit; }
-            set { Conduit = (FiberInfo)value; }
+            get { return FiberInfo; }
+            set { FiberInfo = (FiberInfo)value; }
         }
 
         [IgnoreDataMember]
@@ -40,6 +39,12 @@ namespace FiberNetwork.Events.Model
 
         [IgnoreDataMember]
         public INode ToNode { get; set; }
+
+        [IgnoreDataMember]
+        public INode FromRouteNode { get; set; }
+
+        [IgnoreDataMember]
+        public INode ToRouteNode { get; set; }
 
         #endregion
 
@@ -84,9 +89,9 @@ namespace FiberNetwork.Events.Model
         {
             string result = SequenceNumber + " ";
 
-            if (Conduit != null)
+            if (Line != null)
             {
-                result += " -> " + Conduit.ToString();
+                result += " -> " + Line.ToString();
             }
 
             return result;

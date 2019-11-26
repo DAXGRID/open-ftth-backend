@@ -3,6 +3,8 @@ using ConduitNetwork.Events.Model;
 using ConduitNetwork.QueryService;
 using ConduitNetwork.QueryService.ConduitClosure;
 using ConduitNetwork.ReadModel;
+using Core.ReadModel.Network;
+using FiberNetwork.Events.Model;
 using GraphQL;
 using GraphQL.DataLoader;
 using GraphQL.Types;
@@ -54,9 +56,9 @@ namespace EquipmentService.GraphQL.Types
             Field<ListGraphType<ConduitRelationType>>(
               "relatedConduits",
               arguments: new QueryArguments(
-                  new QueryArgument<BooleanGraphType> { Name = "includeMultiConduits"},
-                  new QueryArgument<BooleanGraphType> { Name = "includeSingleConduits"},
-                  new QueryArgument<BooleanGraphType> { Name = "includeInnerConduits"},
+                  new QueryArgument<BooleanGraphType> { Name = "includeMultiConduits" },
+                  new QueryArgument<BooleanGraphType> { Name = "includeSingleConduits" },
+                  new QueryArgument<BooleanGraphType> { Name = "includeInnerConduits" },
                   new QueryArgument<StringGraphType> { Name = "conduitSegmentId", Description = "Will be deleted. Use conduit id instead" },
                    new QueryArgument<StringGraphType> { Name = "conduitId", Description = "Id of conduit of conduit segment" }
                   ),
@@ -93,7 +95,7 @@ namespace EquipmentService.GraphQL.Types
 
                   var conduitSegmentRels = conduitNetworkEqueryService.GetConduitSegmentsRelatedToPointOfInterest(context.Source.Id, conduitSegmentId == Guid.Empty ? null : conduitSegmentId.ToString());
 
-                  
+
 
                   foreach (var conduitSegmentRel in conduitSegmentRels)
                   {
@@ -109,7 +111,7 @@ namespace EquipmentService.GraphQL.Types
                           if (conduitClosureRepository.CheckIfRouteNodeContainsConduitClosure(context.Source.Id))
                           {
                               var conduitClosureInfo = conduitClosureRepository.GetConduitClosureInfoByRouteNodeId(context.Source.Id);
-                              
+
                               // If conduit closure contains a port or terminal related to the conduit segment, then it's related to the conduit closure
                               if (
                                   conduitClosureInfo.Sides.Exists(s => s.Ports.Exists(p => p.MultiConduitSegmentId == conduitSegmentRel.Segment.Id))
@@ -156,8 +158,63 @@ namespace EquipmentService.GraphQL.Types
                });
 
 
-            Field<RouteNodeGraphFunctions>("graph", resolve: context =>  context.Source);
+            Field<RouteNodeGraphFunctions>("graph", resolve: context => context.Source);
 
+            Field<ListGraphType<LineSegmentInterface>>(
+              "relatedSegments",
+              arguments: new QueryArguments(
+                   new QueryArgument<StringGraphType> { Name = "lineId", Description = "Id of specific line og line segment to fetch" }
+              ),
+              resolve: context =>
+              {
+                  List<ILineSegment> result = new List<ILineSegment>();
+
+                  // Multi conduit test
+                  var multiConduit = new MultiConduitInfo()
+                  {
+                      Id = Guid.NewGuid(),
+                      Name = "multi conduit",
+                      Color = ConduitColorEnum.Aqua
+                  };
+
+                  var multiConduitSegment = new MultiConduitSegmentInfo()
+                  {
+                      Id = Guid.NewGuid(),
+                      Conduit = multiConduit,
+                      SequenceNumber = 1
+                  };
+
+                  multiConduit.Segments = new List<ILineSegment>() { multiConduitSegment };
+
+                  result.Add(multiConduitSegment);
+
+                  
+                  // Fiber cable test
+
+                  var fiberCable = new FiberCableInfo()
+                  {
+                      Id = Guid.NewGuid(),
+                      Name = "fiber cable",
+                  };
+
+                  fiberCable.Children = new List<ILine>();
+
+                  var fiberCableSegment = new FiberCableSegmentInfo()
+                  {
+                      Id = Guid.NewGuid(),
+                      Line = fiberCable,
+                      SequenceNumber = 1
+                  };
+
+                  fiberCable.Segments = new List<ILineSegment>() { fiberCableSegment };
+
+                  
+                  result.Add(fiberCableSegment);
+                  
+
+                  return result; ;
+              }
+              );
         }
     }
 }

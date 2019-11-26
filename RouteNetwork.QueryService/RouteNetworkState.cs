@@ -141,11 +141,11 @@ namespace RouteNetwork.QueryService
             routeSegmentInfo.Length = length;
 
             // Add object relations to facilitate easier and faster lookup and traversal
-            routeSegmentInfo.FromNode = GetRouteNodeInfo(routeSegmentInfo.FromNodeId);
-            routeSegmentInfo.ToNode = GetRouteNodeInfo(routeSegmentInfo.ToNodeId);
+            routeSegmentInfo.FromRouteNode = GetRouteNodeInfo(routeSegmentInfo.FromRouteNodeId);
+            routeSegmentInfo.ToRouteNode = GetRouteNodeInfo(routeSegmentInfo.ToRouteNodeId);
 
-            routeSegmentInfo.FromNode.AddOutgoingSegment(routeSegmentInfo);
-            routeSegmentInfo.ToNode.AddIngoingSegment(routeSegmentInfo);
+            ((RouteNodeInfo)routeSegmentInfo.FromRouteNode).AddOutgoingSegment(routeSegmentInfo);
+            ((RouteNodeInfo)routeSegmentInfo.ToRouteNode).AddIngoingSegment(routeSegmentInfo);
         }
 
         public void AddWalkOfInterestInfo(WalkOfInterestInfo walkOfInterestInfo)

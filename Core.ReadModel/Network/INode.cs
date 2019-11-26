@@ -7,5 +7,6 @@ namespace Core.ReadModel.Network
 {
     public interface INode : INetworkElement
     {
+        string Name { get; }
     }
 }

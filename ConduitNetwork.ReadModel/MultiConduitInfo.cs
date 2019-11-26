@@ -1,5 +1,6 @@
 ﻿using Asset.Model;
 using ConduitNetwork.Events.Model;
+using Core.ReadModel.Network;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -8,6 +9,14 @@ namespace ConduitNetwork.ReadModel
 {
     public class MultiConduitInfo : ConduitInfo
     {
+        public override LineKindEnum LineKind
+        {
+            get
+            {
+                return LineKindEnum.MultiConduit;
+            }
+        }
+
         public override string ToString()
         {
             string result = "";

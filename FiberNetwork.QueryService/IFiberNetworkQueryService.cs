@@ -1,5 +1,7 @@
-﻿using FiberNetwork.Events.Model;
+﻿using Core.ReadModel.Network;
+using FiberNetwork.Events.Model;
 using System;
+using System.Collections.Generic;
 
 namespace FiberNetwork.QueryService
 {
@@ -8,17 +10,24 @@ namespace FiberNetwork.QueryService
         bool CheckIfFiberCableIdExists(Guid id);
 
         FiberCableInfo GetFiberCableInfo(Guid id);
-        
+
+        List<ILineSegmentRelation> GetLineSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string lineId = null);
+
+        List<ILineSegmentRelation> GetLineSegmentsRelatedToRouteSegment(Guid routeSegmentId, string lineId = null);
+
+
         /*
+         * 
+         * List<ConduitRelationInfo> GetConduitSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string conduitId = null);
+        List<ConduitRelationInfo> GetConduitSegmentsRelatedToRouteSegment(Guid routeSegmentId, string conduitId = null);
+
         ConduitInfo GetConduitInfo(Guid id);
 
 
         SingleConduitInfo GetSingleConduitInfo(Guid id);
 
         SingleConduitSegmentJunctionInfo GetSingleConduitSegmentJunctionInfo(Guid id);
-        List<ConduitRelationInfo> GetConduitSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string conduitId = null);
-        List<ConduitRelationInfo> GetConduitSegmentsRelatedToRouteSegment(Guid routeSegmentId, string conduitId = null);
-
+       
         ConduitLineInfo CreateConduitLineInfoFromConduitSegment(ConduitSegmentInfo sourceConduitSegment);
         */
 

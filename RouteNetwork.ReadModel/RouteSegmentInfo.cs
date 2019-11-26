@@ -8,11 +8,11 @@ using System.Text;
 
 namespace RouteNetwork.ReadModel
 {
-    public sealed class RouteSegmentInfo : GraphEdge, IRouteElementInfo,  INetworkElement
+    public sealed class RouteSegmentInfo : GraphEdge, IRouteElementInfo, ILineSegment, INetworkElement
     {
         public Guid Id { get; set; }
-        public Guid FromNodeId { get; set; }
-        public Guid ToNodeId { get; set; }
+        public Guid FromRouteNodeId { get; set; }
+        public Guid ToRouteNodeId { get; set; }
         public string Name { get; set; }
         public RouteSegmentKindEnum SegmentKind { get; set; }
         public Geometry Geometry { get; set; }
@@ -29,10 +29,22 @@ namespace RouteNetwork.ReadModel
         public double Length { get; set; }
 
         [IgnoreDataMember]
-        public RouteNodeInfo FromNode { get; set; }
+        public INode FromRouteNode { get; set; }
 
         [IgnoreDataMember]
-        public RouteNodeInfo ToNode { get; set; }
+        public INode ToRouteNode { get; set; }
+
+        [IgnoreDataMember]
+        public Guid FromNodeId { get { return FromRouteNodeId; } set { FromRouteNodeId = value; } }
+
+        [IgnoreDataMember]
+        public Guid ToNodeId { get { return ToRouteNodeId; } set { ToRouteNodeId = value; } }
+
+        [IgnoreDataMember]
+        public INode FromNode { get { return FromRouteNode; } set { FromRouteNode = (RouteNodeInfo)value; } }
+
+        [IgnoreDataMember]
+        public INode ToNode { get { return ToRouteNode; } set { ToRouteNode = (RouteNodeInfo)value; } }
 
         [IgnoreDataMember]
         private List<WalkOfInterestInfo> _walkOfInterests { get; set; }
@@ -50,7 +62,7 @@ namespace RouteNetwork.ReadModel
         {
             get
             {
-                return new List<IGraphElement>() { ToNode };
+                return new List<IGraphElement>() { ToRouteNode };
             }
         }
 
@@ -59,7 +71,7 @@ namespace RouteNetwork.ReadModel
         {
             get
             {
-                return new List<IGraphElement>() { FromNode };
+                return new List<IGraphElement>() { FromRouteNode };
             }
         }
 
@@ -68,7 +80,7 @@ namespace RouteNetwork.ReadModel
         {
             get
             {
-                return new List<IGraphElement>() { ToNode, FromNode };
+                return new List<IGraphElement>() { ToRouteNode, FromRouteNode };
             }
         }
 
@@ -85,28 +97,25 @@ namespace RouteNetwork.ReadModel
             }
         }
 
+        [IgnoreDataMember]
         public LineKindEnum LineSegmentKind => LineKindEnum.Route;
 
-        /*
-        List<ILine> ILine.Children {
-            get { return new List<ILine>(); }
-            set { }
-        }
+        [IgnoreDataMember]
+        public ILine Line { get => null; set { } }
 
-        List<ILineSegment> ILine.Segments
-        {
-            get { return new List<ILineSegment>(); }
-            set { }
-        }
+        [IgnoreDataMember]
+        public List<ILineSegment> Parents { get => null; set { } }
 
-        public ILine Parent { get { return null; } set { } }
+        [IgnoreDataMember]
+        public List<ILineSegment> Children { get => null; set { } }
 
-        public int SequenceNumber { get; set; }
-        */
+        [IgnoreDataMember]
+        public int SequenceNumber { get => 1; set { } }
+              
 
         public override string ToString()
         {
-            return "RouteSegment (" + FromNode.Name + " -> " + ToNode.Name + ")";
+            return "RouteSegment (" + FromRouteNode.Name + " -> " + ToRouteNode.Name + ")";
         }
     }
 }
