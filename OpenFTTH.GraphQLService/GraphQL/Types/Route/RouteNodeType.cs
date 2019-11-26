@@ -8,6 +8,7 @@ using FiberNetwork.Events.Model;
 using GraphQL;
 using GraphQL.DataLoader;
 using GraphQL.Types;
+using Microsoft.AspNetCore.Http;
 using QueryModel.Conduit;
 using RouteNetwork.Events.Model;
 using RouteNetwork.QueryService;
@@ -25,13 +26,14 @@ namespace EquipmentService.GraphQL.Types
         IConduitNetworkQueryService conduitNetworkEqueryService;
         IConduitClosureRepository conduitClosureRepository;
 
-        public RouteNodeType(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IConduitClosureRepository conduitClosureRepository, IDataLoaderContextAccessor dataLoader)
+        public RouteNodeType(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IConduitClosureRepository conduitClosureRepository, IDataLoaderContextAccessor dataLoader, IHttpContextAccessor httpContextAccessor)
         {
             this.routeNetworkQueryService = routeNetworkQueryService;
             this.conduitNetworkEqueryService = conduitNetworkEqueryService;
             this.conduitClosureRepository = conduitClosureRepository;
 
             Description = "A route node in a route network.";
+           
 
             Field(x => x.Id, type: typeof(IdGraphType)).Description("Guid property");
             Field<RouteNodeKindEnumType>("NodeKind", "Kind of node");
@@ -101,9 +103,9 @@ namespace EquipmentService.GraphQL.Types
                   {
                       ConduitRelation rel = new ConduitRelation()
                       {
-                          RelationType = conduitSegmentRel.Type,
-                          Conduit = conduitSegmentRel.Segment.Conduit,
-                          ConduitSegment = conduitSegmentRel.Segment,
+                          RelationType = Convert(conduitSegmentRel.RelationType),
+                          Conduit = ((ConduitSegmentInfo)conduitSegmentRel.Segment).Conduit,
+                          ConduitSegment = (ConduitSegmentInfo)conduitSegmentRel.Segment
                       };
 
                       // Check if segment is related to a conduit closure
@@ -126,19 +128,19 @@ namespace EquipmentService.GraphQL.Types
                       }
 
                       // Check if segment is cut at node
-                      if (conduitSegmentRel.Segment.Conduit.Segments.Exists(s => s.FromRouteNodeId == context.Source.Id || s.ToRouteNodeId == context.Source.Id))
+                      if (conduitSegmentRel.Segment.Line.Segments.Exists(s => s.FromRouteNodeId == context.Source.Id || s.ToRouteNodeId == context.Source.Id))
                           rel.CanBeCutAtNode = false;
                       else
                           rel.CanBeCutAtNode = true;
 
 
-                      if (includeMultiConduits && conduitSegmentRel.Segment.Conduit.Kind == ConduitKindEnum.MultiConduit)
+                      if (includeMultiConduits && conduitSegmentRel.Segment.Line.LineKind == LineKindEnum.MultiConduit)
                           result.Add(rel);
 
-                      if (includeInnerConduits && conduitSegmentRel.Segment.Conduit.Kind == ConduitKindEnum.InnerConduit)
+                      if (includeInnerConduits && conduitSegmentRel.Segment.Line.LineKind == LineKindEnum.InnerConduit)
                           result.Add(rel);
 
-                      if (includeSingleConduits && conduitSegmentRel.Segment.Conduit.Kind == ConduitKindEnum.SingleConduit)
+                      if (includeSingleConduits && conduitSegmentRel.Segment.Line.LineKind == LineKindEnum.SingleConduit)
                           result.Add(rel);
 
                   }
@@ -167,54 +169,62 @@ namespace EquipmentService.GraphQL.Types
               ),
               resolve: context =>
               {
+                  httpContextAccessor.HttpContext.Items.Add("routeNodeId", context.Source.Id);
+
                   List<ILineSegment> result = new List<ILineSegment>();
 
-                  // Multi conduit test
-                  var multiConduit = new MultiConduitInfo()
+                  var conduitSegmentsWithRel = conduitNetworkEqueryService.GetConduitSegmentsRelatedToPointOfInterest(context.Source.Id);
+
+                  HashSet<Guid> segmentExistsLookup = new HashSet<Guid>();
+                  foreach (var conduitSegmentWithRel in conduitSegmentsWithRel)
                   {
-                      Id = Guid.NewGuid(),
-                      Name = "multi conduit",
-                      Color = ConduitColorEnum.Aqua
-                  };
+                      segmentExistsLookup.Add(conduitSegmentWithRel.Segment.Id);
+                  }
 
-                  var multiConduitSegment = new MultiConduitSegmentInfo()
+                  foreach (var conduitSegmentWithRel in conduitSegmentsWithRel)
                   {
-                      Id = Guid.NewGuid(),
-                      Conduit = multiConduit,
-                      SequenceNumber = 1
-                  };
+                      // First we filter by kind. Only multi conduit, single conduit and fiber cable could possible be roots of a node
+                      if (conduitSegmentWithRel.Segment.Line.LineKind == LineKindEnum.MultiConduit
+                      || conduitSegmentWithRel.Segment.Line.LineKind == LineKindEnum.SingleConduit
+                      || conduitSegmentWithRel.Segment.Line.LineKind == LineKindEnum.FiberCable
+                      )
+                      {
+                          // Now check if the segment has a parent that is also related to the node. 
+                          // If so, the segment is contained within another segment, and should not be returned as a root element to the node
+                          bool isContained = false;
 
-                  multiConduit.Segments = new List<ILineSegment>() { multiConduitSegment };
+                          if (conduitSegmentWithRel.Segment.Parents != null)
+                          {
+                              foreach (var parent in conduitSegmentWithRel.Segment.Parents)
+                              {
+                                  if (segmentExistsLookup.Contains(parent.Id))
+                                      isContained = true;
+                              }
+                          }
 
-                  result.Add(multiConduitSegment);
+                          if (!isContained)
+                            result.Add(conduitSegmentWithRel.Segment);
+                      }
+                      
+                  }
 
-                  
-                  // Fiber cable test
+                  return result;
 
-                  var fiberCable = new FiberCableInfo()
-                  {
-                      Id = Guid.NewGuid(),
-                      Name = "fiber cable",
-                  };
+              });
+        }
 
-                  fiberCable.Children = new List<ILine>();
-
-                  var fiberCableSegment = new FiberCableSegmentInfo()
-                  {
-                      Id = Guid.NewGuid(),
-                      Line = fiberCable,
-                      SequenceNumber = 1
-                  };
-
-                  fiberCable.Segments = new List<ILineSegment>() { fiberCableSegment };
-
-                  
-                  result.Add(fiberCableSegment);
-                  
-
-                  return result; ;
-              }
-              );
+        private ConduitRelationTypeEnum Convert(LineSegmentRelationTypeEnum input)
+        {
+            if (input == LineSegmentRelationTypeEnum.Incomming)
+                return ConduitRelationTypeEnum.Incomming;
+            else if (input == LineSegmentRelationTypeEnum.Outgoing)
+                return ConduitRelationTypeEnum.Outgoing;
+            else if (input == LineSegmentRelationTypeEnum.PassBy)
+                return ConduitRelationTypeEnum.PassBy;
+            else if (input == LineSegmentRelationTypeEnum.PassThrough)
+                return ConduitRelationTypeEnum.PassThrough;
+            else
+                return ConduitRelationTypeEnum.Incomming;
         }
     }
 }

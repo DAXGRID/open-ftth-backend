@@ -1,11 +1,13 @@
 ﻿using EquipmentService.GraphQL.Types;
 using GraphQL;
 using GraphQL.Types;
+using Microsoft.AspNetCore.Http;
 using RouteNetwork.QueryService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Microsoft.AspNetCore.Hosting.Internal.HostingApplication;
 
 namespace EquipmentService.GraphQL.Queries
 {
@@ -36,6 +38,7 @@ namespace EquipmentService.GraphQL.Queries
                         context.Errors.Add(new ExecutionError("Wrong value for guid"));
                         return null;
                     }
+
                     return routeNetwork.GetRouteNodeInfo(id);
                 }   
             );

@@ -4,6 +4,7 @@ using ConduitNetwork.ReadModel;
 using FiberNetwork.Events.Model;
 using GraphQL.DataLoader;
 using GraphQL.Types;
+using Microsoft.AspNetCore.Http;
 using QueryModel.Conduit;
 using RouteNetwork.QueryService;
 using RouteNetwork.ReadModel;
@@ -19,23 +20,38 @@ namespace EquipmentService.GraphQL.Types
         IRouteNetworkState routeNetworkQueryService;
         IConduitNetworkQueryService conduitNetworkEqueryService;
 
-        public FiberCableSegment(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IDataLoaderContextAccessor dataLoader)
+        public FiberCableSegment(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IDataLoaderContextAccessor dataLoader, IHttpContextAccessor httpContextAccessor)
         {
             this.routeNetworkQueryService = routeNetworkQueryService;
             this.conduitNetworkEqueryService = conduitNetworkEqueryService;
 
-            Description = "A fiber cable will initially contain one segment that spans the whole length of fiber cable that was originally placed in the route network. When the user starts to cut the cable at various nodes, more fiber cable segments will emerge. However, the original fiber cable asset is the same, now just cut in pieces. The segment represent the pieces. Graph connectivity is maintained on segment level. Use the fiberCable field to access fiber cable asset information.";
+            Description = "A fiber cable will initially contain one segment that spans the whole length of fiber cable that was originally placed in the route network. When the user starts to cut the cable at various nodes, more fiber cable segments will emerge. However, the original fiber cable asset is the same, now just cut in pieces. The segment represent the pieces. The line represent the original asset. Graph connectivity is maintained on segment level. Use line field to access general asset information. Use the fiberCable field to access fiber cable specific asset information.";
 
             Interface<LineSegmentInterface>();
 
-            Field(x => x.Line, type: typeof(LineInterface)).Description("Line that this segment belongs to.");
 
-            Field(x => x.Line.LineKind, type: typeof(LineSegmentKindType)).Description("Type of line segment - i.e. multi conduit, single conduit, fiber cable etc.");
+            // Interface fields
 
             Field(x => x.Id, type: typeof(IdGraphType)).Description("Guid property");
 
+            Field<LineSegmentRelationTypeEnumType>(
+            "RelationType",
+            resolve: context =>
+            {
+                Guid routeNodeId = (Guid)httpContextAccessor.HttpContext.Items["routeNodeId"];
+                return context.Source.RelationType(routeNodeId);
+            });
+
+            Field(x => x.Line.LineKind, type: typeof(LineSegmentKindType)).Description("Type of line segment - i.e. multi conduit, single conduit, fiber cable etc.");
+
+            Field(x => x.Line, type: typeof(LineInterface)).Description("Line that this segment belongs to.");
+
             Field(x => x.Parents, type: typeof(ListGraphType<LineSegmentInterface>)).Description("The parent segments of this segment, if this segment is contained within another segment network - i.e. a fiber cable segment running within one of more conduit segments.");
 
+            Field(x => x.Children, type: typeof(ListGraphType<LineSegmentInterface>)).Description("The child segments of this segment. As an example, if this is multi conduit, then child segments might be fiber cable segments or inner conduit segments running inside the multi conduit.");
+
+
+            // Additional fields
 
             Field<FiberCableType>(
             "FiberCable",
@@ -44,8 +60,6 @@ namespace EquipmentService.GraphQL.Types
             {
                 return context.Source.Line;
             });
-
-            Field(x => x.Children, type: typeof(ListGraphType<LineSegmentInterface>)).Description("The children of a multi conduit segment.");
 
             /*
             Field<ConduitLineType>(

@@ -16,6 +16,16 @@ namespace FiberNetwork.Events.Model
         public Guid FromNodeId { get; set; }
         public Guid ToNodeId { get; set; }
 
+        public LineSegmentRelationTypeEnum RelationType(Guid pointOfInterestId)
+        {
+            if (FromNodeId == pointOfInterestId)
+                return LineSegmentRelationTypeEnum.Incomming;
+            else if (ToNodeId == pointOfInterestId)
+                return LineSegmentRelationTypeEnum.Outgoing;
+            else
+                return LineSegmentRelationTypeEnum.PassThrough;
+        }
+
         #region Properties that should not be persisted
 
         [IgnoreDataMember]

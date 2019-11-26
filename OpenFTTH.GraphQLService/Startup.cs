@@ -9,6 +9,8 @@ using ConduitNetwork.Projections.ConduitClosure;
 using ConduitNetwork.QueryService;
 using ConduitNetwork.QueryService.ConduitClosure;
 using EquipmentService.GraphQL.Schemas;
+using FiberNetwork.Projections;
+using FiberNetwork.QueryService;
 using GraphQL;
 using GraphQL.Server;
 using GraphQL.Server.Ui.Playground;
@@ -44,7 +46,8 @@ namespace EquipmentService
             // MediatR
             var routeNetworkAssembly = AppDomain.CurrentDomain.Load("RouteNetwork.Business");
             var conduitNetworkAssembly = AppDomain.CurrentDomain.Load("ConduitNetwork.Business");
-            services.AddMediatR(new Assembly[] { routeNetworkAssembly, conduitNetworkAssembly });
+            var fiberNetworkAssembly = AppDomain.CurrentDomain.Load("FiberNetwork.Business");
+            services.AddMediatR(new Assembly[] { routeNetworkAssembly, conduitNetworkAssembly, fiberNetworkAssembly });
 
 
             // Marten document store
@@ -88,12 +91,18 @@ namespace EquipmentService
             services.AddSingleton<IConduitNetworkQueryService, ConduitNetworkQueryService>();
             services.AddSingleton<IConduitSpecificationRepository, ConduitSpecificationRepository>();
 
+            // Fiber network services
+            services.AddSingleton<IFiberNetworkQueryService, FiberNetworkQueryService>();
+
             // Conduit network projections
             services.AddSingleton<MultiConduitInfoProjection, MultiConduitInfoProjection>();
             services.AddSingleton<SingleConduitInfoProjection, SingleConduitInfoProjection>();
             services.AddSingleton<ConduitClosureLifecyleEventProjection, ConduitClosureLifecyleEventProjection>();
             services.AddSingleton<ConduitClosureAttachmentProjection, ConduitClosureAttachmentProjection>();
             services.AddSingleton<ConduitClosureConduitCutAndConnectionProjection, ConduitClosureConduitCutAndConnectionProjection>();
+
+            // Fiber network projections
+            services.AddSingleton<FiberCableInfoProjection, FiberCableInfoProjection>();
 
 
             // GraphQL stuff
@@ -110,6 +119,8 @@ namespace EquipmentService
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+
+            services.AddHttpContextAccessor();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -129,6 +140,9 @@ namespace EquipmentService
             Store.Events.InlineProjections.Add(app.ApplicationServices.GetService<ConduitClosureLifecyleEventProjection>());
             Store.Events.InlineProjections.Add(app.ApplicationServices.GetService<ConduitClosureAttachmentProjection>());
             Store.Events.InlineProjections.Add(app.ApplicationServices.GetService<ConduitClosureConduitCutAndConnectionProjection>());
+
+            // Register fiber network projections in Marten
+            Store.Events.InlineProjections.Add(app.ApplicationServices.GetService<FiberCableInfoProjection>());
 
             // HTTP stuff
 

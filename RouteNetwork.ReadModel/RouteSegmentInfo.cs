@@ -25,6 +25,16 @@ namespace RouteNetwork.ReadModel
             }
         }
 
+        public LineSegmentRelationTypeEnum RelationType(Guid pointOfInterestId)
+        {
+            if (FromNodeId == pointOfInterestId)
+                return LineSegmentRelationTypeEnum.Incomming;
+            else if (ToNodeId == pointOfInterestId)
+                return LineSegmentRelationTypeEnum.Outgoing;
+            else
+                return LineSegmentRelationTypeEnum.NotRelated;
+        }
+
         [IgnoreDataMember]
         public double Length { get; set; }
 

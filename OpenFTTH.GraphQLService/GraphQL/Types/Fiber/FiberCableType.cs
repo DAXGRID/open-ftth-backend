@@ -36,15 +36,19 @@ namespace EquipmentService.GraphQL.Types
                 return context.Source.SequenceNumber;
             });
 
-            //Field(x => x.SequenceNumber, type: typeof(IdGraphType)).Description("The position of the conduit inside a multi conduit. Field only populated on inner conduits (conduits inside a multi conduit)");
-
+            Field(x => x.SequenceNumber, type: typeof(IdGraphType)).Description("The position of fiber cable inside of conduit or route.");
 
             //Field(x => x.AssetInfo, type: typeof(AssetInfoType)).Description("Asset info");
-
-            Field(x => x.Children, type: typeof(ListGraphType<ConduitInfoType>)).Description("Used to access the individual fibers inside the cable.");
-
+                  
             Field(x => x.Parent, type: typeof(ConduitInfoType)).Description("The parent of an inner conduit. Not available on multi and single conduits.");
-            
+
+            Field<IntGraphType>(
+              "NumberOfFibers",
+              resolve: context =>
+              {
+                  return context.Source.Children.Count();
+              });
+
             Field<RouteNodeType>(
             "FromRouteNode",
             resolve: context =>

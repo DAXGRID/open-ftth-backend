@@ -18,6 +18,9 @@
     <ProjectReference Include="..\ConduitNetwork.Business\ConduitNetwork.Business.csproj" />
     <ProjectReference Include="..\ConduitNetwork.Projections\ConduitNetwork.Projections.csproj" />
     <ProjectReference Include="..\ConduitNetwork.QueryService\ConduitNetwork.QueryService.csproj" />
+    <ProjectReference Include="..\FiberNetwork.Business\FiberNetwork.Business.csproj" />
+    <ProjectReference Include="..\FiberNetwork.Projections\FiberNetwork.Projections.csproj" />
+    <ProjectReference Include="..\FiberNetwork.QueryService\FiberNetwork.QueryService.csproj" />
     <ProjectReference Include="..\Infrastructure.EventSourcing\Infrastructure.EventSourcing.csproj" />
     <ProjectReference Include="..\MemoryGraph\MemoryGraph.csproj" />
     <ProjectReference Include="..\RouteNetwork.Business\RouteNetwork.Business.csproj" />

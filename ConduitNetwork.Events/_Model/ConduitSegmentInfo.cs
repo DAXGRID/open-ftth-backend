@@ -9,6 +9,16 @@ namespace ConduitNetwork.Events.Model
 {
     public class ConduitSegmentInfo : GraphEdge, ILineSegment
     {
+        public LineSegmentRelationTypeEnum RelationType(Guid pointOfInterestId)
+        {
+            if (ToRouteNodeId == pointOfInterestId)
+                return LineSegmentRelationTypeEnum.Incomming;
+            else if (FromRouteNodeId == pointOfInterestId)
+                return LineSegmentRelationTypeEnum.Outgoing;
+            else
+                return LineSegmentRelationTypeEnum.PassThrough;
+        }
+
         public Guid ConduitId { get; set; }
         public int SequenceNumber { get; set; }
         public Guid FromRouteNodeId { get; set; }

@@ -140,9 +140,9 @@ namespace ConduitNetwork.QueryService
             throw new KeyNotFoundException("Cannot find any single conduit segment conduit info with id: " + id);
         }
 
-        public List<ConduitRelationInfo> GetConduitSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string conduitId = null)
+        public List<LineSegmentWithRouteNodeRelationInfo> GetConduitSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string conduitId = null)
         {
-            List<ConduitRelationInfo> result = new List<ConduitRelationInfo>();
+            List<LineSegmentWithRouteNodeRelationInfo> result = new List<LineSegmentWithRouteNodeRelationInfo>();
 
             var conduitSegments = _pointOfInterestIndex.GetConduitSegmentsThatEndsInRouteNode(pointOfInterestId);
 
@@ -159,12 +159,7 @@ namespace ConduitNetwork.QueryService
 
                 ConduitRelationInfo relInfo = new ConduitRelationInfo();
 
-                if (conduitSegment.ToRouteNodeId == pointOfInterestId)
-                    result.Add(new ConduitRelationInfo() { Segment = conduitSegment, Type = ConduitRelationTypeEnum.Incomming });
-
-                if (conduitSegment.FromRouteNodeId == pointOfInterestId)
-                    result.Add(new ConduitRelationInfo() { Segment = conduitSegment, Type = ConduitRelationTypeEnum.Outgoing });
-
+                result.Add(new LineSegmentWithRouteNodeRelationInfo() { RouteNodeId = pointOfInterestId, Segment = conduitSegment, RelationType = conduitSegment.RelationType(pointOfInterestId) });
             }
 
             var conduitSegmentPassBy = _pointOfInterestIndex.GetConduitSegmentsThatPassedByRouteNode(pointOfInterestId);
@@ -180,7 +175,7 @@ namespace ConduitNetwork.QueryService
                         continue;
                 }
 
-                result.Add(new ConduitRelationInfo() { Segment = conduitSegment, Type = ConduitRelationTypeEnum.PassThrough });
+                result.Add(new LineSegmentWithRouteNodeRelationInfo() { RouteNodeId = pointOfInterestId, Segment = conduitSegment, RelationType = LineSegmentRelationTypeEnum.PassThrough });
             }
 
             return result;

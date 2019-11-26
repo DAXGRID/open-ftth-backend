@@ -7,6 +7,7 @@ namespace Core.ReadModel.Network
 {
     public interface ILineSegment : INetworkElement
     {
+        LineSegmentRelationTypeEnum RelationType(Guid pointOfInterestId);
         ILine Line { get; set; }
         List<ILineSegment> Parents { get; set; }
         List<ILineSegment> Children { get; set; }

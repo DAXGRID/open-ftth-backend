@@ -10,6 +10,7 @@ namespace Core.ReadModel.Network
         PassThrough = 0,
         PassBy = 1,
         Incomming = 2,
-        Outgoing = 3
+        Outgoing = 3,
+        NotRelated = 99
     }
 }

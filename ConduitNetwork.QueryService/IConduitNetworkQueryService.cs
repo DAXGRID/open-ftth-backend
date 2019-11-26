@@ -21,7 +21,7 @@ namespace ConduitNetwork.QueryService
         SingleConduitInfo GetSingleConduitInfo(Guid id);
 
         SingleConduitSegmentJunctionInfo GetSingleConduitSegmentJunctionInfo(Guid id);
-        List<ConduitRelationInfo> GetConduitSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string conduitId = null);
+        List<LineSegmentWithRouteNodeRelationInfo> GetConduitSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string conduitId = null);
         List<ConduitRelationInfo> GetConduitSegmentsRelatedToRouteSegment(Guid routeSegmentId, string conduitId = null);
 
         IConnectivity CreateConduitLineInfoFromConduitSegment(ConduitSegmentInfo sourceConduitSegment);

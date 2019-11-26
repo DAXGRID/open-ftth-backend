@@ -2,6 +2,7 @@
 using ConduitNetwork.QueryService;
 using ConduitNetwork.QueryService.ConduitClosure;
 using ConduitNetwork.ReadModel.ConduitClosure;
+using Core.ReadModel.Network;
 using DiagramLayout.Builder.Lines;
 using DiagramLayout.Builder.Mockup;
 using DiagramLayout.Model;
@@ -40,20 +41,20 @@ namespace DiagramLayout.Builder
 
 
             // Add multi conduit passing through
-            var conduitSegmentRels = conduitNetworkEqueryService.GetConduitSegmentsRelatedToPointOfInterest(nodeId);
+            var conduitSegmentRels = conduitNetworkEqueryService.GetConduitSegmentsRelatedToPointOfInterest(nodeId).OfType<ConduitSegmentInfo>();
 
             foreach (var conduitSegmentRel in conduitSegmentRels)
             {
                 // pass by multi conduit
-                if (conduitSegmentRel.Type == ConduitNetwork.ReadModel.ConduitRelationTypeEnum.PassThrough && conduitSegmentRel.Segment.Conduit.Kind == ConduitNetwork.Events.Model.ConduitKindEnum.MultiConduit)
+                if (conduitSegmentRel.RelationType(nodeId) == LineSegmentRelationTypeEnum.PassThrough && conduitSegmentRel.Line.LineKind == LineKindEnum.MultiConduit)
                 {
                     // check if outside conduit closure
-                    if (conduitClosureInfo != null && conduitClosureInfo.Sides.Exists(s => s.Ports.Exists(p => p.MultiConduitId == conduitSegmentRel.Segment.ConduitId)))
+                    if (conduitClosureInfo != null && conduitClosureInfo.Sides.Exists(s => s.Ports.Exists(p => p.MultiConduitId == conduitSegmentRel.Line.Id)))
                     {
                     }
                     else
                     {
-                        offsetY += AddMultiConduitPassThroughBlock(builder, conduitSegmentRel.Segment, minWidth, offsetY);
+                        offsetY += AddMultiConduitPassThroughBlock(builder, conduitSegmentRel, minWidth, offsetY);
                     }
                 }
             }

@@ -55,20 +55,46 @@ namespace EquipmentService
 
             if (path != null)
             {
+                var nextExpectedNode = Guid.Parse(fromNodeId);
+
                 foreach (var edge in path)
                 {
                     var graphEdge = _edgeIndex[edge];
                     var graphFromNode = _nodeIndex[edge.Source];
                     var graphToNode = _nodeIndex[edge.Target];
 
-                    if (!result.Contains(graphFromNode))
-                        result.Add(graphFromNode);
+                    if (graphFromNode.Id == nextExpectedNode)
+                    {
+                        // add expected node
+                        if (!result.Contains(graphFromNode))
+                            result.Add(graphFromNode);
 
-                    if (!result.Contains(graphEdge))
-                        result.Add(graphEdge);
+                        // add edge
+                        if (!result.Contains(graphEdge))
+                            result.Add(graphEdge);
 
-                    if (!result.Contains(graphToNode))
-                        result.Add(graphToNode);
+                        // add other end
+                        if (!result.Contains(graphToNode))
+                            result.Add(graphToNode);
+
+                        nextExpectedNode = graphToNode.Id;
+                    }
+                    else
+                    {
+                        // add expected node
+                        if (!result.Contains(graphToNode))
+                            result.Add(graphToNode);
+
+                        // add edge
+                        if (!result.Contains(graphEdge))
+                            result.Add(graphEdge);
+
+                        // add other end
+                        if (!result.Contains(graphFromNode))
+                            result.Add(graphFromNode);
+
+                        nextExpectedNode = graphFromNode.Id;
+                    }
                 }
             }
 
