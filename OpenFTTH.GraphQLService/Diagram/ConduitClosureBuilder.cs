@@ -43,24 +43,24 @@ namespace DiagramLayout.Builder
 
 
             // Add cables passing through
-            offsetY += AddCablePassThroughBlock(builder, offsetY, 300);
+            //offsetY += AddCablePassThroughBlock(builder, offsetY, 300);
 
 
             // Add multi conduit passing through
-            var conduitSegmentRels = conduitNetworkEqueryService.GetConduitSegmentsRelatedToPointOfInterest(nodeId).OfType<ConduitSegmentInfo>();
+            var conduitSegmentRels = conduitNetworkEqueryService.GetConduitSegmentsRelatedToPointOfInterest(nodeId);
 
             foreach (var conduitSegmentRel in conduitSegmentRels)
             {
                 // pass by multi conduit
-                if (conduitSegmentRel.RelationType(nodeId) == SegmentRelationTypeEnum.PassThrough && conduitSegmentRel.Line.LineKind == LineKindEnum.MultiConduit)
+                if (conduitSegmentRel.RelationType == SegmentRelationTypeEnum.PassThrough && conduitSegmentRel.Segment.Line.LineKind == LineKindEnum.MultiConduit)
                 {
                     // check if outside conduit closure
-                    if (conduitClosureInfo != null && conduitClosureInfo.Sides.Exists(s => s.Ports.Exists(p => p.MultiConduitId == conduitSegmentRel.Line.Id)))
+                    if (conduitClosureInfo != null && conduitClosureInfo.Sides.Exists(s => s.Ports.Exists(p => p.MultiConduitId == conduitSegmentRel.Segment.Line.Id)))
                     {
                     }
                     else
                     {
-                        offsetY += AddMultiConduitPassThroughBlock(builder, conduitSegmentRel, minWidth, offsetY);
+                        offsetY += AddMultiConduitPassThroughBlock(builder, (ConduitSegmentInfo)conduitSegmentRel.Segment, minWidth, offsetY);
                     }
                 }
             }

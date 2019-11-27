@@ -9,7 +9,7 @@ namespace EquipmentService
     {
         public static string VersionString()
         {
-            return "0.27 (2019-11-24)";
+            return "0.28 (2019-11-27)";
         }
     }
 }

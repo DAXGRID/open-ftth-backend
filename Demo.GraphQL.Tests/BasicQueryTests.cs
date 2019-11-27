@@ -280,7 +280,53 @@ namespace Demo.GraphQL.Tests
             }
         }
 
+        [Fact]
+        public async Task QueryDiagramOnJ1010()
+        {
+            using (var system = SystemUnderTest.ForStartup<EquipmentService.Startup>())
+            {
+                // Try query line segments of J-1010
+                string nodeId = "\"0b2168f2-d9be-455c-a4de-e9169f000122\"";
+
+                var graphQlQuery = @"
+                query {
+                    diagramService {
+                        buildRouteNodeDiagram(
+                          routeNodeId: " + nodeId + @") 
+                          {
+                            diagramObjects {
+                                refClass
+                                refId
+                              style
+                                label
+                              geometry {
+                                    type
+                                    coordinates
+                                }
+                            }
+                        }
+                    }
+                }";
 
 
+                await run(_ =>
+                {
+                    var input = new GraphQLRequest
+                    {
+                        Query = graphQlQuery
+                    };
+                    _.Post.Json(input).ToUrl("/graphql");
+                    _.StatusCodeShouldBe(HttpStatusCode.OK);
+                    _.ContentShouldNotContain("error");
+                    _.GraphQL().ShouldContain("ConduitClosure"); 
+                    _.GraphQL().ShouldContain("MultiConduitSegment"); 
+                    _.GraphQL().ShouldContain("SingleConduit"); 
+                    _.GraphQL().ShouldContain("InnerConduitWhite"); 
+                    _.GraphQL().ShouldContain("MultiConduitOrange"); 
+                    _.GraphQL().ShouldContain("MultiConduitRed"); 
+                    _.GraphQL().ShouldContain("LabelMediumText"); 
+                });
+            }
+        }
     }
 }
