@@ -208,7 +208,7 @@ namespace ConduitNetwork.QueryService
 
 
         #region utility functions that can be used to create derived info objects
-        public IConnectivity CreateConduitLineInfoFromConduitSegment(ConduitSegmentInfo sourceConduitSegment)
+        public ISegmentConnectivity CreateConduitLineInfoFromConduitSegment(ConduitSegmentInfo sourceConduitSegment)
         {
             var result = new ConduitConnectivityInfo();
 
@@ -300,7 +300,7 @@ namespace ConduitNetwork.QueryService
         public void UpdateMultiConduitInfo(MultiConduitInfo multiConduitInfo, bool load = false)
         {
             // Resolve segment references
-            ResolveSegmentReferences(multiConduitInfo);
+            ResolveReferences(multiConduitInfo);
 
             // Update
             if (_multiConduitInfos.ContainsKey(multiConduitInfo.Id))
@@ -330,16 +330,12 @@ namespace ConduitNetwork.QueryService
 
         public void UpdateSingleConduitInfo(SingleConduitInfo singleConduitInfo)
         {
-            #region reference resolving
-
             // Parent multi conduit
             if (singleConduitInfo.MultiConduitId != Guid.Empty)
                 singleConduitInfo.Parent = _multiConduitInfos[singleConduitInfo.MultiConduitId];
 
             // Segment references
-            ResolveSegmentReferences(singleConduitInfo);
-
-            #endregion
+            ResolveReferences(singleConduitInfo);
 
             // Update
             if (_singleConduitInfos.ContainsKey(singleConduitInfo.Id))
@@ -372,9 +368,21 @@ namespace ConduitNetwork.QueryService
         }
         
 
-        private void ResolveSegmentReferences(ConduitInfo condutiInfo)
+        private void ResolveReferences(ConduitInfo condutiInfo)
         {
-            var conduitWalkOfInterest = routeNetworkQueryService.GetWalkOfInterestInfo(condutiInfo.GetRootConduit().WalkOfInterestId);
+            var woi = routeNetworkQueryService.GetWalkOfInterestInfo(condutiInfo.GetRootConduit().WalkOfInterestId);
+
+            // Resolve from node
+            if (condutiInfo.FromRouteNode == null)
+            {
+                condutiInfo.FromRouteNode = routeNetworkQueryService.GetRouteNodeInfo(woi.StartNodeId);
+            }
+
+            // Resolve to node
+            if (condutiInfo.ToRouteNode == null)
+            {
+                condutiInfo.ToRouteNode = routeNetworkQueryService.GetRouteNodeInfo(woi.EndNodeId);
+            }
 
             // Resolve references inside segment
             foreach (var segment in condutiInfo.Segments.OfType<ConduitSegmentInfo>())
@@ -389,7 +397,7 @@ namespace ConduitNetwork.QueryService
                     if (segment.Parents == null)
                         segment.Parents = new List<ILineSegment>();
 
-                    var innerConduitSegmentWalkOfInterest = conduitWalkOfInterest.SubWalk2(segment.FromRouteNodeId, segment.ToRouteNodeId);
+                    var innerConduitSegmentWalkOfInterest = woi.SubWalk2(segment.FromRouteNodeId, segment.ToRouteNodeId);
 
                     var multiConduit = segment.Conduit.Parent;
 
@@ -400,7 +408,7 @@ namespace ConduitNetwork.QueryService
                         if (multiConduitSegment.Children == null)
                             multiConduitSegment.Children = new List<ILineSegment>();
 
-                        var multiConduitSegmentWalkOfInterest = conduitWalkOfInterest.SubWalk2(multiConduitSegment.FromRouteNodeId, multiConduitSegment.ToRouteNodeId);
+                        var multiConduitSegmentWalkOfInterest = woi.SubWalk2(multiConduitSegment.FromRouteNodeId, multiConduitSegment.ToRouteNodeId);
 
                         // Create hash set for quick lookup
                         HashSet<Guid> multiConduitSegmentWalkOfInterestSegmetns = new HashSet<Guid>();

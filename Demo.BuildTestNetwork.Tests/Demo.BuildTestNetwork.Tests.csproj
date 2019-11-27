@@ -22,6 +22,10 @@
     <ProjectReference Include="..\ConduitNetwork.Projections\ConduitNetwork.Projections.csproj" />
     <ProjectReference Include="..\ConduitNetwork.QueryService\ConduitNetwork.QueryService.csproj" />
     <ProjectReference Include="..\ConduitNetwork.ReadModel\ConduitNetwork.ReadModel.csproj" />
+    <ProjectReference Include="..\FiberNetwork.Business\FiberNetwork.Business.csproj" />
+    <ProjectReference Include="..\FiberNetwork.Events\FiberNetwork.Events.csproj" />
+    <ProjectReference Include="..\FiberNetwork.Projections\FiberNetwork.Projections.csproj" />
+    <ProjectReference Include="..\FiberNetwork.QueryService\FiberNetwork.QueryService.csproj" />
     <ProjectReference Include="..\RouteNetwork.Business\RouteNetwork.Business.csproj" />
     <ProjectReference Include="..\RouteNetwork.Events\RouteNetwork.Events.csproj" />
     <ProjectReference Include="..\RouteNetwork.Projections\RouteNetwork.Projections.csproj" />

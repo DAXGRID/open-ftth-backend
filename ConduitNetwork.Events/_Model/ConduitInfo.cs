@@ -29,6 +29,12 @@ namespace ConduitNetwork.Events.Model
         #region Properties that should not be persisted
 
         [IgnoreDataMember]
+        public INode FromRouteNode { get; set; }
+
+        [IgnoreDataMember]
+        public INode ToRouteNode { get; set; }
+
+        [IgnoreDataMember]
         public List<ILine> Children { get; set; }
 
         [IgnoreDataMember]

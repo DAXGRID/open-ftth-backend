@@ -100,9 +100,9 @@ namespace FiberNetwork.QueryService
         }
         */
 
-        public List<ILineSegmentRelation> GetLineSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string lineId = null)
+        public List<LineSegmentWithRouteNodeRelationInfo> GetLineSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string lineId = null)
         {
-            List<ILineSegmentRelation> result = new List<ILineSegmentRelation>();
+            List<LineSegmentWithRouteNodeRelationInfo> result = new List<LineSegmentWithRouteNodeRelationInfo>();
 
             var fiberSegments = _pointOfInterestIndex.GetConduitSegmentsThatEndsInRouteNode(pointOfInterestId);
 
@@ -120,10 +120,10 @@ namespace FiberNetwork.QueryService
                 FiberRelationInfo relInfo = new FiberRelationInfo();
 
                 if (fiberSegment.ToRouteNodeId == pointOfInterestId)
-                    result.Add(new FiberRelationInfo() { Segment = fiberSegment, Type = LineSegmentRelationTypeEnum.Incomming });
+                    result.Add(new LineSegmentWithRouteNodeRelationInfo() { Segment = fiberSegment, RelationType = LineSegmentRelationTypeEnum.Incomming  });
 
                 if (fiberSegment.FromRouteNodeId == pointOfInterestId)
-                    result.Add(new FiberRelationInfo() { Segment = fiberSegment, Type = LineSegmentRelationTypeEnum.Outgoing });
+                    result.Add(new LineSegmentWithRouteNodeRelationInfo() { Segment = fiberSegment, RelationType = LineSegmentRelationTypeEnum.Outgoing });
 
             }
 
@@ -140,7 +140,7 @@ namespace FiberNetwork.QueryService
                         continue;
                 }
 
-                result.Add(new FiberRelationInfo() { Segment = fiberSegment, Type = LineSegmentRelationTypeEnum.PassThrough });
+                result.Add(new LineSegmentWithRouteNodeRelationInfo() { Segment = fiberSegment, RelationType = LineSegmentRelationTypeEnum.PassThrough });
             }
 
             return result;
@@ -266,8 +266,8 @@ namespace FiberNetwork.QueryService
 
         public void UpdateFiberCableInfo(FiberCableInfo fiberCableInfo, bool load = false)
         {
-            // Resolve segment references
-            ResolveSegmentReferences(fiberCableInfo);
+            // Resolve references
+            ResolveReferences(fiberCableInfo);
 
             // Update
             if (_fiberCableInfos.ContainsKey(fiberCableInfo.Id))
@@ -295,9 +295,21 @@ namespace FiberNetwork.QueryService
             }
         }
 
-        private void ResolveSegmentReferences(FiberCableInfo fiberCableInfo)
+        private void ResolveReferences(FiberCableInfo fiberCableInfo)
         {
-            var conduitWalkOfInterest = _routeNetworkQueryService.GetWalkOfInterestInfo(fiberCableInfo.GetRoot().WalkOfInterestId);
+            var woi = _routeNetworkQueryService.GetWalkOfInterestInfo(fiberCableInfo.GetRoot().WalkOfInterestId);
+
+            // Resolve from node
+            if (fiberCableInfo.FromRouteNode == null)
+            {
+                fiberCableInfo.FromRouteNode = _routeNetworkQueryService.GetRouteNodeInfo(woi.StartNodeId);
+            }
+
+            // Resolve to node
+            if (fiberCableInfo.ToRouteNode == null)
+            {
+                fiberCableInfo.ToRouteNode = _routeNetworkQueryService.GetRouteNodeInfo(woi.EndNodeId);
+            }
 
             // Resolve references inside segment
             foreach (var segment in fiberCableInfo.Segments.OfType<FiberSegmentInfo>())

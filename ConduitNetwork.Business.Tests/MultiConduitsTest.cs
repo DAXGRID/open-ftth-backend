@@ -227,6 +227,8 @@ namespace ConduitNetwork.Business.Tests
             Assert.Equal(1, multiConduitInfo.Children.OfType<ConduitInfo>().Count(c => c.Color == Events.Model.ConduitColorEnum.Red));
             Assert.Equal(1, multiConduitInfo.Children.OfType<ConduitInfo>().Count(c => c.Color == Events.Model.ConduitColorEnum.Green));
             Assert.Equal(1, multiConduitInfo.Children.OfType<ConduitInfo>().Count(c => c.Name.Contains("8")));
+
+
         }
 
         [Fact]

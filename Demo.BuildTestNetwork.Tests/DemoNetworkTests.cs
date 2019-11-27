@@ -5,6 +5,7 @@ using System;
 using Xunit;
 using System.Linq;
 using ConduitNetwork.QueryService;
+using FiberNetwork.QueryService;
 
 namespace Demo.BuildTestNetwork.Tests
 {
@@ -56,8 +57,26 @@ namespace Demo.BuildTestNetwork.Tests
 
             var junction1010 = routeNodes.Find(n => n.Name == "J-1010");
             var junctionRelatedConduits = conduitNetworkQueryService.GetConduitSegmentsRelatedToPointOfInterest(junction1010.Id);
+        }
 
+        [Fact]
+        public void QueryFiberCableTest()
+        {
+            var routeQueryService = serviceContext.ServiceProvider.GetService<IRouteNetworkState>();
+            var conduitQueryService = serviceContext.ServiceProvider.GetService<IConduitNetworkQueryService>();
+            var fiberQueryService = serviceContext.ServiceProvider.GetService<IFiberNetworkQueryService>();
 
+            var routeNodes = routeQueryService.GetAllRouteNodes().ToList();
+            var junction1010 = routeNodes.Find(n => n.Name == "J-1010");
+
+            var fiberSegments = fiberQueryService.GetLineSegmentsRelatedToPointOfInterest(junction1010.Id);
+
+            // Find 96 fiber segment
+            var fiber96segment = fiberSegments.Find(f => f.Segment.Line.Children.Count == 96);
+
+            // Check that fiber cable has one segment
+            Assert.True(fiber96segment.Segment.Line.Segments.Count == 1);
+         
         }
     }
 }

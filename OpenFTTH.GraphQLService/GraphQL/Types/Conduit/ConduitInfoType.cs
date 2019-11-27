@@ -24,8 +24,33 @@ namespace EquipmentService.GraphQL.Types
 
             Description = "A conduit. Can be a multi conduit (i.e. has inner ducts) or a single conduit.";
 
-            Field<ConduitKindEnumType>("Kind", "Kind of conduit (multi or single conduit)");
+            // Interface fields
+
+            Interface<LineInterface>();
+
             Field(x => x.Id, type: typeof(IdGraphType)).Description("Guid property");
+
+            Field(x => x.LineKind, type: typeof(LineSegmentKindType)).Description("Type of line - i.e. multi conduit, single conduit, fiber cable etc.");
+
+            Field(x => x.FromRouteNode, type: typeof(NodeInterface)).Description("The node where this line equipment starts.");
+
+            Field(x => x.ToRouteNode, type: typeof(NodeInterface)).Description("The node where this line equipment ends.");
+
+            Field(x => x.Parent, type: typeof(LineInterface)).Description("The parent, if this object is part of a composite equipment structure - i.e. a fiber inside a fiber cable or an inner conduit inside a multi conduit. Notice that the parent-child relationship on line level only cover the relationship inside a single composite equipment such as a fiber cable or multi conduit. Containment relationships between different types of equipment is on segment level only.");
+
+            /*
+            Field<IdGraphType>(
+"Parent",
+"The parent, if this object is part of a composite equipment structure - i.e. a fiber inside a fiber cable or an inner conduit inside a multi conduit. Notice that the parent-child relationship on line level only cover the relationship inside a single composite equipment such as a fiber cable or multi conduit. Containment relationships between different types of equipment is on segment level only.",
+resolve: context =>
+{
+ return context.Source.Parent;
+});
+*/
+
+            // Additional fields, some for backwards compabtiblely
+
+            Field<ConduitKindEnumType>("Kind", "Kind of conduit (multi or single conduit)");
             Field(x => x.Name, type: typeof(IdGraphType)).Description("The uility might give each conduit a name/number");
 
             Field<IdGraphType>(
@@ -48,8 +73,9 @@ namespace EquipmentService.GraphQL.Types
             Field(x => x.AssetInfo, type: typeof(AssetInfoType)).Description("Asset info");
             Field(x => x.Children, type: typeof(ListGraphType<ConduitInfoType>)).Description("Child conduits. Field only populated on multi conduits.");
 
-            Field(x => x.Parent, type: typeof(ConduitInfoType)).Description("The parent of an inner conduit. Not available on multi and single conduits.");
+            //Field(x => x.Parent, type: typeof(ConduitInfoType)).Description("The parent of an inner conduit. Not available on multi and single conduits.");
             
+            /*
             Field<RouteNodeType>(
             "FromRouteNode",
             resolve: context =>
@@ -65,6 +91,7 @@ namespace EquipmentService.GraphQL.Types
                 var woi = routeNetworkQueryService.GetWalkOfInterestInfo(context.Source.GetRootConduit().WalkOfInterestId);
                 return routeNetworkQueryService.GetRouteNodeInfo(woi.EndNodeId);
             });
+            */
 
             Field<ListGraphType<RouteSegmentType>>(
             "AllRouteSegments",

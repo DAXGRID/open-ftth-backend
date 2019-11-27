@@ -24,7 +24,7 @@ namespace ConduitNetwork.QueryService
         List<LineSegmentWithRouteNodeRelationInfo> GetConduitSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string conduitId = null);
         List<ConduitRelationInfo> GetConduitSegmentsRelatedToRouteSegment(Guid routeSegmentId, string conduitId = null);
 
-        IConnectivity CreateConduitLineInfoFromConduitSegment(ConduitSegmentInfo sourceConduitSegment);
+        ISegmentConnectivity CreateConduitLineInfoFromConduitSegment(ConduitSegmentInfo sourceConduitSegment);
         void Clean();
     }
 }

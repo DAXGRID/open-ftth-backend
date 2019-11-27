@@ -11,7 +11,7 @@ namespace FiberNetwork.QueryService
 
         FiberCableInfo GetFiberCableInfo(Guid id);
 
-        List<ILineSegmentRelation> GetLineSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string lineId = null);
+        List<LineSegmentWithRouteNodeRelationInfo> GetLineSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string lineId = null);
 
         List<ILineSegmentRelation> GetLineSegmentsRelatedToRouteSegment(Guid routeSegmentId, string lineId = null);
 

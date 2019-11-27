@@ -6,6 +6,7 @@ using ConduitNetwork.QueryService.ConduitClosure;
 using ConduitNetwork.ReadModel.ConduitClosure;
 using Demo.BuildTestNetwork.Builders;
 using EquipmentService.GraphQL.Types;
+using FiberNetwork.QueryService;
 using GraphQL;
 using GraphQL.Types;
 using Marten;
@@ -23,7 +24,7 @@ namespace EquipmentService.GraphQL.ConduitClosure
 {
     public class DemoNetwork : ObjectGraphType
     {
-        public DemoNetwork(IHostingEnvironment env, IDocumentStore documentStore, IMediator commandBus, IConduitClosureRepository conduitClosureRepository, IRouteNetworkState routeNetwork, IConduitNetworkQueryService conduitNetwork)
+        public DemoNetwork(IHostingEnvironment env, IDocumentStore documentStore, IMediator commandBus, IConduitClosureRepository conduitClosureRepository, IRouteNetworkState routeNetwork, IConduitNetworkQueryService conduitNetwork, IFiberNetworkQueryService fiberNetworkQueryService)
         {
             
             Description = "API for invoking the demo/test data builder";
@@ -42,6 +43,7 @@ namespace EquipmentService.GraphQL.ConduitClosure
                       routeNetwork.Clean();
                       conduitNetwork.Clean();
                       conduitClosureRepository.Clean();
+                      fiberNetworkQueryService.Clean();
 
                       var iisExpressFolder = AppDomain.CurrentDomain.BaseDirectory;
 
@@ -57,13 +59,11 @@ namespace EquipmentService.GraphQL.ConduitClosure
                       ConduitBuilder.Run(conduitNetwork, commandBus);
                       EquipmentBuilder.Run(routeNetwork, conduitNetwork, commandBus);
 
-                      // Clean everything again
+                      // Reload everything again
                       routeNetwork.Clean();
                       conduitNetwork.Clean();
                       conduitClosureRepository.Clean();
-
-                      // Add additional demo objects by code
-                      //CreateAdditionalDemoObject(commandBus);
+                      fiberNetworkQueryService.Clean();
 
                       return "Read models cleaned and test data was rebuilt.";
 

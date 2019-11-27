@@ -9,5 +9,11 @@ namespace Core.ReadModel.Network
         public Guid RouteNodeId { get; set; }
         public ILineSegment Segment { get; set; }
         public LineSegmentRelationTypeEnum RelationType { get; set; }
+
+        public override string ToString()
+        {
+            string result = Segment.Line.LineKind.ToString() + " Segment: " + Segment.Id;
+            return result;
+        }
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Core.ReadModel.Network
 {
-    public interface IConnectivity
+    public interface ISegmentConnectivity
     {
         INode StartRouteNode { get; set; }
         ILineSegment StartRouteSegment { get; set; }

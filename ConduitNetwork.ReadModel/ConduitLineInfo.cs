@@ -7,7 +7,7 @@ using System.Text;
 
 namespace ConduitNetwork.ReadModel
 {
-    public class ConduitConnectivityInfo : IConnectivity
+    public class ConduitConnectivityInfo : ISegmentConnectivity
     {
 
         public INode StartRouteNode { get; set; }

@@ -65,7 +65,10 @@ namespace FiberNetwork.Business.Tests
 
             serviceContext.CommandBus.Send(placeCable1).Wait();
 
-            // Check that cable was registered correctly in the network
+
+            //////////////////////////////////////////////
+            /// Check fiber cable info
+           
             var fiberNetworkQueryService = serviceContext.ServiceProvider.GetService<IFiberNetworkQueryService>();
 
             var fiberCableInfo = fiberNetworkQueryService.GetFiberCableInfo(placeCable1.FiberCableId);
@@ -86,7 +89,34 @@ namespace FiberNetwork.Business.Tests
             // Check segment to route node
             Assert.Equal(_testNetwork.GetNodeByName("FP-2").Id, fiberCableInfo.Segments[0].ToRouteNode.Id);
 
-            var lineSegments = fiberNetworkQueryService.GetLineSegmentsRelatedToPointOfInterest(_testNetwork.GetNodeByName("HH-2").Id);
+
+            //////////////////////////////////////////////
+            /// Check route node relations
+
+            // Check fiber cable line segment relation to node HH-2
+            var hhLineSegments = fiberNetworkQueryService.GetLineSegmentsRelatedToPointOfInterest(_testNetwork.GetNodeByName("HH-2").Id);
+            
+            var hhFiberCableSegmentRel = hhLineSegments.Find(s => s.Segment.Line.Id == placeCable1.FiberCableId);
+            Assert.Equal(LineSegmentRelationTypeEnum.PassThrough, hhFiberCableSegmentRel.RelationType);
+
+            // Check fiber cable line segment relation to node CO-1
+            var coLineSegments = fiberNetworkQueryService.GetLineSegmentsRelatedToPointOfInterest(_testNetwork.GetNodeByName("CO-1").Id);
+
+            var coFiberCableSegmentRel = coLineSegments.Find(s => s.Segment.Line.Id == placeCable1.FiberCableId);
+            Assert.Equal(LineSegmentRelationTypeEnum.Outgoing, coFiberCableSegmentRel.RelationType);
+
+            // Check fiber cable line segment relation to node FP-2
+            var fpLineSegments = fiberNetworkQueryService.GetLineSegmentsRelatedToPointOfInterest(_testNetwork.GetNodeByName("FP-2").Id);
+
+            var fpFiberCableSegmentRel = fpLineSegments.Find(s => s.Segment.Line.Id == placeCable1.FiberCableId);
+            Assert.Equal(LineSegmentRelationTypeEnum.Incomming, fpFiberCableSegmentRel.RelationType);
+
+
+            //////////////////////////////////////////////
+            /// Check route segment relation
+
+            var trenchLineSegments = fiberNetworkQueryService.GetLineSegmentsRelatedToRouteSegment(_testNetwork.GetSegmentByName("HH-1_HH-2").Id);
+
         }
     }
 }

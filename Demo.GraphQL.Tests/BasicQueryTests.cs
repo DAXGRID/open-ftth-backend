@@ -247,6 +247,90 @@ namespace Demo.GraphQL.Tests
 
         }
 
+        [Fact]
+        public async Task QueryRelatedLineSegmentsJ1010()
+        {
+            using (var system = SystemUnderTest.ForStartup<EquipmentService.Startup>())
+            {
+                // Try query line segments of J-1010
+                string nodeId = "\"0b2168f2-d9be-455c-a4de-e9169f000122\"";
+
+                var graphQlQuery = @"
+                {
+                    routeNode(id: " + nodeId + @") {
+                        relatedSegments {
+                              id
+                              relationType
+                              line {
+                                id
+                                lineKind
+                                parent {
+                                  id
+                                }
+                                fromRouteNode {
+                                  name
+                                }
+                                toRouteNode {
+                                  name
+                                }
+                              }
+
+                              children {
+                                id
+                                relationType
+                                line {
+                                  lineKind
+                                  parent {
+                                    id
+                                  }
+                                }
+                              }
+
+                              parents {
+                                id
+                                relationType
+                              }
+
+                              ... on ConduitSegment {
+                                conduit {
+                                  color
+                                  position
+
+                                  children {
+                                    kind
+                                  }
+                                }
+                              }
+
+                              ... on FiberCableSegment {
+                                fiberCable {
+                                  numberOfFibers
+                                }
+                              }
+                            }
+                    }
+                }";
+
+
+                await run(_ =>
+                {
+                    var input = new GraphQLRequest
+                    {
+                        Query = graphQlQuery
+                    };
+                    _.Post.Json(input).ToUrl("/graphql");
+                    _.StatusCodeShouldBe(HttpStatusCode.OK);
+                    _.GraphQL().ShouldContain("FIBER_CABLE"); // should return fiber cable in trench
+                    _.GraphQL().ShouldContain("SINGLE_CONDUIT"); // should return single conduit in trench
+                    _.GraphQL().ShouldContain("MULTI_CONDUIT"); // should return multi conduit in trench
+                    _.GraphQL().ShouldContain("CO-BDAL"); // a cable should go from CO-BDAL to CO-BRED
+                    _.GraphQL().ShouldContain("CO-BRED"); // a cable should go from CO-BDAL to CO-BRED
+                    _.GraphQL().ShouldContain("HH-BDAL-01"); // a multi conduit should go from HH-BDAL-01 to HH-5010
+                    _.GraphQL().ShouldContain("HH-5010"); // a multi conduit should go from HH-BDAL-01 to HH-5010
+                });
+            }
+        }
+
 
 
     }

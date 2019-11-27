@@ -26,9 +26,9 @@ namespace EquipmentService.GraphQL.Types
               
             Description = "A conduit will initially contain one segment that spans the whole length of conduit that was originally placed in the route network. When the user starts to cut the conduit at various nodes, more conduit segments will emerge. However, the original conduit asset is the same, now just cut in pieces. The segment represent the pieces. The line represent the original asset. Graph connectivity is maintained on segment level. Use line field to access general asset information. Use the conduit field to access conduit specific asset information.";
 
-            Interface<LineSegmentInterface>();
-
             // Interface fields
+
+            Interface<LineSegmentInterface>();
 
             Field(x => x.Id, type: typeof(IdGraphType)).Description("Guid property");
 

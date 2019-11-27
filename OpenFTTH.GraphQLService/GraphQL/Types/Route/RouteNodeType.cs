@@ -5,6 +5,7 @@ using ConduitNetwork.QueryService.ConduitClosure;
 using ConduitNetwork.ReadModel;
 using Core.ReadModel.Network;
 using FiberNetwork.Events.Model;
+using FiberNetwork.QueryService;
 using GraphQL;
 using GraphQL.DataLoader;
 using GraphQL.Types;
@@ -26,20 +27,28 @@ namespace EquipmentService.GraphQL.Types
         IConduitNetworkQueryService conduitNetworkEqueryService;
         IConduitClosureRepository conduitClosureRepository;
 
-        public RouteNodeType(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IConduitClosureRepository conduitClosureRepository, IDataLoaderContextAccessor dataLoader, IHttpContextAccessor httpContextAccessor)
+        public RouteNodeType(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IFiberNetworkQueryService fiberNetworkQueryService, IConduitClosureRepository conduitClosureRepository, IDataLoaderContextAccessor dataLoader, IHttpContextAccessor httpContextAccessor)
         {
             this.routeNetworkQueryService = routeNetworkQueryService;
             this.conduitNetworkEqueryService = conduitNetworkEqueryService;
             this.conduitClosureRepository = conduitClosureRepository;
 
             Description = "A route node in a route network.";
-           
+
+            // Interface fields
+
+            Interface<NodeInterface>();
 
             Field(x => x.Id, type: typeof(IdGraphType)).Description("Guid property");
-            Field<RouteNodeKindEnumType>("NodeKind", "Kind of node");
-            Field<RouteNodeFunctionKindEnumType>("NodeFunctionKind", "Function that the node do/provides");
+
             Field(x => x.Name, type: typeof(IdGraphType)).Description("Name of node managed by the utility");
 
+
+            // Additional fields
+
+            Field<RouteNodeKindEnumType>("NodeKind", "Kind of node");
+            Field<RouteNodeFunctionKindEnumType>("NodeFunctionKind", "Function that the node do/provides");
+         
             Field<GeometryType>(
                "geometry",
                resolve: context =>
@@ -173,39 +182,37 @@ namespace EquipmentService.GraphQL.Types
 
                   List<ILineSegment> result = new List<ILineSegment>();
 
-                  var conduitSegmentsWithRel = conduitNetworkEqueryService.GetConduitSegmentsRelatedToPointOfInterest(context.Source.Id);
+                  var allSegments = new List<LineSegmentWithRouteNodeRelationInfo>();
+
+                  // Add multi conduits and single conduits segments
+                  allSegments.AddRange(conduitNetworkEqueryService.GetConduitSegmentsRelatedToPointOfInterest(context.Source.Id).Where(c => c.Segment.Line.LineKind == LineKindEnum.MultiConduit || c.Segment.Line.LineKind == LineKindEnum.SingleConduit));
+                  // Add fiber cable segments
+                  allSegments.AddRange(fiberNetworkQueryService.GetLineSegmentsRelatedToPointOfInterest(context.Source.Id).Where(c => c.Segment.Line.LineKind == LineKindEnum.FiberCable));
+
+                  // Create fast lookup table to be used for parent check
 
                   HashSet<Guid> segmentExistsLookup = new HashSet<Guid>();
-                  foreach (var conduitSegmentWithRel in conduitSegmentsWithRel)
-                  {
-                      segmentExistsLookup.Add(conduitSegmentWithRel.Segment.Id);
-                  }
+                  foreach (var segmentWithRel in allSegments)
+                      segmentExistsLookup.Add(segmentWithRel.Segment.Id);
 
-                  foreach (var conduitSegmentWithRel in conduitSegmentsWithRel)
+                  // Iterate through all segments and decided if to return or not depending on if they are roots of the node or not
+                  foreach (var segmentWithRel in allSegments)
                   {
-                      // First we filter by kind. Only multi conduit, single conduit and fiber cable could possible be roots of a node
-                      if (conduitSegmentWithRel.Segment.Line.LineKind == LineKindEnum.MultiConduit
-                      || conduitSegmentWithRel.Segment.Line.LineKind == LineKindEnum.SingleConduit
-                      || conduitSegmentWithRel.Segment.Line.LineKind == LineKindEnum.FiberCable
-                      )
+                      // Now check if the segment has a parent that is also related to the node. 
+                      // If so, the segment is contained within another segment, and should not be returned as a root element to the node
+                      bool isContained = false;
+
+                      if (segmentWithRel.Segment.Parents != null)
                       {
-                          // Now check if the segment has a parent that is also related to the node. 
-                          // If so, the segment is contained within another segment, and should not be returned as a root element to the node
-                          bool isContained = false;
-
-                          if (conduitSegmentWithRel.Segment.Parents != null)
+                          foreach (var parent in segmentWithRel.Segment.Parents)
                           {
-                              foreach (var parent in conduitSegmentWithRel.Segment.Parents)
-                              {
-                                  if (segmentExistsLookup.Contains(parent.Id))
-                                      isContained = true;
-                              }
+                              if (segmentExistsLookup.Contains(parent.Id))
+                                  isContained = true;
                           }
-
-                          if (!isContained)
-                            result.Add(conduitSegmentWithRel.Segment);
                       }
-                      
+
+                      if (!isContained)
+                          result.Add(segmentWithRel.Segment);
                   }
 
                   return result;

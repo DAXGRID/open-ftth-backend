@@ -10,6 +10,8 @@ using RouteNetwork.QueryService;
 using RouteNetwork.Projections;
 using System.Reflection;
 using ConduitNetwork.QueryService;
+using FiberNetwork.QueryService;
+using FiberNetwork.Projections;
 
 namespace ConduitNetwork.Business.Tests.Common
 {
@@ -26,7 +28,9 @@ namespace ConduitNetwork.Business.Tests.Common
             // MediatR
             var routeNetworkAssembly = AppDomain.CurrentDomain.Load("RouteNetwork.Business");
             var conduitNetworkAssembly = AppDomain.CurrentDomain.Load("ConduitNetwork.Business");
-            services.AddMediatR(new Assembly[] { routeNetworkAssembly, conduitNetworkAssembly });
+            var fiberNetworkAssembly = AppDomain.CurrentDomain.Load("FiberNetwork.Business");
+            services.AddMediatR(new Assembly[] { routeNetworkAssembly, conduitNetworkAssembly, fiberNetworkAssembly });
+
 
 
             // Marten document store
@@ -53,6 +57,13 @@ namespace ConduitNetwork.Business.Tests.Common
             services.AddScoped<MultiConduitInfoProjection, MultiConduitInfoProjection>();
             services.AddScoped<SingleConduitInfoProjection, SingleConduitInfoProjection>();
 
+            // Fiber network services
+            services.AddSingleton<IFiberNetworkQueryService, FiberNetworkQueryService>();
+
+            // Fiber network projections
+            services.AddScoped<FiberCableInfoProjection, FiberCableInfoProjection>();
+
+
             // Build services
             ServiceProvider = services.BuildServiceProvider();
             Store = ServiceProvider.GetService<IDocumentStore>();
@@ -67,6 +78,11 @@ namespace ConduitNetwork.Business.Tests.Common
             // Register conduit network projections in Marten
             Store.Events.InlineProjections.Add(ServiceProvider.GetService<MultiConduitInfoProjection>());
             Store.Events.InlineProjections.Add(ServiceProvider.GetService<SingleConduitInfoProjection>());
+
+            // Register fiber network projections in Marten
+            Store.Events.InlineProjections.Add(ServiceProvider.GetService<FiberCableInfoProjection>());
+
+
         }
 
         public IDocumentStore Store { get; private set; }

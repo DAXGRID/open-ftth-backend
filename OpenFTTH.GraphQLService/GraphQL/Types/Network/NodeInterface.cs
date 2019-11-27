@@ -15,6 +15,10 @@ namespace EquipmentService.GraphQL.Types
         public NodeInterface(IDataLoaderContextAccessor dataLoader)
         {
             Description = "Interface for accessing general node information.";
+
+            Field(x => x.Id, type: typeof(IdGraphType)).Description("Guid property");
+
+            Field(x => x.Name, type: typeof(IdGraphType)).Description("Name of node managed by the utility");
         }
     }
 }

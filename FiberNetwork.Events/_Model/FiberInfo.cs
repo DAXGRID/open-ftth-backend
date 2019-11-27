@@ -12,11 +12,15 @@ namespace FiberNetwork.Events.Model
         public string Name { get; set; }
         public int SequenceNumber { get; set; }
         public List<ILineSegment> Segments { get; set; }
+        public List<ILine> Children { get; set; }
 
         #region Properties that should not be persisted
 
         [IgnoreDataMember]
-        public List<ILine> Children { get; set; }
+        public INode FromRouteNode { get; set; }
+
+        [IgnoreDataMember]
+        public INode ToRouteNode { get; set; }
 
         [IgnoreDataMember]
         public ILine Parent { get; set; }

@@ -25,23 +25,29 @@ namespace EquipmentService.GraphQL.Types
 
             Description = "A fiber cable.";
 
-            Field(x => x.Id, type: typeof(IdGraphType)).Description("Guid property");
-            Field(x => x.Name, type: typeof(IdGraphType)).Description("The uility might give each conduit a name/number");
+            // Interface fields
 
-            Field<IdGraphType>(
-            "Position",
-            "The position of the conduit inside a multi conduit. Field only populated on inner conduits (conduits inside a multi conduit)",
-            resolve: context =>
-            {
-                return context.Source.SequenceNumber;
-            });
+            Interface<LineInterface>();
+
+            Field(x => x.Id, type: typeof(IdGraphType)).Description("Guid property");
+
+            Field(x => x.LineKind, type: typeof(LineSegmentKindType)).Description("Type of line - i.e. multi conduit, single conduit, fiber cable etc.");
+
+            Field(x => x.FromRouteNode, type: typeof(NodeInterface)).Description("The node where this line equipment starts.");
+
+            Field(x => x.ToRouteNode, type: typeof(NodeInterface)).Description("The node where this line equipment ends.");
+
+            Field(x => x.Parent, type: typeof(LineInterface)).Description("The parent, if this object is part of a composite equipment structure - i.e. a fiber inside a fiber cable or an inner conduit inside a multi conduit. Notice that the parent-child relationship on line level only cover the relationship inside a single composite equipment such as a fiber cable or multi conduit. Containment relationships between different types of equipment is on segment level only.");
+
+
+            // Fiber cable specific fields
+
+            Field(x => x.Name, type: typeof(IdGraphType)).Description("The uility might give each conduit a name/number");
 
             Field(x => x.SequenceNumber, type: typeof(IdGraphType)).Description("The position of fiber cable inside of conduit or route.");
 
             //Field(x => x.AssetInfo, type: typeof(AssetInfoType)).Description("Asset info");
-                  
-            Field(x => x.Parent, type: typeof(ConduitInfoType)).Description("The parent of an inner conduit. Not available on multi and single conduits.");
-
+         
             Field<IntGraphType>(
               "NumberOfFibers",
               resolve: context =>
@@ -49,6 +55,7 @@ namespace EquipmentService.GraphQL.Types
                   return context.Source.Children.Count();
               });
 
+            /*
             Field<RouteNodeType>(
             "FromRouteNode",
             resolve: context =>
@@ -64,6 +71,7 @@ namespace EquipmentService.GraphQL.Types
                 var woi = routeNetworkQueryService.GetWalkOfInterestInfo(context.Source.GetRoot().WalkOfInterestId);
                 return routeNetworkQueryService.GetRouteNodeInfo(woi.EndNodeId);
             });
+            */
 
             Field<ListGraphType<RouteSegmentType>>(
             "AllRouteSegments",

@@ -16,6 +16,8 @@ namespace FiberNetwork.Events.Model
         public Guid FromNodeId { get; set; }
         public Guid ToNodeId { get; set; }
 
+        public List<ILineSegment> Children { get; set; }
+
         public LineSegmentRelationTypeEnum RelationType(Guid pointOfInterestId)
         {
             if (FromNodeId == pointOfInterestId)
@@ -40,9 +42,7 @@ namespace FiberNetwork.Events.Model
 
         [IgnoreDataMember]
         public List<ILineSegment> Parents { get; set; }
-
-        [IgnoreDataMember]
-        public List<ILineSegment> Children { get; set; }
+               
 
         [IgnoreDataMember]
         public INode FromNode { get; set; }

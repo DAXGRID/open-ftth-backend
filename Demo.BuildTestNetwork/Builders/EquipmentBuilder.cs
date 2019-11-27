@@ -86,7 +86,7 @@ namespace Demo.BuildTestNetwork.Builders
             // Place cable
             var placeCable1 = new PlaceFiberCableCommand()
             {
-                FiberCableId = Guid.NewGuid(),
+                FiberCableId = Guid.Parse("15960ab1-a6f8-46ca-964d-504354ec06b9"),
                 WalkOfInterestId = registerMultiConduitWalk.WalkOfInterestId,
                 NumberOfFibers = 96
             };
