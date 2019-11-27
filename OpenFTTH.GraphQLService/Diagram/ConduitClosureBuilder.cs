@@ -6,6 +6,7 @@ using Core.ReadModel.Network;
 using DiagramLayout.Builder.Lines;
 using DiagramLayout.Builder.Mockup;
 using DiagramLayout.Model;
+using Network.Trace;
 using RouteNetwork.QueryService;
 using RouteNetwork.ReadModel;
 using System;
@@ -17,10 +18,15 @@ namespace DiagramLayout.Builder
     public class ConduitClosureBuilder
     {
         private IConduitNetworkQueryService _conduitNetworkQueryService;
+        private IRouteNetworkState _routeNetworkQueryService;
+        private TraversalHelper _traversalHelper;
 
         public Diagram Build(Guid nodeId, IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IConduitClosureRepository conduitClosureRepository)
         {
+            _routeNetworkQueryService = routeNetworkQueryService;
             _conduitNetworkQueryService = conduitNetworkEqueryService;
+
+            _traversalHelper = new TraversalHelper(_routeNetworkQueryService);
 
             DiagramBuilder builder = new DiagramBuilder();
 
@@ -276,7 +282,8 @@ namespace DiagramLayout.Builder
 
                         foreach (var terminal in conduitClosurePort.Terminals)
                         {
-                            var lineInfo = _conduitNetworkQueryService.CreateConduitLineInfoFromConduitSegment((ConduitSegmentInfo)terminal.LineSegment);
+                            var lineInfo = _traversalHelper.CreateTraversalInfoFromSegment(terminal.LineSegment);
+
                             leftLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, blockPort.Index, terminal.Position, BlockSideEnum.East, blockPort.Index, terminal.Position, lineInfo.StartRouteNode.Name, "LabelMediumText");
                         }
                     }
@@ -291,7 +298,7 @@ namespace DiagramLayout.Builder
 
                         foreach (var terminal in conduitClosurePort.Terminals)
                         {
-                            var lineInfo = _conduitNetworkQueryService.CreateConduitLineInfoFromConduitSegment((ConduitSegmentInfo)terminal.LineSegment);
+                            var lineInfo = _traversalHelper.CreateTraversalInfoFromSegment(terminal.LineSegment); 
                             rightLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, blockPort.Index, terminal.Position, BlockSideEnum.East, blockPort.Index, terminal.Position, lineInfo.EndRouteNode.Name, "LabelMediumText");
                         }
                     }
@@ -428,7 +435,7 @@ namespace DiagramLayout.Builder
             // Connect west and east terminals
             foreach (var child in conduitSegmentInfo.Children.OfType<ConduitSegmentInfo>())
             {
-                var lineInfo = _conduitNetworkQueryService.CreateConduitLineInfoFromConduitSegment(conduitSegmentInfo);
+                var lineInfo = _traversalHelper.CreateTraversalInfoFromSegment(conduitSegmentInfo);
 
                 leftLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, child.Conduit.SequenceNumber, BlockSideEnum.East, 1, child.Conduit.SequenceNumber, lineInfo.StartRouteNode.Name, "LabelMediumText");
             }
@@ -454,7 +461,7 @@ namespace DiagramLayout.Builder
             // Connect west and east terminals
             foreach (var child in conduitSegmentInfo.Children.OfType<ConduitSegmentInfo>())
             {
-                var lineInfo = _conduitNetworkQueryService.CreateConduitLineInfoFromConduitSegment(conduitSegmentInfo);
+                var lineInfo = _traversalHelper.CreateTraversalInfoFromSegment(conduitSegmentInfo);
 
                 var terminalConnection = rightLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, child.Conduit.SequenceNumber, BlockSideEnum.East, 1, child.Conduit.SequenceNumber, lineInfo.EndRouteNode.Name, "LabelMediumText");
             }

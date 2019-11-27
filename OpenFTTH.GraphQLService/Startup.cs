@@ -109,7 +109,7 @@ namespace EquipmentService
             services.AddScoped<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
             services.AddScoped<EquipmentSchema>();
 
-            services.AddGraphQL(o => { o.ExposeExceptions = false; })
+            services.AddGraphQL(o => { o.ExposeExceptions = true; })
                 .AddGraphTypes(ServiceLifetime.Scoped)
                 .AddDataLoader();
 

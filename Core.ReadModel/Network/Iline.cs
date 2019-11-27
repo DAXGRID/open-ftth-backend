@@ -42,5 +42,7 @@ namespace Core.ReadModel.Network
         /// Position within parent line
         /// </summary>
         int SequenceNumber { get; set; }
+
+        ILine GetRoot();
     }
 }

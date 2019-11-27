@@ -5,6 +5,7 @@ using FiberNetwork.Events.Model;
 using GraphQL.DataLoader;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
+using Network.Trace;
 using QueryModel.Conduit;
 using RouteNetwork.QueryService;
 using RouteNetwork.ReadModel;
@@ -25,12 +26,12 @@ namespace EquipmentService.GraphQL.Types
             this.routeNetworkQueryService = routeNetworkQueryService;
             this.conduitNetworkEqueryService = conduitNetworkEqueryService;
 
+            var traversal = new TraversalHelper(routeNetworkQueryService);
+
             Description = "A fiber cable will initially contain one segment that spans the whole length of fiber cable that was originally placed in the route network. When the user starts to cut the cable at various nodes, more fiber cable segments will emerge. However, the original fiber cable asset is the same, now just cut in pieces. The segment represent the pieces. The line represent the original asset. Graph connectivity is maintained on segment level. Use line field to access general asset information. Use the fiberCable field to access fiber cable specific asset information.";
 
-            Interface<SegmentInterface>();
-
-
             // Interface fields
+            Interface<SegmentInterface>();
 
             Field(x => x.Id, type: typeof(IdGraphType)).Description("Guid property");
 
@@ -62,6 +63,13 @@ namespace EquipmentService.GraphQL.Types
             resolve: context =>
             {
                 return routeNetworkQueryService.GetRouteNodeInfo(context.Source.ToRouteNodeId);
+            });
+
+            Field<SegmentTraversalType>(
+            "Traversal",
+            resolve: context =>
+            {
+                return traversal.CreateTraversalInfoFromSegment(context.Source);
             });
 
             // Additional fields

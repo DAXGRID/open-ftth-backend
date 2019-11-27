@@ -2,6 +2,7 @@
 using ConduitNetwork.QueryService;
 using GraphQL.DataLoader;
 using GraphQL.Types;
+using Network.Trace;
 using QueryModel.Conduit;
 using RouteNetwork.QueryService;
 using RouteNetwork.ReadModel;
@@ -22,6 +23,8 @@ namespace EquipmentService.GraphQL.Types
             this.routeNetworkQueryService = routeNetworkQueryService;
             this.conduitNetworkEqueryService = conduitNetworkEqueryService;
 
+            var traversal = new TraversalHelper(routeNetworkQueryService);
+
             Description = "A conduit segment will initially be the original whole length piece of conduit. When the user starts to cut the conduit at various nodes, more conduit segments will emerge. Graph connectivity is maintained on segment level.";
 
             Field(x => x.Id, type: typeof(IdGraphType)).Description("Guid property");
@@ -31,11 +34,11 @@ namespace EquipmentService.GraphQL.Types
             Field(x => x.Children, type: typeof(ListGraphType<ConduitSegmentType>)).Description("The children of a multi conduit segment.");
             Field(x => x.Parents, type: typeof(ListGraphType<ConduitSegmentType>)).Description("The parents of an inner conduit segment.");
 
-            Field<ConduitLineType>(
+            Field<SegmentTraversalType>(
             "Line",
             resolve: context =>
             {
-                return conduitNetworkEqueryService.CreateConduitLineInfoFromConduitSegment(context.Source);
+                return traversal.CreateTraversalInfoFromSegment(context.Source);
             });
 
             Field<RouteNodeType>(

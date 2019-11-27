@@ -4,6 +4,7 @@ using ConduitNetwork.ReadModel;
 using GraphQL.DataLoader;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
+using Network.Trace;
 using QueryModel.Conduit;
 using RouteNetwork.QueryService;
 using RouteNetwork.ReadModel;
@@ -23,7 +24,9 @@ namespace EquipmentService.GraphQL.Types
         {
             this.routeNetworkQueryService = routeNetworkQueryService;
             this.conduitNetworkEqueryService = conduitNetworkEqueryService;
-              
+
+            var traversal = new TraversalHelper(routeNetworkQueryService);
+
             Description = "A conduit will initially contain one segment that spans the whole length of conduit that was originally placed in the route network. When the user starts to cut the conduit at various nodes, more conduit segments will emerge. However, the original conduit asset is the same, now just cut in pieces. The segment represent the pieces. The line represent the original asset. Graph connectivity is maintained on segment level. Use line field to access general asset information. Use the conduit field to access conduit specific asset information.";
 
             // Interface fields
@@ -48,18 +51,6 @@ namespace EquipmentService.GraphQL.Types
 
             Field(x => x.Children, type: typeof(ListGraphType<SegmentInterface>)).Description("The child segments of this segment. As an example, if this is multi conduit, then child segments might be fiber cable segments or inner conduit segments running inside the multi conduit.");
 
-            // Additional fields
-
-            Field(x => x.Conduit, type: typeof(ConduitInfoType)).Description("The original conduit that this segment belongs to.");
-                  
-            Field<ConduitLineType>(
-            "Connectivity",
-            resolve: context =>
-            {
-                return conduitNetworkEqueryService.CreateConduitLineInfoFromConduitSegment(context.Source);
-            });
-         
-
             Field<RouteNodeType>(
             "FromRouteNode",
             resolve: context =>
@@ -73,6 +64,25 @@ namespace EquipmentService.GraphQL.Types
             {
                 return routeNetworkQueryService.GetRouteNodeInfo(context.Source.ToRouteNodeId);
             });
+
+            Field<SegmentTraversalType>(
+            "Traversal",
+            resolve: context =>
+            {
+                return traversal.CreateTraversalInfoFromSegment(context.Source);
+            });
+
+            // Additional fields
+
+            Field(x => x.Conduit, type: typeof(ConduitInfoType)).Description("The original conduit that this segment belongs to.");
+                  
+            Field<SegmentTraversalType>(
+            "Connectivity",
+            resolve: context =>
+            {
+                return traversal.CreateTraversalInfoFromSegment(context.Source);
+            });
+          
 
             Field<ListGraphType<RouteSegmentType>>(
            "AllRouteSegments",

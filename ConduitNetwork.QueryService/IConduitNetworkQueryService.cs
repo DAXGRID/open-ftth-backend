@@ -23,8 +23,6 @@ namespace ConduitNetwork.QueryService
         SingleConduitSegmentJunctionInfo GetSingleConduitSegmentJunctionInfo(Guid id);
         List<SegmentWithRouteNodeRelationInfo> GetConduitSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string conduitId = null);
         List<ConduitRelationInfo> GetConduitSegmentsRelatedToRouteSegment(Guid routeSegmentId, string conduitId = null);
-
-        ISegmentTraversal CreateConduitLineInfoFromConduitSegment(ConduitSegmentInfo sourceConduitSegment);
         void Clean();
     }
 }

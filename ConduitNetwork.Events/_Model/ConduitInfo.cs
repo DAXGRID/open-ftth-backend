@@ -59,6 +59,12 @@ namespace ConduitNetwork.Events.Model
                 return this;
         }
 
-        
+        public ILine GetRoot()
+        {
+            if (Parent != null)
+                return (ILine)Parent;
+            else
+                return this;
+        }
     }
 }

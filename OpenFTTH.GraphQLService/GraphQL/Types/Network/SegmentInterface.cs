@@ -33,6 +33,8 @@ namespace EquipmentService.GraphQL.Types
             Field(x => x.FromRouteNode, type: typeof(NodeInterface)).Description("The node where this segment starts. Notice that it can be different from where the line starts if the line asset has been chopped up / breaked out.");
 
             Field(x => x.ToRouteNode, type: typeof(NodeInterface)).Description("The node where this segment ends. Notice that it can be different from where the line ends if the line asset has been chopped up / breaked out.");
+
+            Field(type: typeof(SegmentTraversalType), "Traversal", "Access to functions to do various traces/traversals on segment level.");
         }
     }
 }

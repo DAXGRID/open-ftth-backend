@@ -4,6 +4,7 @@ using ConduitNetwork.ReadModel.ConduitClosure;
 using GraphQL.DataLoader;
 using GraphQL.Types;
 using MediatR;
+using Network.Trace;
 using QueryModel.Conduit;
 using RouteNetwork.QueryService;
 using RouteNetwork.ReadModel;
@@ -23,6 +24,8 @@ namespace EquipmentService.GraphQL.Types
         {
             this.routeNetworkQueryService = routeNetworkQueryService;
             this.conduitNetworkEqueryService = conduitNetworkQueryService;
+
+            var traversal = new TraversalHelper(routeNetworkQueryService);
 
             Description = "A specific terminal part of a condult closure port. Terminal are like sides and ports numbered clockwise reflecting their position. Only single conduits or cables can be attached to terminals.";
 
@@ -46,7 +49,7 @@ namespace EquipmentService.GraphQL.Types
                  if (context.Source.LineSegment != null && context.Source.LineSegment is ConduitSegmentInfo)
                  {
                      var conduitSegmentInfo = context.Source.LineSegment as ConduitSegmentInfo;
-                     var lineInfo = conduitNetworkQueryService.CreateConduitLineInfoFromConduitSegment(conduitSegmentInfo);
+                     var lineInfo = traversal.CreateTraversalInfoFromSegment(conduitSegmentInfo);
 
                      if (context.Source.LineSegmentEndKind == ConduitEndKindEnum.Incomming)
                          return lineInfo.StartRouteNode.Name;

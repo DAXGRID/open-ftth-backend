@@ -23,6 +23,7 @@ namespace Demo.GraphQL.Tests
                     };
                     _.Post.Json(input).ToUrl("/graphql");
                     _.StatusCodeShouldBe(HttpStatusCode.OK);
+                    _.ContentShouldNotContain("error");
                     _.GraphQL().ShouldContain("routeNode");
                     _.GraphQL().ShouldBeSuccess(@"{""routeNode"":{""id"":""0b2168f2-d9be-455c-a4de-e9169f000022""}}");
                 });
@@ -43,6 +44,7 @@ namespace Demo.GraphQL.Tests
                     };
                     _.Post.Json(input).ToUrl("/graphql");
                     _.StatusCodeShouldBe(HttpStatusCode.OK);
+                    _.ContentShouldNotContain("error");
                     _.ContentShouldContain("routeSegment");
                 });
             }
@@ -83,6 +85,7 @@ namespace Demo.GraphQL.Tests
                     };
                     _.Post.Json(input).ToUrl("/graphql");
                     _.StatusCodeShouldBe(HttpStatusCode.OK);
+                    _.ContentShouldNotContain("error");
                     _.GraphQL().ShouldContain("I100013"); // First customer feeded on lærkelunden 
                     _.GraphQL().ShouldContain("I100021"); // Last customer feeded on lærkelunden 
                 });
@@ -134,6 +137,7 @@ namespace Demo.GraphQL.Tests
                     };
                     _.Post.Json(input).ToUrl("/graphql");
                     _.StatusCodeShouldBe(HttpStatusCode.OK);
+                    _.ContentShouldNotContain("error");
                     _.GraphQL().ShouldContain("SP-1010"); // one end should hit the cabinet feeding the customer
                     _.GraphQL().ShouldContain("I100014"); // one end must hit the customer
                 });
@@ -152,82 +156,20 @@ namespace Demo.GraphQL.Tests
                 var graphQlQuery = @"
                 {
                     routeNode(id: " + cabinetId + @") {
-                        relatedConduits {
+                    relatedConduits(
+                          includeMultiConduits: true
+                          includeInnerConduits: false
+                          includeSingleConduits: true
+                        ) {
                           relationType
                           conduit {
-                            kind
-                            fromRouteNode {
-                              id
-                              name
+                            children { 
+                              color
                             }
-                            toRouteNode {
-                              id
-                              name
-                            }
-                            allRouteNodes {
-                              id
-                              name
-                            }
-                            allRouteSegments {
-                              id
-                            }
-                          }
-
-                          conduitSegment {
-                            fromRouteNode {
-                              id
-                              name
-                            }
-                            toRouteNode {
-                              id
-                              name
-                            }
-                            allRouteNodes {
-                              id
-                              name
-                            }
-                            allRouteSegments {
-                              id
-                            }
-                          }
-
-                          relatedChildConduits {
-                            conduit {
-                              kind
-                              fromRouteNode {
-                                id
-                                name
-                              }
-                              toRouteNode {
-                                id
-                                name
-                              }
-                              allRouteNodes {
-                                id
-                                name
-                              }
-                              allRouteSegments {
-                                id
-                              }
-                            }
-
-                            conduitSegment {
-                              fromRouteNode {
-                                id
-                                name
-                              }
-                              toRouteNode {
-                                id
-                                name
-                              }
-                              allRouteNodes {
-                                id
-                                name
-                              }
-                              allRouteSegments {
-                                id
-                              }
-                            }
+                            fromRouteNode { name }
+                            toRouteNode { name }
+                            id
+                            color
                           }
                         }
                     }
@@ -243,6 +185,7 @@ namespace Demo.GraphQL.Tests
                     };
                     _.Post.Json(input).ToUrl("/graphql");
                     _.StatusCodeShouldBe(HttpStatusCode.OK);
+                    _.ContentShouldNotContain("error");
                 });
             }
 
@@ -292,6 +235,10 @@ namespace Demo.GraphQL.Tests
                                 relationType
                               }
 
+                              traversal {
+                                allSegments { id }
+                              }
+
                               ... on ConduitSegment {
                                 conduit {
                                   color
@@ -321,6 +268,7 @@ namespace Demo.GraphQL.Tests
                     };
                     _.Post.Json(input).ToUrl("/graphql");
                     _.StatusCodeShouldBe(HttpStatusCode.OK);
+                    _.ContentShouldNotContain("error");
                     _.GraphQL().ShouldContain("FIBER_CABLE"); // should return fiber cable in trench
                     _.GraphQL().ShouldContain("SINGLE_CONDUIT"); // should return single conduit in trench
                     _.GraphQL().ShouldContain("MULTI_CONDUIT"); // should return multi conduit in trench
