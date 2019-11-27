@@ -46,7 +46,7 @@ namespace DiagramLayout.Builder
             foreach (var conduitSegmentRel in conduitSegmentRels)
             {
                 // pass by multi conduit
-                if (conduitSegmentRel.RelationType(nodeId) == LineSegmentRelationTypeEnum.PassThrough && conduitSegmentRel.Line.LineKind == LineKindEnum.MultiConduit)
+                if (conduitSegmentRel.RelationType(nodeId) == SegmentRelationTypeEnum.PassThrough && conduitSegmentRel.Line.LineKind == LineKindEnum.MultiConduit)
                 {
                     // check if outside conduit closure
                     if (conduitClosureInfo != null && conduitClosureInfo.Sides.Exists(s => s.Ports.Exists(p => p.MultiConduitId == conduitSegmentRel.Line.Id)))

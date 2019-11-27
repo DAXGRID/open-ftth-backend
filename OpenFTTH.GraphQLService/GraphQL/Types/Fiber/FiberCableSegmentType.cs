@@ -27,7 +27,7 @@ namespace EquipmentService.GraphQL.Types
 
             Description = "A fiber cable will initially contain one segment that spans the whole length of fiber cable that was originally placed in the route network. When the user starts to cut the cable at various nodes, more fiber cable segments will emerge. However, the original fiber cable asset is the same, now just cut in pieces. The segment represent the pieces. The line represent the original asset. Graph connectivity is maintained on segment level. Use line field to access general asset information. Use the fiberCable field to access fiber cable specific asset information.";
 
-            Interface<LineSegmentInterface>();
+            Interface<SegmentInterface>();
 
 
             // Interface fields
@@ -46,14 +46,27 @@ namespace EquipmentService.GraphQL.Types
 
             Field(x => x.Line, type: typeof(LineInterface)).Description("Line that this segment belongs to.");
 
-            Field(x => x.Parents, type: typeof(ListGraphType<LineSegmentInterface>)).Description("The parent segments of this segment, if this segment is contained within another segment network - i.e. a fiber cable segment running within one of more conduit segments.");
+            Field(x => x.Parents, type: typeof(ListGraphType<SegmentInterface>)).Description("The parent segments of this segment, if this segment is contained within another segment network - i.e. a fiber cable segment running within one of more conduit segments.");
 
-            Field(x => x.Children, type: typeof(ListGraphType<LineSegmentInterface>)).Description("The child segments of this segment. As an example, if this is multi conduit, then child segments might be fiber cable segments or inner conduit segments running inside the multi conduit.");
+            Field(x => x.Children, type: typeof(ListGraphType<SegmentInterface>)).Description("The child segments of this segment. As an example, if this is multi conduit, then child segments might be fiber cable segments or inner conduit segments running inside the multi conduit.");
 
+            Field<RouteNodeType>(
+            "FromRouteNode",
+            resolve: context =>
+            {
+                return routeNetworkQueryService.GetRouteNodeInfo(context.Source.FromRouteNodeId);
+            });
+
+            Field<RouteNodeType>(
+            "ToRouteNode",
+            resolve: context =>
+            {
+                return routeNetworkQueryService.GetRouteNodeInfo(context.Source.ToRouteNodeId);
+            });
 
             // Additional fields
 
-            Field<FiberCableType>(
+            Field<FiberCable>(
             "FiberCable",
             "The original fiber cable that segment belongs to.",
             resolve: context =>
@@ -70,19 +83,7 @@ namespace EquipmentService.GraphQL.Types
             });
             */
 
-            Field<RouteNodeType>(
-            "FromRouteNode",
-            resolve: context =>
-            {
-                return routeNetworkQueryService.GetRouteNodeInfo(context.Source.FromRouteNodeId);
-            });
-
-            Field<RouteNodeType>(
-            "ToRouteNode",
-            resolve: context =>
-            {
-                return routeNetworkQueryService.GetRouteNodeInfo(context.Source.ToRouteNodeId);
-            });
+           
 
             /*
             Field<ListGraphType<RouteSegmentType>>(

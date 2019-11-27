@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace EquipmentService.GraphQL.Types
 {
-    public class FiberCable : ObjectGraphType<FiberCableInfo>
+    public class Fiber : ObjectGraphType<FiberCableFiberInfo>
     {
         IRouteNetworkState routeNetworkQueryService;
         IConduitNetworkQueryService conduitNetworkEqueryService;
 
-        public FiberCable(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IDataLoaderContextAccessor dataLoader)
+        public Fiber(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IDataLoaderContextAccessor dataLoader)
         {
             this.routeNetworkQueryService = routeNetworkQueryService;
             this.conduitNetworkEqueryService = conduitNetworkEqueryService;
@@ -45,42 +45,11 @@ namespace EquipmentService.GraphQL.Types
              "Children",
              resolve: context =>
              {
-                 return context.Source.Children;
+                 return null;
              });
 
-
-            // Fiber cable specific fields
-
-            Field(x => x.Name, type: typeof(IdGraphType)).Description("The uility might give each conduit a name/number");
-
+            // Fiber specific fields
             Field(x => x.SequenceNumber, type: typeof(IdGraphType)).Description("The position of fiber cable inside of conduit or route.");
-
-            //Field(x => x.AssetInfo, type: typeof(AssetInfoType)).Description("Asset info");
-         
-            Field<IntGraphType>(
-              "NumberOfFibers",
-              resolve: context =>
-              {
-                  return context.Source.Children.Count();
-              });
-
-            /*
-            Field<RouteNodeType>(
-            "FromRouteNode",
-            resolve: context =>
-            {
-                var woi = routeNetworkQueryService.GetWalkOfInterestInfo(context.Source.GetRoot().WalkOfInterestId);
-                return routeNetworkQueryService.GetRouteNodeInfo(woi.StartNodeId);
-            });
-
-            Field<RouteNodeType>(
-            "ToRouteNode",
-            resolve: context =>
-            {
-                var woi = routeNetworkQueryService.GetWalkOfInterestInfo(context.Source.GetRoot().WalkOfInterestId);
-                return routeNetworkQueryService.GetRouteNodeInfo(woi.EndNodeId);
-            });
-            */
 
             Field<ListGraphType<RouteSegmentType>>(
             "AllRouteSegments",

@@ -23,7 +23,7 @@ namespace ConduitNetwork.Events.Model
         public ConduitColorEnum ColorMarking { get; set; }
         public int SequenceNumber { get; set; }
         public AssetInfo AssetInfo { get; set; }
-        public List<ILineSegment> Segments { get; set; }
+        public List<ISegment> Segments { get; set; }
 
 
         #region Properties that should not be persisted

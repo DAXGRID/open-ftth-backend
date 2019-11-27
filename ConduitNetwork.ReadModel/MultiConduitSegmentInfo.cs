@@ -8,7 +8,7 @@ using System.Text;
 
 namespace ConduitNetwork.ReadModel
 {
-    public class MultiConduitSegmentInfo : ConduitSegmentInfo, ILineSegment
+    public class MultiConduitSegmentInfo : ConduitSegmentInfo, ISegment
     {
     }
 }

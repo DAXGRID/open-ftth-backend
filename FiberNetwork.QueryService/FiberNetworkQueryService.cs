@@ -100,9 +100,9 @@ namespace FiberNetwork.QueryService
         }
         */
 
-        public List<LineSegmentWithRouteNodeRelationInfo> GetLineSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string lineId = null)
+        public List<SegmentWithRouteNodeRelationInfo> GetLineSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string lineId = null)
         {
-            List<LineSegmentWithRouteNodeRelationInfo> result = new List<LineSegmentWithRouteNodeRelationInfo>();
+            List<SegmentWithRouteNodeRelationInfo> result = new List<SegmentWithRouteNodeRelationInfo>();
 
             var fiberSegments = _pointOfInterestIndex.GetConduitSegmentsThatEndsInRouteNode(pointOfInterestId);
 
@@ -120,10 +120,10 @@ namespace FiberNetwork.QueryService
                 FiberRelationInfo relInfo = new FiberRelationInfo();
 
                 if (fiberSegment.ToRouteNodeId == pointOfInterestId)
-                    result.Add(new LineSegmentWithRouteNodeRelationInfo() { Segment = fiberSegment, RelationType = LineSegmentRelationTypeEnum.Incomming  });
+                    result.Add(new SegmentWithRouteNodeRelationInfo() { Segment = fiberSegment, RelationType = SegmentRelationTypeEnum.Incomming  });
 
                 if (fiberSegment.FromRouteNodeId == pointOfInterestId)
-                    result.Add(new LineSegmentWithRouteNodeRelationInfo() { Segment = fiberSegment, RelationType = LineSegmentRelationTypeEnum.Outgoing });
+                    result.Add(new SegmentWithRouteNodeRelationInfo() { Segment = fiberSegment, RelationType = SegmentRelationTypeEnum.Outgoing });
 
             }
 
@@ -140,16 +140,16 @@ namespace FiberNetwork.QueryService
                         continue;
                 }
 
-                result.Add(new LineSegmentWithRouteNodeRelationInfo() { Segment = fiberSegment, RelationType = LineSegmentRelationTypeEnum.PassThrough });
+                result.Add(new SegmentWithRouteNodeRelationInfo() { Segment = fiberSegment, RelationType = SegmentRelationTypeEnum.PassThrough });
             }
 
             return result;
         }
 
 
-        public List<ILineSegmentRelation> GetLineSegmentsRelatedToRouteSegment(Guid routeSegmentId, string lineId = null)
+        public List<ISegmentRelation> GetLineSegmentsRelatedToRouteSegment(Guid routeSegmentId, string lineId = null)
         {
-            List<ILineSegmentRelation> result = new List<ILineSegmentRelation>();
+            List<ISegmentRelation> result = new List<ISegmentRelation>();
 
             var fiberSegments = _pointOfInterestIndex.GetConduitSegmentsThatPassedByRouteSegment(routeSegmentId);
 
@@ -164,7 +164,7 @@ namespace FiberNetwork.QueryService
                         continue;
                 }
 
-                result.Add(new FiberRelationInfo() { Segment = conduitSegment, Type = LineSegmentRelationTypeEnum.PassThrough });
+                result.Add(new FiberRelationInfo() { Segment = conduitSegment, Type = SegmentRelationTypeEnum.PassThrough });
             }
 
             return result;

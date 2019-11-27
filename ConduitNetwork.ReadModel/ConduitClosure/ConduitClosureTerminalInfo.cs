@@ -20,6 +20,6 @@ namespace ConduitNetwork.ReadModel.ConduitClosure
         public int ConnectedToTerminal { get; set; }
 
         [IgnoreDataMember]
-        public ILineSegment LineSegment { get; set; }
+        public ISegment LineSegment { get; set; }
     }
 }

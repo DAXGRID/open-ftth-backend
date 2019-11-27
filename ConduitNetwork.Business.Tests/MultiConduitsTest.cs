@@ -518,20 +518,20 @@ namespace ConduitNetwork.Business.Tests
 
             // In cabinet 1, expect all segments to be outgoing
             Assert.Equal(11, conduitNetworkQueryService.GetConduitSegmentsRelatedToPointOfInterest(testCabinet1).Count());
-            Assert.Equal(11, conduitNetworkQueryService.GetConduitSegmentsRelatedToPointOfInterest(testCabinet1).Count(r => r.RelationType == LineSegmentRelationTypeEnum.Outgoing));
+            Assert.Equal(11, conduitNetworkQueryService.GetConduitSegmentsRelatedToPointOfInterest(testCabinet1).Count(r => r.RelationType == SegmentRelationTypeEnum.Outgoing));
 
             // In junction 1, axpect all segments be pass through
             Assert.Equal(11, conduitNetworkQueryService.GetConduitSegmentsRelatedToPointOfInterest(testJunction1).Count());
-            Assert.Equal(11, conduitNetworkQueryService.GetConduitSegmentsRelatedToPointOfInterest(testJunction1).Count(r => r.RelationType == LineSegmentRelationTypeEnum.PassThrough));
+            Assert.Equal(11, conduitNetworkQueryService.GetConduitSegmentsRelatedToPointOfInterest(testJunction1).Count(r => r.RelationType == SegmentRelationTypeEnum.PassThrough));
 
             // In junction 2, expect 9 segments to be pass through
-            Assert.Equal(9, conduitNetworkQueryService.GetConduitSegmentsRelatedToPointOfInterest(testJunction2).Count(r => r.RelationType == LineSegmentRelationTypeEnum.PassThrough));
+            Assert.Equal(9, conduitNetworkQueryService.GetConduitSegmentsRelatedToPointOfInterest(testJunction2).Count(r => r.RelationType == SegmentRelationTypeEnum.PassThrough));
 
             // In junction 2, expect 2 segments to be incomming
-            Assert.Equal(2, conduitNetworkQueryService.GetConduitSegmentsRelatedToPointOfInterest(testJunction2).Count(r => r.RelationType == LineSegmentRelationTypeEnum.Incomming));
+            Assert.Equal(2, conduitNetworkQueryService.GetConduitSegmentsRelatedToPointOfInterest(testJunction2).Count(r => r.RelationType == SegmentRelationTypeEnum.Incomming));
 
             // In sdu 2, expect 12 segments to be incomming (because both multi duct and single duct end there)
-            Assert.Equal(12, conduitNetworkQueryService.GetConduitSegmentsRelatedToPointOfInterest(testSdu2).Count(r => r.RelationType == LineSegmentRelationTypeEnum.Incomming));
+            Assert.Equal(12, conduitNetworkQueryService.GetConduitSegmentsRelatedToPointOfInterest(testSdu2).Count(r => r.RelationType == SegmentRelationTypeEnum.Incomming));
 
             // In sdu 1, expect none segments
             Assert.Empty(conduitNetworkQueryService.GetConduitSegmentsRelatedToPointOfInterest(testSdu1));

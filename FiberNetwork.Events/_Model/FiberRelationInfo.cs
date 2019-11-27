@@ -6,11 +6,11 @@ using System.Text;
 
 namespace FiberNetwork.Events.Model
 {
-    public class FiberRelationInfo : ILineSegmentRelation
+    public class FiberRelationInfo : ISegmentRelation
     {
-        public LineSegmentRelationTypeEnum Type { get; set; }
+        public SegmentRelationTypeEnum Type { get; set; }
 
-        public ILineSegment Segment { get; set; }
+        public ISegment Segment { get; set; }
 
         public override string ToString()
         {

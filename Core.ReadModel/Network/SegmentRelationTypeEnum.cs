@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Core.ReadModel.Network
 {
-    public enum LineSegmentRelationTypeEnum
+    public enum SegmentRelationTypeEnum
     {
         PassThrough = 0,
         PassBy = 1,

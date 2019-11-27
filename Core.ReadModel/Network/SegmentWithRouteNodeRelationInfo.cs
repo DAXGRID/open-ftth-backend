@@ -4,11 +4,11 @@ using System.Text;
 
 namespace Core.ReadModel.Network
 {
-    public class LineSegmentWithRouteNodeRelationInfo
+    public class SegmentWithRouteNodeRelationInfo
     {
         public Guid RouteNodeId { get; set; }
-        public ILineSegment Segment { get; set; }
-        public LineSegmentRelationTypeEnum RelationType { get; set; }
+        public ISegment Segment { get; set; }
+        public SegmentRelationTypeEnum RelationType { get; set; }
 
         public override string ToString()
         {

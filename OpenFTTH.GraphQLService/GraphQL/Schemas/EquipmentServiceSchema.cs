@@ -18,11 +18,15 @@ namespace EquipmentService.GraphQL.Schemas
             Query = resolver.Resolve<EquipmentServiceQuery>();
             Mutation = resolver.Resolve<Mutations>();
 
-            RegisterType<ConduitSegmentType>();
-      
+            //RegisterType<ConduitSegmentType>();
+
+            RegisterType<Conduit>();
             RegisterType<ConduitSegment>();
+
+            RegisterType<FiberCable>();
             RegisterType<FiberCableSegment>();
-        
+            RegisterType<Fiber>();
+
         }
     }
 }

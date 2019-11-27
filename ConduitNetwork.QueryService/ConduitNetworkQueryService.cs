@@ -140,9 +140,9 @@ namespace ConduitNetwork.QueryService
             throw new KeyNotFoundException("Cannot find any single conduit segment conduit info with id: " + id);
         }
 
-        public List<LineSegmentWithRouteNodeRelationInfo> GetConduitSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string conduitId = null)
+        public List<SegmentWithRouteNodeRelationInfo> GetConduitSegmentsRelatedToPointOfInterest(Guid pointOfInterestId, string conduitId = null)
         {
-            List<LineSegmentWithRouteNodeRelationInfo> result = new List<LineSegmentWithRouteNodeRelationInfo>();
+            List<SegmentWithRouteNodeRelationInfo> result = new List<SegmentWithRouteNodeRelationInfo>();
 
             var conduitSegments = _pointOfInterestIndex.GetConduitSegmentsThatEndsInRouteNode(pointOfInterestId);
 
@@ -159,7 +159,7 @@ namespace ConduitNetwork.QueryService
 
                 ConduitRelationInfo relInfo = new ConduitRelationInfo();
 
-                result.Add(new LineSegmentWithRouteNodeRelationInfo() { RouteNodeId = pointOfInterestId, Segment = conduitSegment, RelationType = conduitSegment.RelationType(pointOfInterestId) });
+                result.Add(new SegmentWithRouteNodeRelationInfo() { RouteNodeId = pointOfInterestId, Segment = conduitSegment, RelationType = conduitSegment.RelationType(pointOfInterestId) });
             }
 
             var conduitSegmentPassBy = _pointOfInterestIndex.GetConduitSegmentsThatPassedByRouteNode(pointOfInterestId);
@@ -175,7 +175,7 @@ namespace ConduitNetwork.QueryService
                         continue;
                 }
 
-                result.Add(new LineSegmentWithRouteNodeRelationInfo() { RouteNodeId = pointOfInterestId, Segment = conduitSegment, RelationType = LineSegmentRelationTypeEnum.PassThrough });
+                result.Add(new SegmentWithRouteNodeRelationInfo() { RouteNodeId = pointOfInterestId, Segment = conduitSegment, RelationType = SegmentRelationTypeEnum.PassThrough });
             }
 
             return result;
@@ -208,7 +208,7 @@ namespace ConduitNetwork.QueryService
 
 
         #region utility functions that can be used to create derived info objects
-        public ISegmentConnectivity CreateConduitLineInfoFromConduitSegment(ConduitSegmentInfo sourceConduitSegment)
+        public ISegmentTraversal CreateConduitLineInfoFromConduitSegment(ConduitSegmentInfo sourceConduitSegment)
         {
             var result = new ConduitConnectivityInfo();
 
@@ -229,7 +229,7 @@ namespace ConduitNetwork.QueryService
             var traceResult = sourceConduitSegment.UndirectionalDFS<ConduitSegmentJunctionInfo, ConduitSegmentInfo>();
 
             // Pull out the conduit segments from the trace result
-            var conduitSegments = traceResult.Where(t => t is ConduitSegmentInfo).Select(t => t as ILineSegment);
+            var conduitSegments = traceResult.Where(t => t is ConduitSegmentInfo).Select(t => t as ISegment);
 
             foreach (var segment in conduitSegments)
             {
@@ -283,7 +283,7 @@ namespace ConduitNetwork.QueryService
             foreach (var nodeId in allNodeIds)
                 result.AllRouteNodes.Add(routeNetworkQueryService.GetRouteNodeInfo(nodeId));
 
-            result.AllRouteSegments = new List<ILineSegment>();
+            result.AllRouteSegments = new List<ISegment>();
             foreach (var segmentId in allSegmentIds)
                 result.AllRouteSegments.Add(routeNetworkQueryService.GetRouteSegmentInfo(segmentId));
 
@@ -395,7 +395,7 @@ namespace ConduitNetwork.QueryService
                 {
                     // Create parents list if null
                     if (segment.Parents == null)
-                        segment.Parents = new List<ILineSegment>();
+                        segment.Parents = new List<ISegment>();
 
                     var innerConduitSegmentWalkOfInterest = woi.SubWalk2(segment.FromRouteNodeId, segment.ToRouteNodeId);
 
@@ -406,7 +406,7 @@ namespace ConduitNetwork.QueryService
                     {
                         // Create childre list if null
                         if (multiConduitSegment.Children == null)
-                            multiConduitSegment.Children = new List<ILineSegment>();
+                            multiConduitSegment.Children = new List<ISegment>();
 
                         var multiConduitSegmentWalkOfInterest = woi.SubWalk2(multiConduitSegment.FromRouteNodeId, multiConduitSegment.ToRouteNodeId);
 

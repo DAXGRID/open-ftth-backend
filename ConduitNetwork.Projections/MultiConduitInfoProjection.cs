@@ -50,7 +50,7 @@ namespace ConduitNetwork.Projections
             segment.FromRouteNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(multiConduitInfo.WalkOfInterestId).StartNodeId;
             segment.ToRouteNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(multiConduitInfo.WalkOfInterestId).EndNodeId;
 
-            multiConduitInfo.Segments = new List<ILineSegment>() { segment };
+            multiConduitInfo.Segments = new List<ISegment>() { segment };
 
             conduitNetworkQueryService.UpdateMultiConduitInfo(multiConduitInfo);
         }

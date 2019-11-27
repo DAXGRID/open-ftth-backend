@@ -264,7 +264,7 @@ namespace ConduitNetwork.Business.Aggregates
             if (endKind == ConduitEndKindEnum.Outgoing && !multiConduitInfo.Segments.Exists(s => s.FromRouteNodeId == pointOfInterestId))
                 throw new ArgumentException("No segments are outgoing from point of interest: " + pointOfInterestId + " in multi conduit: " + Id);
 
-            ILineSegment connectingSegment = null;
+            ISegment connectingSegment = null;
 
             // Check incomming inner conduit
             if (endKind == ConduitEndKindEnum.Incomming)

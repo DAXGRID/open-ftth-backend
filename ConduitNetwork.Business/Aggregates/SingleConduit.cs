@@ -135,7 +135,7 @@ namespace ConduitNetwork.Business.Aggregates
             if (!walkOfInterest.AllNodeIds.Contains(pointOfInterestId))
                 throw new ArgumentException("The point of interest: " + pointOfInterestId + " was not found in walk of interest:" + singleConduitInfo.WalkOfInterestId + " of single conduit: " + Id);
 
-            ILineSegment connectingSegment = null;
+            ISegment connectingSegment = null;
 
             // Check incomming
             if (endKind == ConduitEndKindEnum.Incomming)

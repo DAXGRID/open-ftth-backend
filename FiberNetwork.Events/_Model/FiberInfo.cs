@@ -11,7 +11,7 @@ namespace FiberNetwork.Events.Model
         public Guid WalkOfInterestId { get; set; }
         public string Name { get; set; }
         public int SequenceNumber { get; set; }
-        public List<ILineSegment> Segments { get; set; }
+        public List<ISegment> Segments { get; set; }
         public List<ILine> Children { get; set; }
 
         #region Properties that should not be persisted

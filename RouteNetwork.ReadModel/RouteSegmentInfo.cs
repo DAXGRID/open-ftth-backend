@@ -8,7 +8,7 @@ using System.Text;
 
 namespace RouteNetwork.ReadModel
 {
-    public sealed class RouteSegmentInfo : GraphEdge, IRouteElementInfo, ILineSegment, INetworkElement
+    public sealed class RouteSegmentInfo : GraphEdge, IRouteElementInfo, ISegment, INetworkElement
     {
         public Guid Id { get; set; }
         public Guid FromRouteNodeId { get; set; }
@@ -25,14 +25,14 @@ namespace RouteNetwork.ReadModel
             }
         }
 
-        public LineSegmentRelationTypeEnum RelationType(Guid pointOfInterestId)
+        public SegmentRelationTypeEnum RelationType(Guid pointOfInterestId)
         {
             if (FromNodeId == pointOfInterestId)
-                return LineSegmentRelationTypeEnum.Incomming;
+                return SegmentRelationTypeEnum.Incomming;
             else if (ToNodeId == pointOfInterestId)
-                return LineSegmentRelationTypeEnum.Outgoing;
+                return SegmentRelationTypeEnum.Outgoing;
             else
-                return LineSegmentRelationTypeEnum.NotRelated;
+                return SegmentRelationTypeEnum.NotRelated;
         }
 
         [IgnoreDataMember]
@@ -114,10 +114,10 @@ namespace RouteNetwork.ReadModel
         public ILine Line { get => null; set { } }
 
         [IgnoreDataMember]
-        public List<ILineSegment> Parents { get => null; set { } }
+        public List<ISegment> Parents { get => null; set { } }
 
         [IgnoreDataMember]
-        public List<ILineSegment> Children { get => null; set { } }
+        public List<ISegment> Children { get => null; set { } }
 
         [IgnoreDataMember]
         public int SequenceNumber { get => 1; set { } }

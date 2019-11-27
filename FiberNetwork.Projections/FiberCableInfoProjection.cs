@@ -35,7 +35,7 @@ namespace FiberNetwork.Projections
             segment.FromRouteNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(fiberCableInfo.WalkOfInterestId).StartNodeId;
             segment.ToRouteNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(fiberCableInfo.WalkOfInterestId).EndNodeId;
 
-            fiberCableInfo.Segments = new List<ILineSegment>() { segment };
+            fiberCableInfo.Segments = new List<ISegment>() { segment };
 
             // Create all the children
             fiberCableInfo.Children = new List<ILine>();
@@ -60,7 +60,7 @@ namespace FiberNetwork.Projections
                     SequenceNumber = 1
                 };
 
-                fiber.Segments = new List<ILineSegment>() { fiberSegment };
+                fiber.Segments = new List<ISegment>() { fiberSegment };
                 fiberCableInfo.Children.Add(fiber);
             }
                 

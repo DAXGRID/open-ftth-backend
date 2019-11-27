@@ -14,6 +14,8 @@ namespace EquipmentService.GraphQL.Types
     {
         public NodeInterface(IDataLoaderContextAccessor dataLoader)
         {
+            Name = "INode";
+
             Description = "Interface for accessing general node information.";
 
             Field(x => x.Id, type: typeof(IdGraphType)).Description("Guid property");

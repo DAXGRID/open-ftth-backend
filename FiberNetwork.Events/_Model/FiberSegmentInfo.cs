@@ -7,7 +7,7 @@ using System.Text;
 
 namespace FiberNetwork.Events.Model
 {
-    public class FiberSegmentInfo : GraphEdge, ILineSegment
+    public class FiberSegmentInfo : GraphEdge, ISegment
     {
         public Guid LineId { get; set; }
         public int SequenceNumber { get; set; }
@@ -16,16 +16,16 @@ namespace FiberNetwork.Events.Model
         public Guid FromNodeId { get; set; }
         public Guid ToNodeId { get; set; }
 
-        public List<ILineSegment> Children { get; set; }
+        public List<ISegment> Children { get; set; }
 
-        public LineSegmentRelationTypeEnum RelationType(Guid pointOfInterestId)
+        public SegmentRelationTypeEnum RelationType(Guid pointOfInterestId)
         {
             if (FromNodeId == pointOfInterestId)
-                return LineSegmentRelationTypeEnum.Incomming;
+                return SegmentRelationTypeEnum.Incomming;
             else if (ToNodeId == pointOfInterestId)
-                return LineSegmentRelationTypeEnum.Outgoing;
+                return SegmentRelationTypeEnum.Outgoing;
             else
-                return LineSegmentRelationTypeEnum.PassThrough;
+                return SegmentRelationTypeEnum.PassThrough;
         }
 
         #region Properties that should not be persisted
@@ -41,7 +41,7 @@ namespace FiberNetwork.Events.Model
         }
 
         [IgnoreDataMember]
-        public List<ILineSegment> Parents { get; set; }
+        public List<ISegment> Parents { get; set; }
                
 
         [IgnoreDataMember]

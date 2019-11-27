@@ -108,6 +108,7 @@ namespace Demo.GraphQL.Tests
                             conduit {
                                 kind
                                 name
+                                children { kind }
                             }
 
                             conduitSegment {

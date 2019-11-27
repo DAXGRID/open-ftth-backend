@@ -171,7 +171,7 @@ namespace EquipmentService.GraphQL.Types
 
             Field<RouteNodeGraphFunctions>("graph", resolve: context => context.Source);
 
-            Field<ListGraphType<LineSegmentInterface>>(
+            Field<ListGraphType<SegmentInterface>>(
               "relatedSegments",
               arguments: new QueryArguments(
                    new QueryArgument<StringGraphType> { Name = "lineId", Description = "Id of specific line og line segment to fetch" }
@@ -180,9 +180,9 @@ namespace EquipmentService.GraphQL.Types
               {
                   httpContextAccessor.HttpContext.Items.Add("routeNodeId", context.Source.Id);
 
-                  List<ILineSegment> result = new List<ILineSegment>();
+                  List<ISegment> result = new List<ISegment>();
 
-                  var allSegments = new List<LineSegmentWithRouteNodeRelationInfo>();
+                  var allSegments = new List<SegmentWithRouteNodeRelationInfo>();
 
                   // Add multi conduits and single conduits segments
                   allSegments.AddRange(conduitNetworkEqueryService.GetConduitSegmentsRelatedToPointOfInterest(context.Source.Id).Where(c => c.Segment.Line.LineKind == LineKindEnum.MultiConduit || c.Segment.Line.LineKind == LineKindEnum.SingleConduit));
@@ -220,15 +220,15 @@ namespace EquipmentService.GraphQL.Types
               });
         }
 
-        private ConduitRelationTypeEnum Convert(LineSegmentRelationTypeEnum input)
+        private ConduitRelationTypeEnum Convert(SegmentRelationTypeEnum input)
         {
-            if (input == LineSegmentRelationTypeEnum.Incomming)
+            if (input == SegmentRelationTypeEnum.Incomming)
                 return ConduitRelationTypeEnum.Incomming;
-            else if (input == LineSegmentRelationTypeEnum.Outgoing)
+            else if (input == SegmentRelationTypeEnum.Outgoing)
                 return ConduitRelationTypeEnum.Outgoing;
-            else if (input == LineSegmentRelationTypeEnum.PassBy)
+            else if (input == SegmentRelationTypeEnum.PassBy)
                 return ConduitRelationTypeEnum.PassBy;
-            else if (input == LineSegmentRelationTypeEnum.PassThrough)
+            else if (input == SegmentRelationTypeEnum.PassThrough)
                 return ConduitRelationTypeEnum.PassThrough;
             else
                 return ConduitRelationTypeEnum.Incomming;

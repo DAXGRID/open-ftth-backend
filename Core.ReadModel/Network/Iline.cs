@@ -36,7 +36,7 @@ namespace Core.ReadModel.Network
         /// <summary>
         /// The line segments (occuring when chopped it up)
         /// </summary>
-        List<ILineSegment> Segments { get; set; }
+        List<ISegment> Segments { get; set; }
 
         /// <summary>
         /// Position within parent line

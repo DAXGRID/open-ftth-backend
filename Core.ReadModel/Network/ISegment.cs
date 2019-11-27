@@ -5,12 +5,12 @@ using System.Text;
 
 namespace Core.ReadModel.Network
 {
-    public interface ILineSegment : INetworkElement
+    public interface ISegment : INetworkElement
     {
-        LineSegmentRelationTypeEnum RelationType(Guid pointOfInterestId);
+        SegmentRelationTypeEnum RelationType(Guid pointOfInterestId);
         ILine Line { get; set; }
-        List<ILineSegment> Parents { get; set; }
-        List<ILineSegment> Children { get; set; }
+        List<ISegment> Parents { get; set; }
+        List<ISegment> Children { get; set; }
         Guid FromRouteNodeId { get; set; }
         Guid ToRouteNodeId { get; set; }
         INode FromRouteNode { get; set; }

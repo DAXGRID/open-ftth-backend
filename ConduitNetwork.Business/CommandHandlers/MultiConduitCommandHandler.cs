@@ -135,9 +135,9 @@ namespace ConduitNetwork.Business.CommandHandlers
             // Find from direction
             ConduitEndKindEnum fromEndKind = ConduitEndKindEnum.Incomming;
 
-            if (fromConduitSegmentRel.Segment.RelationType(request.PointOfInterestId) == LineSegmentRelationTypeEnum.Incomming)
+            if (fromConduitSegmentRel.Segment.RelationType(request.PointOfInterestId) == SegmentRelationTypeEnum.Incomming)
                 fromEndKind = ConduitEndKindEnum.Incomming;
-            else if (fromConduitSegmentRel.Segment.RelationType(request.PointOfInterestId) == LineSegmentRelationTypeEnum.Outgoing)
+            else if (fromConduitSegmentRel.Segment.RelationType(request.PointOfInterestId) == SegmentRelationTypeEnum.Outgoing)
                 fromEndKind = ConduitEndKindEnum.Outgoing;
             else
                throw new ArgumentException("From conduit segment: " + request.FromConduitSegmentId + " is " + fromConduitSegmentRel.Segment.RelationType(request.PointOfInterestId).ToString() + ". Must be incomming or outgoing (cut in node) to be connected");
@@ -145,9 +145,9 @@ namespace ConduitNetwork.Business.CommandHandlers
             // Find to direction
             ConduitEndKindEnum toEndKind = ConduitEndKindEnum.Incomming;
 
-            if (toConduitSegmentRel.Segment.RelationType(request.PointOfInterestId) == LineSegmentRelationTypeEnum.Incomming)
+            if (toConduitSegmentRel.Segment.RelationType(request.PointOfInterestId) == SegmentRelationTypeEnum.Incomming)
                 toEndKind = ConduitEndKindEnum.Incomming;
-            else if (toConduitSegmentRel.Segment.RelationType(request.PointOfInterestId) == LineSegmentRelationTypeEnum.Outgoing)
+            else if (toConduitSegmentRel.Segment.RelationType(request.PointOfInterestId) == SegmentRelationTypeEnum.Outgoing)
                 toEndKind = ConduitEndKindEnum.Outgoing;
             else
                 throw new ArgumentException("To conduit segment: " + request.ToConduitSegmentId + " is " + toConduitSegmentRel.Segment.RelationType(request.PointOfInterestId).ToString() + ". Must be incomming or outgoing (cut in node) to be connected");

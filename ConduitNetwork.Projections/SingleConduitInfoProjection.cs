@@ -92,7 +92,7 @@ namespace ConduitNetwork.Projections
             segment.FromRouteNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(singleConduitInfo.WalkOfInterestId).StartNodeId;
             segment.ToRouteNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(singleConduitInfo.WalkOfInterestId).EndNodeId;
 
-            singleConduitInfo.Segments = new List<ILineSegment>() { segment };
+            singleConduitInfo.Segments = new List<ISegment>() { segment };
 
             conduitNetworkQueryService.UpdateSingleConduitInfo(singleConduitInfo);
         }
@@ -147,7 +147,7 @@ namespace ConduitNetwork.Projections
             segment.FromRouteNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(multiConduitInfo.WalkOfInterestId).StartNodeId;
             segment.ToRouteNodeId = routeNetworkQueryService.GetWalkOfInterestInfo(multiConduitInfo.WalkOfInterestId).EndNodeId;
 
-            singleConduitInfo.Segments = new List<ILineSegment>() { segment };
+            singleConduitInfo.Segments = new List<ISegment>() { segment };
 
 
             conduitNetworkQueryService.UpdateSingleConduitInfo(singleConduitInfo);

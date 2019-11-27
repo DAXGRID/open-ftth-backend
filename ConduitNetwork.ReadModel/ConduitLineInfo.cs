@@ -7,16 +7,16 @@ using System.Text;
 
 namespace ConduitNetwork.ReadModel
 {
-    public class ConduitConnectivityInfo : ISegmentConnectivity
+    public class ConduitConnectivityInfo : ISegmentTraversal
     {
 
         public INode StartRouteNode { get; set; }
-        public ILineSegment StartRouteSegment { get; set; }
+        public ISegment StartRouteSegment { get; set; }
         public INode EndRouteNode { get; set; }
-        public ILineSegment EndRouteSegment { get; set; }
+        public ISegment EndRouteSegment { get; set; }
         public List<INode> AllRouteNodes { get; set; }
-        public List<ILineSegment> AllRouteSegments { get; set; }
-        public List<ILineSegment> AllSegments { get; set; }
+        public List<ISegment> AllRouteSegments { get; set; }
+        public List<ISegment> AllSegments { get; set; }
 
         /*
         public RouteNodeInfo StartRouteNode { get; set; }

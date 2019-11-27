@@ -7,16 +7,16 @@ using System.Text;
 
 namespace ConduitNetwork.Events.Model
 {
-    public class ConduitSegmentInfo : GraphEdge, ILineSegment
+    public class ConduitSegmentInfo : GraphEdge, ISegment
     {
-        public LineSegmentRelationTypeEnum RelationType(Guid pointOfInterestId)
+        public SegmentRelationTypeEnum RelationType(Guid pointOfInterestId)
         {
             if (ToRouteNodeId == pointOfInterestId)
-                return LineSegmentRelationTypeEnum.Incomming;
+                return SegmentRelationTypeEnum.Incomming;
             else if (FromRouteNodeId == pointOfInterestId)
-                return LineSegmentRelationTypeEnum.Outgoing;
+                return SegmentRelationTypeEnum.Outgoing;
             else
-                return LineSegmentRelationTypeEnum.PassThrough;
+                return SegmentRelationTypeEnum.PassThrough;
         }
 
         public Guid ConduitId { get; set; }
@@ -40,10 +40,10 @@ namespace ConduitNetwork.Events.Model
         }
 
         [IgnoreDataMember]
-        public List<ILineSegment> Parents { get; set; }
+        public List<ISegment> Parents { get; set; }
 
         [IgnoreDataMember]
-        public List<ILineSegment> Children { get; set; }
+        public List<ISegment> Children { get; set; }
 
         [IgnoreDataMember]
         public INode FromRouteNode { get; set; }

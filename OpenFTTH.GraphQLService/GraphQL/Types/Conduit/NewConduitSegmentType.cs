@@ -28,7 +28,7 @@ namespace EquipmentService.GraphQL.Types
 
             // Interface fields
 
-            Interface<LineSegmentInterface>();
+            Interface<SegmentInterface>();
 
             Field(x => x.Id, type: typeof(IdGraphType)).Description("Guid property");
 
@@ -44,9 +44,9 @@ namespace EquipmentService.GraphQL.Types
 
             Field(x => x.Line, type: typeof(LineInterface)).Description("Line that this segment belongs to.");
 
-            Field(x => x.Parents, type: typeof(ListGraphType<LineSegmentInterface>)).Description("The parent segments of this segment, if this segment is contained within another segment network - i.e. a fiber cable segment running within one of more conduit segments.");
+            Field(x => x.Parents, type: typeof(ListGraphType<SegmentInterface>)).Description("The parent segments of this segment, if this segment is contained within another segment network - i.e. a fiber cable segment running within one of more conduit segments.");
 
-            Field(x => x.Children, type: typeof(ListGraphType<LineSegmentInterface>)).Description("The child segments of this segment. As an example, if this is multi conduit, then child segments might be fiber cable segments or inner conduit segments running inside the multi conduit.");
+            Field(x => x.Children, type: typeof(ListGraphType<SegmentInterface>)).Description("The child segments of this segment. As an example, if this is multi conduit, then child segments might be fiber cable segments or inner conduit segments running inside the multi conduit.");
 
             // Additional fields
 

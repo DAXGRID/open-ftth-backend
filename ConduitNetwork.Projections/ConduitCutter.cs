@@ -15,7 +15,7 @@ namespace ConduitNetwork.Projections
         {
             ConduitSegmentInfo newSegment = null;
 
-            List<ILineSegment> newSegmentList = new List<ILineSegment>();
+            List<ISegment> newSegmentList = new List<ISegment>();
 
             int newSequenceNumber = 1;
 

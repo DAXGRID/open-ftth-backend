@@ -12,11 +12,11 @@ namespace FiberNetwork.QueryService
     {
         private IRouteNetworkState routeNetworkQueryService;
 
-        private Dictionary<Guid, List<ILineSegment>> _fiberSegmentEndsByPointOfInterestId = new Dictionary<Guid, List<ILineSegment>>();
+        private Dictionary<Guid, List<ISegment>> _fiberSegmentEndsByPointOfInterestId = new Dictionary<Guid, List<ISegment>>();
 
-        private Dictionary<Guid, List<ILineSegment>> _fiberSegmentPassByPointOfInterestId = new Dictionary<Guid, List<ILineSegment>>();
+        private Dictionary<Guid, List<ISegment>> _fiberSegmentPassByPointOfInterestId = new Dictionary<Guid, List<ISegment>>();
 
-        private Dictionary<Guid, List<ILineSegment>> _fiberSegmentPassByRouteSegmenttId = new Dictionary<Guid, List<ILineSegment>>();
+        private Dictionary<Guid, List<ISegment>> _fiberSegmentPassByRouteSegmenttId = new Dictionary<Guid, List<ISegment>>();
 
         public PointOfInterestIndex(IRouteNetworkState routeNetworkQueryService)
         {
@@ -70,12 +70,12 @@ namespace FiberNetwork.QueryService
             foreach (var segment in newConduitInfo.Segments)
             {
                 if (!_fiberSegmentEndsByPointOfInterestId.ContainsKey(segment.FromRouteNodeId))
-                    _fiberSegmentEndsByPointOfInterestId[segment.FromRouteNodeId] = new List<ILineSegment>();
+                    _fiberSegmentEndsByPointOfInterestId[segment.FromRouteNodeId] = new List<ISegment>();
 
                 _fiberSegmentEndsByPointOfInterestId[segment.FromRouteNodeId].Add(segment);
 
                 if (!_fiberSegmentEndsByPointOfInterestId.ContainsKey(segment.ToRouteNodeId))
-                    _fiberSegmentEndsByPointOfInterestId[segment.ToRouteNodeId] = new List<ILineSegment>();
+                    _fiberSegmentEndsByPointOfInterestId[segment.ToRouteNodeId] = new List<ISegment>();
 
                 _fiberSegmentEndsByPointOfInterestId[segment.ToRouteNodeId].Add(segment);
             }
@@ -105,7 +105,7 @@ namespace FiberNetwork.QueryService
                 foreach (var passThroughNode in passThrougNodes)
                 {
                     if (!_fiberSegmentPassByPointOfInterestId.ContainsKey(passThroughNode))
-                        _fiberSegmentPassByPointOfInterestId[passThroughNode] = new List<ILineSegment>();
+                        _fiberSegmentPassByPointOfInterestId[passThroughNode] = new List<ISegment>();
 
                     _fiberSegmentPassByPointOfInterestId[passThroughNode].Add(segment);
                 }
@@ -136,7 +136,7 @@ namespace FiberNetwork.QueryService
                 foreach (var passThroughRouteSegment in passThroughRouteSegments)
                 {
                     if (!_fiberSegmentPassByRouteSegmenttId.ContainsKey(passThroughRouteSegment))
-                        _fiberSegmentPassByRouteSegmenttId[passThroughRouteSegment] = new List<ILineSegment>();
+                        _fiberSegmentPassByRouteSegmenttId[passThroughRouteSegment] = new List<ISegment>();
 
                     _fiberSegmentPassByRouteSegmenttId[passThroughRouteSegment].Add(segment);
                 }

@@ -16,11 +16,11 @@ namespace ConduitNetwork.QueryService
 
         private Dictionary<Guid, List<SingleConduitInfo>> _singleConduitByPointOfInterestId = new Dictionary<Guid, List<SingleConduitInfo>>();
 
-        private Dictionary<Guid, List<ILineSegment>> _conduitSegmentEndsByPointOfInterestId = new Dictionary<Guid, List<ILineSegment>>();
+        private Dictionary<Guid, List<ISegment>> _conduitSegmentEndsByPointOfInterestId = new Dictionary<Guid, List<ISegment>>();
 
-        private Dictionary<Guid, List<ILineSegment>> _conduitSegmentPassByPointOfInterestId = new Dictionary<Guid, List<ILineSegment>>();
+        private Dictionary<Guid, List<ISegment>> _conduitSegmentPassByPointOfInterestId = new Dictionary<Guid, List<ISegment>>();
 
-        private Dictionary<Guid, List<ILineSegment>> _conduitSegmentPassByRouteSegmenttId = new Dictionary<Guid, List<ILineSegment>>();
+        private Dictionary<Guid, List<ISegment>> _conduitSegmentPassByRouteSegmenttId = new Dictionary<Guid, List<ISegment>>();
 
         public PointOfInterestIndex(IRouteNetworkState routeNetworkQueryService)
         {
@@ -74,12 +74,12 @@ namespace ConduitNetwork.QueryService
             foreach (var segment in newConduitInfo.Segments)
             {
                 if (!_conduitSegmentEndsByPointOfInterestId.ContainsKey(segment.FromRouteNodeId))
-                    _conduitSegmentEndsByPointOfInterestId[segment.FromRouteNodeId] = new List<ILineSegment>();
+                    _conduitSegmentEndsByPointOfInterestId[segment.FromRouteNodeId] = new List<ISegment>();
 
                 _conduitSegmentEndsByPointOfInterestId[segment.FromRouteNodeId].Add(segment);
 
                 if (!_conduitSegmentEndsByPointOfInterestId.ContainsKey(segment.ToRouteNodeId))
-                    _conduitSegmentEndsByPointOfInterestId[segment.ToRouteNodeId] = new List<ILineSegment>();
+                    _conduitSegmentEndsByPointOfInterestId[segment.ToRouteNodeId] = new List<ISegment>();
 
                 _conduitSegmentEndsByPointOfInterestId[segment.ToRouteNodeId].Add(segment);
             }
@@ -109,7 +109,7 @@ namespace ConduitNetwork.QueryService
                 foreach (var passThroughNode in passThrougNodes)
                 {
                     if (!_conduitSegmentPassByPointOfInterestId.ContainsKey(passThroughNode))
-                        _conduitSegmentPassByPointOfInterestId[passThroughNode] = new List<ILineSegment>();
+                        _conduitSegmentPassByPointOfInterestId[passThroughNode] = new List<ISegment>();
 
                     _conduitSegmentPassByPointOfInterestId[passThroughNode].Add(segment);
                 }
@@ -140,7 +140,7 @@ namespace ConduitNetwork.QueryService
                 foreach (var passThroughRouteSegment in passThroughRouteSegments)
                 {
                     if (!_conduitSegmentPassByRouteSegmenttId.ContainsKey(passThroughRouteSegment))
-                        _conduitSegmentPassByRouteSegmenttId[passThroughRouteSegment] = new List<ILineSegment>();
+                        _conduitSegmentPassByRouteSegmenttId[passThroughRouteSegment] = new List<ISegment>();
 
                     _conduitSegmentPassByRouteSegmenttId[passThroughRouteSegment].Add(segment);
                 }
