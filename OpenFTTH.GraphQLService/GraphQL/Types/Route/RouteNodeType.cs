@@ -180,6 +180,8 @@ namespace EquipmentService.GraphQL.Types
               {
                   httpContextAccessor.HttpContext.Items.Add("routeNodeId", context.Source.Id);
 
+                  var lineIdParam = context.GetArgument<Guid>("lineId");
+
                   List<ISegment> result = new List<ISegment>();
 
                   var allSegments = new List<SegmentWithRouteNodeRelationInfo>();
@@ -212,7 +214,15 @@ namespace EquipmentService.GraphQL.Types
                       }
 
                       if (!isContained)
-                          result.Add(segmentWithRel.Segment);
+                      {
+                          if (lineIdParam != Guid.Empty)
+                          {
+                              if (segmentWithRel.Segment.Id == lineIdParam || segmentWithRel.Segment.Line.Id == lineIdParam)
+                                  result.Add(segmentWithRel.Segment);
+                          }
+                          else
+                            result.Add(segmentWithRel.Segment);
+                      }
                   }
 
                   return result;
