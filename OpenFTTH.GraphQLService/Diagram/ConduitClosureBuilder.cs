@@ -6,6 +6,8 @@ using Core.ReadModel.Network;
 using DiagramLayout.Builder.Lines;
 using DiagramLayout.Builder.Mockup;
 using DiagramLayout.Model;
+using FiberNetwork.Events.Model;
+using FiberNetwork.QueryService;
 using Network.Trace;
 using RouteNetwork.QueryService;
 using RouteNetwork.ReadModel;
@@ -21,7 +23,7 @@ namespace DiagramLayout.Builder
         private IRouteNetworkState _routeNetworkQueryService;
         private TraversalHelper _traversalHelper;
 
-        public Diagram Build(Guid nodeId, IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IConduitClosureRepository conduitClosureRepository)
+        public Diagram Build(Guid nodeId, IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IFiberNetworkQueryService fiberNetworkService, IConduitClosureRepository conduitClosureRepository)
         {
             _routeNetworkQueryService = routeNetworkQueryService;
             _conduitNetworkQueryService = conduitNetworkEqueryService;
@@ -43,7 +45,9 @@ namespace DiagramLayout.Builder
 
 
             // Add cables passing through
-            //offsetY += AddCablePassThroughBlock(builder, offsetY, 300);
+            var cableSegmentRels = fiberNetworkService.GetLineSegmentsRelatedToPointOfInterest(nodeId);
+
+            offsetY += AddCablePassThroughBlock(builder, cableSegmentRels, offsetY, 300);
 
 
             // Add multi conduit passing through
@@ -475,33 +479,26 @@ namespace DiagramLayout.Builder
             return conduitBlock.DesiredSize.Height;
         }
 
-        public double AddCablePassThroughBlock(DiagramBuilder builder, double offsetY, double minBlockWidth)
+        public double AddCablePassThroughBlock(DiagramBuilder builder, List<SegmentWithRouteNodeRelationInfo> cableSegmentRels, double offsetY, double minBlockWidth)
         {
             double labelSectionWidth = 40;
             double sideMargin = 20;
             double portMargin = 20;
 
+            int nCables = cableSegmentRels.Count;
+
             //////////////////////////////////////////////////////////
-            /// label block
+            /// cable block
             /// 
             LineBlock cableBlock = new LineBlock(labelSectionWidth, offsetY, LineBlockTypeEnum.Simple);
             cableBlock.MinWidth = minBlockWidth;
 
             // Add vest ports
-            AddBigConduitPort(cableBlock, BlockSideEnum.Vest, 2, null, portMargin);
+            AddBigConduitPort(cableBlock, BlockSideEnum.Vest, nCables, null, portMargin);
 
             // Add east ports
-            AddBigConduitPort(cableBlock, BlockSideEnum.East, 2, null, portMargin);
+            AddBigConduitPort(cableBlock, BlockSideEnum.East, nCables, null, portMargin);
 
-            // Connect west and east terminals
-            cableBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, 1, BlockSideEnum.East, 1, 1, "72", "CableOutsideWell");
-            cableBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, 2, BlockSideEnum.East, 1, 2, "72", "CableOutsideWell");
-
-            cableBlock.SetSideMargin(sideMargin);
-            cableBlock.Measure(new Layout.Size());
-            builder.ContentObjects.Add(cableBlock);
-
-           
 
             //////////////////////////////////////////////////////////
             /// left label block
@@ -510,17 +507,10 @@ namespace DiagramLayout.Builder
             leftLabelBlock.MinWidth = labelSectionWidth;
 
             // Add vest port
-            AddBigConduitPort(leftLabelBlock, BlockSideEnum.Vest, 2, null, portMargin);
+            AddBigConduitPort(leftLabelBlock, BlockSideEnum.Vest, nCables, null, portMargin);
 
             // Add east port
-            AddBigConduitPort(leftLabelBlock, BlockSideEnum.East, 2, null, portMargin);
-
-            leftLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, 1, BlockSideEnum.East, 1, 1, "FP-0101", "CableOutsideWell");
-            leftLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, 2, BlockSideEnum.East, 1, 2, "FP-0101", "CableOutsideWell");
-
-            leftLabelBlock.SetSideMargin(sideMargin);
-            leftLabelBlock.Measure(new Layout.Size());
-            builder.ContentObjects.Add(leftLabelBlock);
+            AddBigConduitPort(leftLabelBlock, BlockSideEnum.East, nCables, null, portMargin);
 
 
             //////////////////////////////////////////////////////////
@@ -530,18 +520,46 @@ namespace DiagramLayout.Builder
             rightLabelBlock.MinWidth = labelSectionWidth;
 
             // Add vest port
-            AddBigConduitPort(rightLabelBlock, BlockSideEnum.Vest, 2, null, portMargin);
+            AddBigConduitPort(rightLabelBlock, BlockSideEnum.Vest, nCables, null, portMargin);
 
             // Add east port
-            AddBigConduitPort(rightLabelBlock, BlockSideEnum.East, 2, null, portMargin);
+            AddBigConduitPort(rightLabelBlock, BlockSideEnum.East, nCables, null, portMargin);
 
-            rightLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, 1, BlockSideEnum.East, 1, 1, "SP-1010", "CableOutsideWell");
-            rightLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, 2, BlockSideEnum.East, 1, 2, "SP-1020", "CableOutsideWell");
+            int terminalNo = 1;
+
+            foreach (var cableRel in cableSegmentRels)
+            {
+                var cable = (FiberCableInfo)cableRel.Segment.Line;
+
+                var lineInfo = _traversalHelper.CreateTraversalInfoFromSegment(cableRel.Segment);
+
+                // Create cable
+                var termianlCableMid = cableBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, terminalNo, BlockSideEnum.East, 1, terminalNo, "" + cable.Children.Count, "CableOutsideWell");
+                termianlCableMid.SetReference(cableRel.Segment.Id, "FiberCableSegment");
+
+                // Create left label
+                var terminalCableLeft = leftLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, terminalNo, BlockSideEnum.East, 1, terminalNo, lineInfo.StartRouteNode.Name, "CableOutsideWell");
+                terminalCableLeft.SetReference(cableRel.Segment.Id, "FiberCableSegment");
+
+                // Create right label
+                var terminalCableRight = rightLabelBlock.AddTerminalConnection(BlockSideEnum.Vest, 1, terminalNo, BlockSideEnum.East, 1, terminalNo, lineInfo.EndRouteNode.Name, "CableOutsideWell");
+                terminalCableRight.SetReference(cableRel.Segment.Id, "FiberCableSegment");
+
+                terminalNo++;
+            }
+
+
+            cableBlock.SetSideMargin(sideMargin);
+            cableBlock.Measure(new Layout.Size());
+            builder.ContentObjects.Add(cableBlock);
+
+            leftLabelBlock.SetSideMargin(sideMargin);
+            leftLabelBlock.Measure(new Layout.Size());
+            builder.ContentObjects.Add(leftLabelBlock);
 
             rightLabelBlock.SetSideMargin(sideMargin);
             rightLabelBlock.Measure(new Layout.Size());
             builder.ContentObjects.Add(rightLabelBlock);
-
 
             return cableBlock.DesiredSize.Height;
         }

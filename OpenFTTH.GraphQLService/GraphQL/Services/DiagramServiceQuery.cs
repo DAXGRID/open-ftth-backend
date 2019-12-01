@@ -5,6 +5,7 @@ using DiagramLayout.Builder;
 using DiagramLayout.Builder.Mockup;
 using DiagramLayout.IO;
 using EquipmentService.GraphQL.Types;
+using FiberNetwork.QueryService;
 using GraphQL;
 using GraphQL.DataLoader;
 using GraphQL.Types;
@@ -18,7 +19,7 @@ namespace EquipmentService.GraphQL.Queries
 {
     public class DiagramServiceQuery : ObjectGraphType
     {
-        public DiagramServiceQuery(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IConduitClosureRepository conduitClosureRepository, IDataLoaderContextAccessor dataLoader)
+        public DiagramServiceQuery(IRouteNetworkState routeNetworkQueryService, IConduitNetworkQueryService conduitNetworkEqueryService, IConduitClosureRepository conduitClosureRepository, IFiberNetworkQueryService fiberNetworkService, IDataLoaderContextAccessor dataLoader)
         {
             Description = "GraphQL API for generating fiber equiment diagrams.";
 
@@ -33,7 +34,7 @@ namespace EquipmentService.GraphQL.Queries
                     var routeNodeId = context.GetArgument<Guid>("routeNodeId");
                     var jsonFilename = context.GetArgument<string>("exportGeojsonFileName");
 
-                    var diagram = new ConduitClosureBuilder().Build(routeNodeId, routeNetworkQueryService, conduitNetworkEqueryService, conduitClosureRepository);
+                    var diagram = new ConduitClosureBuilder().Build(routeNodeId, routeNetworkQueryService, conduitNetworkEqueryService, fiberNetworkService, conduitClosureRepository);
 
                     if (jsonFilename != null)
                     {
