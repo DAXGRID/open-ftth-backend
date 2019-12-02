@@ -36,17 +36,17 @@ namespace EquipmentService.GraphQL.Types
 
             Field(x => x.ToRouteNode, type: typeof(NodeInterface)).Description("The node where this line equipment ends.");
 
-            Field(x => x.Parent, type: typeof(LineInterface)).Description("The parent, if this object is part of a composite equipment structure - i.e. a fiber inside a fiber cable or an inner conduit inside a multi conduit. Notice that the parent-child relationship on line level only cover the relationship inside a single composite equipment such as a fiber cable or multi conduit. Containment relationships between different types of equipment is on segment level only.");
+            //Field(x => x.Parent, type: typeof(LineInterface)).Description("The parent, if this object is part of a composite equipment structure - i.e. a fiber inside a fiber cable or an inner conduit inside a multi conduit. Notice that the parent-child relationship on line level only cover the relationship inside a single composite equipment such as a fiber cable or multi conduit. Containment relationships between different types of equipment is on segment level only.");
                 
-            /*
-            Field<IdGraphType>(
-"Parent",
-"The parent, if this object is part of a composite equipment structure - i.e. a fiber inside a fiber cable or an inner conduit inside a multi conduit. Notice that the parent-child relationship on line level only cover the relationship inside a single composite equipment such as a fiber cable or multi conduit. Containment relationships between different types of equipment is on segment level only.",
-resolve: context =>
-{
- return context.Source.Parent;
-});
-*/
+            
+            Field<ConduitInfoType>(
+            "Parent",
+            "The parent, if this object is part of a composite equipment structure - i.e. a fiber inside a fiber cable or an inner conduit inside a multi conduit. Notice that the parent-child relationship on line level only cover the relationship inside a single composite equipment such as a fiber cable or multi conduit. Containment relationships between different types of equipment is on segment level only.",
+            resolve: context =>
+            {
+             return context.Source.Parent;
+            });
+
 
             // Additional fields, some for backwards compabtiblely
 

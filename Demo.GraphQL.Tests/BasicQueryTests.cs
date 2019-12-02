@@ -31,8 +31,10 @@ namespace Demo.GraphQL.Tests
         }
 
         [Fact]
-        public async Task SimpleRouteSegmentQueryTest()
+        public async Task UserInterfaceStyleRouteSegmentQueryTest()
         {
+            string id = "\"b95000fb-425d-4cd3-9f45-66e8c5000017\"";
+
             using (var system = SystemUnderTest.ForStartup<EquipmentService.Startup>())
             {
                 await run(_ =>
@@ -40,7 +42,186 @@ namespace Demo.GraphQL.Tests
                     // Just try query the first route segment going from cabinet sp-1010 down the lærkelunden street
                     var input = new GraphQLRequest
                     {
-                        Query = "{ routeSegment(id: \"b95000fb-425d-4cd3-9f45-66e8c5000017\") { id length } }"
+                        Query = @"{
+                              routeSegment(id: " + id + @") {
+                                id
+                                relatedConduits(
+                                  includeMultiConduits: true
+                                  includeInnerConduits: false
+                                  includeSingleConduits: true
+                                ) {
+                                  relationType
+                                  conduit {
+                                    id
+                                    kind
+                                    assetInfo {
+                                      model {
+                                        name
+                                        __typename
+                                      }
+                                      __typename
+                                    }
+                                    color
+                                    colorMarking
+                                    position
+                                    name
+                                    allRouteSegments {
+                                      id
+                                      geometry {
+                                        coordinates
+                                        type
+                                        __typename
+                                      }
+                                      __typename
+                                    }
+                                    __typename
+                                  }
+                                  conduitSegment {
+                                    line {
+                                      startRouteNode {
+                                        name
+                                        locationInfo {
+                                          accessAddress {
+                                            houseNumber
+                                            streetName
+                                            __typename
+                                          }
+                                          __typename
+                                        }
+                                        __typename
+                                      }
+                                      endRouteNode {
+                                        name
+                                        locationInfo {
+                                          accessAddress {
+                                            houseNumber
+                                            streetName
+                                            __typename
+                                          }
+                                          __typename
+                                        }
+                                        __typename
+                                      }
+                                      allSegments {
+                                        conduit {
+                                          id
+                                          name
+                                          kind
+                                          color
+                                          colorMarking
+                                          __typename
+                                        }
+                                        allRouteSegments {
+                                          id
+                                          length
+                                          geometry {
+                                            coordinates
+                                            type
+                                            __typename
+                                          }
+                                          __typename
+                                        }
+                                        __typename
+                                      }
+                                      __typename
+                                    }
+                                    children {
+                                      line {
+                                        startRouteNode {
+                                          name
+                                          locationInfo {
+                                            accessAddress {
+                                              houseNumber
+                                              streetName
+                                              __typename
+                                            }
+                                            __typename
+                                          }
+                                          __typename
+                                        }
+                                        endRouteNode {
+                                          name
+                                          locationInfo {
+                                            accessAddress {
+                                              houseNumber
+                                              streetName
+                                              __typename
+                                            }
+                                            __typename
+                                          }
+                                          __typename
+                                        }
+                                        allSegments {
+                                          conduit {
+                                            id
+                                            name
+                                            kind
+                                            color
+                                            colorMarking
+                                            parent {
+                                              id
+                                              name
+                                              kind
+                                              color
+                                              colorMarking
+                                              __typename
+                                            }
+                                            __typename
+                                          }
+                                          allRouteSegments {
+                                            id
+                                            length
+                                            geometry {
+                                              coordinates
+                                              type
+                                              __typename
+                                            }
+                                            __typename
+                                          }
+                                          __typename
+                                        }
+                                        __typename
+                                      }
+                                      conduit {
+                                        id
+                                        name
+                                        kind
+                                        color
+                                        colorMarking
+                                        textMarking
+                                        position
+                                        children {
+                                          kind
+                                          __typename
+                                        }
+                                        parent {
+                                          id
+                                          name
+                                          kind
+                                          color
+                                          colorMarking
+                                          __typename
+                                        }
+                                        assetInfo {
+                                          model {
+                                            name
+                                            __typename
+                                          }
+                                          __typename
+                                        }
+                                        __typename
+                                      }
+                                      __typename
+                                    }
+                                    __typename
+                                  }
+                                  __typename
+                                }
+                                __typename
+                              }
+                            }
+
+                        "
                     };
                     _.Post.Json(input).ToUrl("/graphql");
                     _.StatusCodeShouldBe(HttpStatusCode.OK);

@@ -1,5 +1,6 @@
 ﻿using ConduitNetwork.Events.Model;
 using ConduitNetwork.QueryService;
+using ConduitNetwork.ReadModel;
 using GraphQL.DataLoader;
 using GraphQL.Types;
 using Network.Trace;
@@ -34,11 +35,22 @@ namespace EquipmentService.GraphQL.Types
             Field(x => x.Children, type: typeof(ListGraphType<ConduitSegmentType>)).Description("The children of a multi conduit segment.");
             Field(x => x.Parents, type: typeof(ListGraphType<ConduitSegmentType>)).Description("The parents of an inner conduit segment.");
 
-            Field<SegmentTraversalType>(
+            Field<ConduitLineType>(
             "Line",
             resolve: context =>
             {
-                return traversal.CreateTraversalInfoFromSegment(context.Source);
+                var traversalInfo = traversal.CreateTraversalInfoFromSegment(context.Source);
+
+                var cLineType = new ConduitLineInfo();
+                cLineType.AllSegments = traversalInfo.AllSegments.OfType<ConduitSegmentInfo>().ToList();
+                cLineType.AllRouteNodes = traversalInfo.AllRouteNodes.OfType<RouteNodeInfo>().ToList();
+                cLineType.AllRouteSegments = traversalInfo.AllRouteSegments.OfType<RouteSegmentInfo>().ToList();
+                cLineType.EndRouteNode = (RouteNodeInfo)traversalInfo.EndRouteNode;
+                cLineType.StartRouteNode = (RouteNodeInfo)traversalInfo.StartRouteNode;
+                cLineType.StartRouteSegment = (RouteSegmentInfo)traversalInfo.StartRouteSegment;
+                cLineType.EndRouteSegment = (RouteSegmentInfo)traversalInfo.EndRouteSegment;
+
+                return cLineType;
             });
 
             Field<RouteNodeType>(

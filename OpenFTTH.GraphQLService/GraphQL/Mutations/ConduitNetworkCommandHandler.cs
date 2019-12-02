@@ -35,7 +35,7 @@ namespace EquipmentService.GraphQL.ConduitClosure
              arguments: new QueryArguments(
                  new QueryArgument<NonNullGraphType<IdGraphType>> { Name = "conduitSpecificationId" },
                  new QueryArgument<NonNullGraphType<ListGraphType<IdGraphType>>> { Name = "walkOfInterest", Description = "Route network walk specified as a list of route element ids (route-node-id, route-segment-id, route-node-id...)" },
-                 new QueryArgument<IdGraphType> { Name = "conduitId", Description = "If not specified, a new guid will automatically be created"},
+                 new QueryArgument<IdGraphType> { Name = "conduitId", Description = "If not specified, a new guid will automatically be created" },
                  new QueryArgument<StringGraphType> { Name = "name" },
                  new QueryArgument<ConduitColorEnumType> { Name = "markingColor" },
                  new QueryArgument<StringGraphType> { Name = "markingText" }
@@ -110,8 +110,22 @@ namespace EquipmentService.GraphQL.ConduitClosure
                  }
 
                  return null;
-             }
-         );
+             
+             });
+
+
+             Field<StringGraphType>(
+             "placeFiberCableWithinConduit",
+             description: "Place a fiber cable inside a conduit",
+             arguments: new QueryArguments(
+                 new QueryArgument<NonNullGraphType<IdGraphType>> { Name = "cableSegmentId", Description = "Id of the cable segment to be placed inside a conduit" },
+                 new QueryArgument<NonNullGraphType<IdGraphType>> { Name = "conduitSegmentId1", Description = "Id of the conduit segment where the cable should be placed" },
+                 new QueryArgument<IdGraphType> { Name = "conduitSegmentId2", Description = "Used when placing cables into a conduit that is cut and not connected in a well. The you must specify both the incomming and outgoing conduit segment in the well, because otherwise the cable has an unknown route." }
+             ),
+             resolve: context =>
+             {
+                 return null;
+             });
         }
     }
 }
