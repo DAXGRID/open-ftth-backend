@@ -71,5 +71,24 @@ namespace ConduitNetwork.Business.CommandHandlers
 
             return Unit.Task;
         }
+
+        public Task<Unit> Handle(AddCableToConduitCommand request, CancellationToken cancellationToken)
+        {
+            // Id check
+            if (request.FiberCableSegmentId == null || request.FiberCableSegmentId == Guid.Empty)
+                throw new ArgumentException("FiberCableSegmentId cannot be null or empty");
+
+            if (request.ConduitSegmentSegmentId1 == null || request.ConduitSegmentSegmentId1 == Guid.Empty)
+                throw new ArgumentException("ConduitSegmentSegmentId1 cannot be null or empty");
+            
+            /*
+            var singleConduit = repo.Load<SingleConduit>(request.SingleConduitId);
+
+            singleConduit.Connect(request.PointOfInterestId, request.ConnectedEndKind, request.ConnectedJunctionId, routeNetworkQueryService, conduitNetworkQueryService);
+            repo.Store(singleConduit);
+            */
+
+            return Unit.Task;
+        }
     }
 }

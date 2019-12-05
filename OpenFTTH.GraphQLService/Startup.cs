@@ -24,10 +24,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RouteNetwork.Business.Aggregates;
 using RouteNetwork.Projections;
 using RouteNetwork.QueryService;
+using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.Elasticsearch;
 
 namespace EquipmentService
 {
@@ -35,6 +39,16 @@ namespace EquipmentService
     {
         public Startup(IConfiguration configuration)
         {
+            Log.Logger = new LoggerConfiguration()
+          .Enrich.FromLogContext()
+          .MinimumLevel.Debug()
+          .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
+          {
+              MinimumLogEventLevel = LogEventLevel.Verbose,
+              AutoRegisterTemplate = true
+          })
+          .CreateLogger();
+
             Configuration = configuration;
         }
 
@@ -42,6 +56,7 @@ namespace EquipmentService
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
 
             // MediatR
             var routeNetworkAssembly = AppDomain.CurrentDomain.Load("RouteNetwork.Business");
@@ -124,7 +139,7 @@ namespace EquipmentService
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             // Marten stuff
             var Store = app.ApplicationServices.GetService<IDocumentStore>();
@@ -146,6 +161,10 @@ namespace EquipmentService
 
             // HTTP stuff
 
+            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+            loggerFactory.AddDebug();
+
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -163,6 +182,8 @@ namespace EquipmentService
 
             app.UseGraphQL<EquipmentSchema>();
             app.UseGraphQLPlayground(options: new GraphQLPlaygroundOptions());
+
+
 
             app.UseMvc();
         }
